@@ -1,10 +1,9 @@
 ﻿using Unity.Entities;
-using UnityEngine;
 
 namespace PeacefulHills.Network
 {
-    [UpdateInGroup(typeof(ServerSimulationGroup))]
-    public class ServerNetworkUpdateGroup : ComponentSystemGroup
+    [UpdateInGroup(typeof(NetworkSimulationGroup))]
+    public class NetworkUpdateGroup : ComponentSystemGroup
     {
         protected override void OnCreate()
         {
@@ -15,7 +14,7 @@ namespace PeacefulHills.Network
         protected override void OnUpdate()
         {
             NetworkHandle networkHandle = GetSingleton<NetworkSingleton>().Handle;
-            Network network = NetworkManager.GetNetwork(networkHandle);
+            var network = NetworkManager.GetNetwork<Network>(networkHandle);
          
             base.OnUpdate();
             

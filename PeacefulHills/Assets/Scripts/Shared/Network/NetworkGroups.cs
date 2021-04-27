@@ -4,19 +4,19 @@ using UnityEngine;
 namespace PeacefulHills.Network
 {
     [UpdateInGroup(typeof(InitializationSystemGroup))]
-    public class ServerInitializationGroup : ComponentSystemGroup
+    public class NetworkInitializationGroup : ComponentSystemGroup
     {
         
     }
     
-    [UpdateInGroup(typeof(ServerInitializationGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(NetworkInitializationGroup), OrderFirst = true)]
     [ExecuteAlways]
     public class BeginServerInitializationCommandBufferSystem : EntityCommandBufferSystem
     {
         
     }
     
-    [UpdateInGroup(typeof(ServerInitializationGroup), OrderLast = true)]
+    [UpdateInGroup(typeof(NetworkInitializationGroup), OrderLast = true)]
     [ExecuteAlways]
     public class EndServerInitializationCommandBufferSystem : EntityCommandBufferSystem
     {
@@ -24,19 +24,19 @@ namespace PeacefulHills.Network
     }
     
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    public class ServerSimulationGroup : ComponentSystemGroup
+    public class NetworkSimulationGroup : ComponentSystemGroup
     {
         
     }
     
-    [UpdateInGroup(typeof(ServerSimulationGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
     [ExecuteAlways]
     public class BeginServerSimulationCommandBufferSystem : EntityCommandBufferSystem
     {
         
     }
     
-    [UpdateInGroup(typeof(ServerSimulationGroup), OrderLast = true)]
+    [UpdateInGroup(typeof(NetworkSimulationGroup), OrderLast = true)]
     [ExecuteAlways]
     public class EndServerSimulationCommandBufferSystem : EntityCommandBufferSystem
     {

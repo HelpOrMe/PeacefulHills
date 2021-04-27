@@ -24,13 +24,15 @@ namespace PeacefulHills.Network
             }
             return _networks.Count;
         }
+
+        public static Network GetNetwork(NetworkHandle handle) => GetNetwork<Network>(handle);
         
-        public static Network GetNetwork(NetworkHandle handle)
+        public static TNetwork GetNetwork<TNetwork>(NetworkHandle handle) where TNetwork : Network
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckHandle(handle);
 #endif
-            return _networks[handle.Index];
+            return _networks[handle.Index] as TNetwork;
         }
 
         public static void RemoveNetwork(NetworkHandle handle)

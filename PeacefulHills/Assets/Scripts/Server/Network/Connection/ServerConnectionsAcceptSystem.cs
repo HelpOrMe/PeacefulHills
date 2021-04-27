@@ -3,7 +3,7 @@ using Unity.Jobs;
 
 namespace PeacefulHills.Network.Connection
 {
-    [UpdateInGroup(typeof(ServerNetworkUpdateGroup))]
+    [UpdateInGroup(typeof(NetworkUpdateGroup))]
     public class ServerConnectionsAcceptSystem : SystemBase
     {
         private BeginServerSimulationCommandBufferSystem _endSimulation;

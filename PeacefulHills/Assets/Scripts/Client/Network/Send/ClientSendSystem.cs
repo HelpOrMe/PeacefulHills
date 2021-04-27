@@ -1,9 +1,9 @@
-﻿
-using Unity.Entities;
+﻿using Unity.Entities;
 
-namespace PeacefulHills.Network.Receive
+namespace PeacefulHills.Network.Send
 {
-    public class ServerReceiveSystem : SystemBase
+    [UpdateInGroup(typeof(NetworkUpdateGroup))]
+    public class ClientSendSystem : SystemBase
     {
         protected override void OnCreate()
         {

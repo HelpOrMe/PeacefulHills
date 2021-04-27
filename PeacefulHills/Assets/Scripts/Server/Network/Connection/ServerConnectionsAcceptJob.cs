@@ -4,7 +4,7 @@ using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Connection
 {
-    [UpdateInGroup(typeof(ServerNetworkUpdateGroup))]
+    [UpdateInGroup(typeof(NetworkUpdateGroup))]
     public struct ServerConnectionsAcceptJob : IJob
     {
         public NetworkDriver Driver;
