@@ -3,7 +3,7 @@ using Unity.Jobs;
 
 namespace PeacefulHills.Network.Connection
 {
-    [UpdateInGroup(typeof(NetworkUpdateGroup))]
+    [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class ServerConnectionsAcceptSystem : SystemBase
     {
         private BeginServerSimulationCommandBufferSystem _endSimulation;
@@ -16,7 +16,7 @@ namespace PeacefulHills.Network.Connection
 
         protected override void OnUpdate()
         {
-            Network network = NetworkManager.GetNetwork(GetSingleton<NetworkSingleton>().Handle);
+            Network network = this.GetNetworkFromSingleton();
             EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob

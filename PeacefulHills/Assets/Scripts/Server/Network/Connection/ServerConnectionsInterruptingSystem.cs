@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PeacefulHills.Network.Connection
 {
-    [UpdateInGroup(typeof(NetworkUpdateGroup))]
+    [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class ServerConnectionsInterruptingSystem : SystemBase
     {
         private EndServerSimulationCommandBufferSystem _endSimulation;
@@ -18,7 +18,7 @@ namespace PeacefulHills.Network.Connection
         protected override void OnUpdate()
         {
             EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
-            Network network = NetworkManager.GetNetwork(GetSingleton<NetworkSingleton>().Handle);
+            Network network = this.GetNetworkFromSingleton();
             
             network.LastDriverJobHandle = Entities
                 .WithName("Clear_interrupted_connections")

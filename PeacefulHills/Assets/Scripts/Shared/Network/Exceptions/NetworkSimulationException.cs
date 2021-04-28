@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PeacefulHills.Network.Exceptions
+namespace PeacefulHills.Network
 {
     public class NetworkSimulationException : Exception
     {

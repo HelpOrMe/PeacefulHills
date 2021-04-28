@@ -8,7 +8,7 @@ namespace PeacefulHills.Network
     {
         protected override void OnCreate()
         {
-            InitializeNetworkSingleton();
+            // InitializeNetworkSingleton();
         }
         
         private void InitializeNetworkSingleton()

@@ -6,6 +6,10 @@ namespace PeacefulHills.Network
     public class Network
     {
         public NetworkDriver Driver;
+        
+        public NetworkPipeline UnreliablePipeline;
+        public NetworkPipeline ReliablePipeline;
+        
         public JobHandle LastDriverJobHandle;
     }
 }

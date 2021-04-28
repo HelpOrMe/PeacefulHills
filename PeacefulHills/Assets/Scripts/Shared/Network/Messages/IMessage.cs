@@ -1,10 +1,9 @@
-﻿using Unity.Networking.Transport;
+﻿using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
-    public interface IMessage
+    public interface IMessage : IComponentData
     {
-        void Write(ref DataStreamWriter writer);
-        void Read(ref DataStreamReader reader);
+        
     }
 }
