@@ -1,9 +1,9 @@
 ﻿using Unity.Entities;
 using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network
+namespace PeacefulHills.Network.Messages
 {
-    public struct NetworkStreamConnection : IComponentData
+    public struct MessageTarget : IComponentData
     {
         public NetworkConnection Connection;
     }

@@ -1,17 +1,16 @@
 ﻿using Unity.Entities;
 using Unity.Networking.Transport;
-using UnityEngine;
 
 namespace PeacefulHills.Network.Connection
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class ServerConnectionsInterruptingSystem : SystemBase
     {
-        private EndServerSimulationCommandBufferSystem _endSimulation;
+        private EndNetworkSimulationBuffer _endSimulation;
         
         protected override void OnCreate()
         {
-            _endSimulation = World.GetOrCreateSystem<EndServerSimulationCommandBufferSystem>();
+            _endSimulation = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
             RequireSingletonForUpdate<NetworkSingleton>();
         }
 
@@ -23,6 +22,9 @@ namespace PeacefulHills.Network.Connection
             network.LastDriverJobHandle = Entities
                 .WithName("Clear_interrupted_connections")
                 .WithAll<InterruptedConnection>()
+#if !UNITY_SERVER
+                .WithNone<HostConnection>()
+#endif
                 .ForEach((Entity entity, in NetworkStreamConnection streamConnection) =>
                 {
                     commandBuffer.DestroyEntity(entity);
@@ -34,6 +36,9 @@ namespace PeacefulHills.Network.Connection
             network.LastDriverJobHandle = Entities
                 .WithName("Interrupt_connections")
                 .WithAll<InterruptConnection>()
+#if !UNITY_SERVER
+                .WithNone<HostConnection>()
+#endif
                 .ForEach((Entity entity, ref NetworkStreamConnection streamConnection) =>
                 {
                     if (!streamConnection.Connection.IsCreated)

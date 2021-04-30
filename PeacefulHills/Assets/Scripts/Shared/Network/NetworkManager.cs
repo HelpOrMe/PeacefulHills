@@ -1,40 +1,27 @@
 ﻿using System;
-using System.Collections.Generic;
 using Unity.Collections;
 
 namespace PeacefulHills.Network
 {
-    public static class NetworkManager
+    public static class NetworkManager<TNetwork> where TNetwork : struct, INetwork
     {
-        private static List<Network> _networks = new List<Network>();
-        private static NativeQueue<int> _freeHandleIndexes = new NativeQueue<int>(Allocator.Persistent);
-
-        public static NetworkHandle AddNetwork(Network network)
+        private static NativeList<TNetwork> _networks = new NativeList<TNetwork>();
+        
+        public static NetworkHandle AddNetwork(TNetwork network)
         {
-            int freeHandleIndex = GetFreeHandleIndex();
-            _networks.Insert(freeHandleIndex, network);
+            int freeHandleIndex = NetworkHandles.GetFreeHandleIndex();
+            _networks[freeHandleIndex] = network;
             return new NetworkHandle {Index = freeHandleIndex};
         }
 
-        private static int GetFreeHandleIndex()
-        {
-            if (!_freeHandleIndexes.IsEmpty())
-            {
-                return _freeHandleIndexes.Dequeue();
-            }
-            return _networks.Count;
-        }
-
-        public static Network GetNetwork(NetworkHandle handle) 
-            => GetNetwork<Network>(handle);
         
-        public static TNetwork GetNetwork<TNetwork>(NetworkHandle handle) 
-            where TNetwork : Network
+
+        public static TNetwork GetNetwork(NetworkHandle handle) 
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckHandle(handle);
 #endif
-            return (TNetwork)_networks[handle.Index];
+            return _networks[handle.Index];
         }
 
         public static void RemoveNetwork(NetworkHandle handle)
@@ -42,14 +29,14 @@ namespace PeacefulHills.Network
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckHandle(handle);
 #endif
-            _freeHandleIndexes.Enqueue(handle.Index);
+            NetworkHandles.FreeHandle(handle.Index);
             _networks.RemoveAt(handle.Index);
         }
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
         private static void CheckHandle(NetworkHandle handle)
         {
-            if (handle.Index >= _networks.Count)
+            if (handle.Index >= _networks.Length)
             {
                 throw new ArgumentException("Invalid handle index " + handle.Index);
             }

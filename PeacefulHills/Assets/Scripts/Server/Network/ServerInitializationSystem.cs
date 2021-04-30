@@ -14,7 +14,7 @@ namespace PeacefulHills.Network
         
         private void InitializeNetworkSingleton()
         {
-            NetworkHandle networkHandle = NetworkManager.AddNetwork(InitializeNetwork());
+            NetworkHandle networkHandle = NetworkManager<Network>.AddNetwork(InitializeNetwork());
             Entity entity = EntityManager.CreateEntity(typeof(NetworkSingleton));
             EntityManager.SetComponentData(entity, new NetworkSingleton {Handle = networkHandle});
         }
@@ -24,11 +24,9 @@ namespace PeacefulHills.Network
             var network = new Network();
          
             var reliabilityParams = new ReliableUtility.Parameters { WindowSize = 32 };
-            var fragmentationParams = new FragmentationUtility.Parameters { PayloadCapacity = 16 * 1024 };
             
-            network.Driver = NetworkDriver.Create(reliabilityParams, fragmentationParams);
-            network.UnreliablePipeline = network.Driver.CreatePipeline(typeof(NullPipelineStage));
-            network.ReliablePipeline = network.Driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
+            network.Driver = NetworkDriver.Create(reliabilityParams);
+            network.DefaultPipeline = network.Driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
 
             NetworkEndPoint endpoint = NetworkEndPoint.AnyIpv4;
             endpoint.Port = 9000;

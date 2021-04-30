@@ -6,11 +6,11 @@ namespace PeacefulHills.Network.Connection
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class ServerConnectionsAcceptSystem : SystemBase
     {
-        private BeginServerSimulationCommandBufferSystem _endSimulation;
+        private BeginNetworkSimulationBuffer _endSimulation;
         
         protected override void OnCreate()
         {
-            _endSimulation = World.GetOrCreateSystem<BeginServerSimulationCommandBufferSystem>();
+            _endSimulation = World.GetOrCreateSystem<BeginNetworkSimulationBuffer>();
             RequireSingletonForUpdate<NetworkSingleton>();
         }
 

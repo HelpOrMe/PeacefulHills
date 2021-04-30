@@ -1,8 +1,6 @@
-﻿using Unity.Entities;
-
-namespace PeacefulHills.Network.Messages
+﻿namespace PeacefulHills.Network.Messages
 {
-    public interface IMessage : IComponentData
+    public interface IMessage
     {
         
     }

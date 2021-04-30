@@ -11,14 +11,14 @@ namespace PeacefulHills.Network
     
     [UpdateInGroup(typeof(NetworkInitializationGroup), OrderFirst = true)]
     [ExecuteAlways]
-    public class BeginServerInitializationCommandBufferSystem : EntityCommandBufferSystem
+    public class BeginNetworkInitializationBuffer : EntityCommandBufferSystem
     {
         
     }
     
     [UpdateInGroup(typeof(NetworkInitializationGroup), OrderLast = true)]
     [ExecuteAlways]
-    public class EndServerInitializationCommandBufferSystem : EntityCommandBufferSystem
+    public class EndNetworkInitializationBuffer : EntityCommandBufferSystem
     {
         
     }
@@ -31,7 +31,7 @@ namespace PeacefulHills.Network
     
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
     [ExecuteAlways]
-    public class BeginServerSimulationCommandBufferSystem : EntityCommandBufferSystem
+    public class BeginNetworkSimulationBuffer : EntityCommandBufferSystem
     {
         protected override void OnCreate()
         {
@@ -50,7 +50,7 @@ namespace PeacefulHills.Network
     
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderLast = true)]
     [ExecuteAlways]
-    public class EndServerSimulationCommandBufferSystem : EntityCommandBufferSystem
+    public class EndNetworkSimulationBuffer : EntityCommandBufferSystem
     {
         protected override void OnCreate()
         {
