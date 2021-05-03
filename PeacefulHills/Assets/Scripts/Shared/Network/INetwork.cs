@@ -1,12 +1,15 @@
-﻿using Unity.Jobs;
+﻿using PeacefulHills.Network.Messages;
+using Unity.Jobs;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
     public interface INetwork
     {
-        public NetworkDriver Driver { get; set; }
-        public NetworkPipeline DefaultPipeline { get; set; }
+        public NetworkDriver Driver { get; }
+        public NetworkPipeline DefaultPipeline { get; }
         public JobHandle LastDriverJobHandle { get; set; }
+        
+        public IMessagesRegistry Messages { get; }
     }
 }

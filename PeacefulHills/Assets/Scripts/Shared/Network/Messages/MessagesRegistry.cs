@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
-    public struct MessagesRegistry
+    public struct MessagesRegistry : IMessagesRegistry
     {
         private NativeHashMap<ulong, uint> _messageIds;
         private uint _lastMessageId;

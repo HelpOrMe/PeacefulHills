@@ -1,4 +1,4 @@
-﻿using PeacefulHills.Network.Messages;
+﻿using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Networking.Transport;
@@ -6,6 +6,7 @@ using Unity.Networking.Transport;
 namespace PeacefulHills.Network.Connection
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
+    [BurstCompile]
     public struct ServerConnectionsAcceptJob : IJob
     {
         public NetworkDriver Driver;
@@ -23,7 +24,7 @@ namespace PeacefulHills.Network.Connection
                 }
 
                 Entity entity = CommandBuffer.CreateEntity();
-                CommandBuffer.SetComponent(entity, new NetworkStreamConnection { Connection = connection });
+                CommandBuffer.SetComponent(entity, new DriverNetworkConnection { Connection = connection });
             }
         }
     }

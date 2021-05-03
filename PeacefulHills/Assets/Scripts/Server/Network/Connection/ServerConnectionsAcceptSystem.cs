@@ -16,7 +16,7 @@ namespace PeacefulHills.Network.Connection
 
         protected override void OnUpdate()
         {
-            Network network = this.GetNetworkFromSingleton();
+            INetwork network = this.GetNetworkFromSingleton();
             EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob

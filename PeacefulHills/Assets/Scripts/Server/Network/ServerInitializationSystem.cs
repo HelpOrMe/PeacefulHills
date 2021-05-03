@@ -14,7 +14,7 @@ namespace PeacefulHills.Network
         
         private void InitializeNetworkSingleton()
         {
-            NetworkHandle networkHandle = NetworkManager<Network>.AddNetwork(InitializeNetwork());
+            NetworkHandle networkHandle = NetworkManager.AddNetwork(InitializeNetwork());
             Entity entity = EntityManager.CreateEntity(typeof(NetworkSingleton));
             EntityManager.SetComponentData(entity, new NetworkSingleton {Handle = networkHandle});
         }

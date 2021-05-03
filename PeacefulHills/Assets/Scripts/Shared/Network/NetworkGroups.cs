@@ -26,7 +26,7 @@ namespace PeacefulHills.Network
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class NetworkSimulationGroup : ComponentSystemGroup
     {
-
+        
     }
     
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
@@ -41,7 +41,7 @@ namespace PeacefulHills.Network
 
         protected override void OnUpdate()
         {
-            Network network = this.GetNetworkFromSingleton();
+            INetwork network = this.GetNetworkFromSingleton();
             network.LastDriverJobHandle = network.Driver.ScheduleUpdate();
             
             base.OnUpdate();
@@ -60,7 +60,7 @@ namespace PeacefulHills.Network
 
         protected override void OnUpdate()
         {
-            Network network = this.GetNetworkFromSingleton();
+            INetwork network = this.GetNetworkFromSingleton();
             network.LastDriverJobHandle.Complete();
 
             base.OnUpdate();

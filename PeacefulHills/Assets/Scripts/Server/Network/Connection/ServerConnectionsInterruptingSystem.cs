@@ -17,15 +17,13 @@ namespace PeacefulHills.Network.Connection
         protected override void OnUpdate()
         {
             EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
-            Network network = this.GetNetworkFromSingleton();
+            INetwork network = this.GetNetworkFromSingleton();
             
             network.LastDriverJobHandle = Entities
                 .WithName("Clear_interrupted_connections")
-                .WithAll<InterruptedConnection>()
-#if !UNITY_SERVER
-                .WithNone<HostConnection>()
-#endif
-                .ForEach((Entity entity, in NetworkStreamConnection streamConnection) =>
+                .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
+                .WithAll<InterruptedNetworkConnection>()
+                .ForEach((Entity entity, in DriverNetworkConnection connectionTarget) =>
                 {
                     commandBuffer.DestroyEntity(entity);
                 })
@@ -35,15 +33,13 @@ namespace PeacefulHills.Network.Connection
             
             network.LastDriverJobHandle = Entities
                 .WithName("Interrupt_connections")
-                .WithAll<InterruptConnection>()
-#if !UNITY_SERVER
-                .WithNone<HostConnection>()
-#endif
-                .ForEach((Entity entity, ref NetworkStreamConnection streamConnection) =>
+                .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
+                .WithAll<InterruptNetworkConnection>()
+                .ForEach((Entity entity, ref DriverNetworkConnection connectionTarget) =>
                 {
-                    if (!streamConnection.Connection.IsCreated)
+                    if (!connectionTarget.Connection.IsCreated)
                     {
-                        streamConnection.Connection.Disconnect(driver);
+                        connectionTarget.Connection.Disconnect(driver);
                     }
                 })
                 .Schedule(network.LastDriverJobHandle);

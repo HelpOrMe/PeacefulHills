@@ -1,22 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using Unity.Collections;
 
 namespace PeacefulHills.Network
 {
-    public static class NetworkManager<TNetwork> where TNetwork : struct, INetwork
+    public static class NetworkManager
     {
-        private static NativeList<TNetwork> _networks = new NativeList<TNetwork>();
+        private static List<INetwork> _networks = new List<INetwork>();
         
-        public static NetworkHandle AddNetwork(TNetwork network)
+        private static NativeQueue<int> _freeHandleIndexes = new NativeQueue<int>(Allocator.Persistent);
+        private static int _handlesCount;
+        
+        public static NetworkHandle AddNetwork(INetwork network)
         {
-            int freeHandleIndex = NetworkHandles.GetFreeHandleIndex();
-            _networks[freeHandleIndex] = network;
+            int freeHandleIndex = GetFreeHandleIndex();
+            _networks.Insert(freeHandleIndex, network);
             return new NetworkHandle {Index = freeHandleIndex};
         }
-
         
-
-        public static TNetwork GetNetwork(NetworkHandle handle) 
+        public static int GetFreeHandleIndex()
+        {
+            if (!_freeHandleIndexes.IsEmpty())
+            {
+                return _freeHandleIndexes.Dequeue();
+            }
+            return _handlesCount++;
+        }
+        
+        public static INetwork GetNetwork(NetworkHandle handle) 
         {
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckHandle(handle);
@@ -29,14 +40,20 @@ namespace PeacefulHills.Network
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
             CheckHandle(handle);
 #endif
-            NetworkHandles.FreeHandle(handle.Index);
+            FreeHandle(handle.Index);
             _networks.RemoveAt(handle.Index);
         }
 
+        public static void FreeHandle(int handleIndex)
+        {
+            _freeHandleIndexes.Enqueue(handleIndex);
+            _handlesCount--;
+        }
+        
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
         private static void CheckHandle(NetworkHandle handle)
         {
-            if (handle.Index >= _networks.Length)
+            if (handle.Index >= _networks.Count)
             {
                 throw new ArgumentException("Invalid handle index " + handle.Index);
             }

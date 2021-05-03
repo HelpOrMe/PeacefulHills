@@ -5,7 +5,7 @@ namespace PeacefulHills.Network.Connection
     /// <summary>
     /// NetworkStreamConnection entity with this tag will be disconnected
     /// </summary>
-    public struct InterruptConnection : IComponentData
+    public struct InterruptNetworkConnection : IComponentData
     {
         
     }
@@ -14,7 +14,7 @@ namespace PeacefulHills.Network.Connection
     /// Will be added after the client disconnects or after adding the InterruptConnection tag.
     /// After one tick an entity with this tag will be destroyed!
     /// </summary>
-    public struct InterruptedConnection : IComponentData
+    public struct InterruptedNetworkConnection : IComponentData
     {
         
     }

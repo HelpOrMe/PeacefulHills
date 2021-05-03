@@ -13,11 +13,13 @@ namespace PeacefulHills.Network.Messages
     [ExecuteAlways]
     public class BeginNetworkWriteMessagesBuffer : EntityCommandBufferSystem
     {
+        
     }
     
     [UpdateInGroup(typeof(NetworkWriteMessagesGroup), OrderLast = true)]
     [ExecuteAlways]
     public class EndNetworkWriteMessagesBuffer : EntityCommandBufferSystem
     {
+        
     }
 }
