@@ -1,5 +1,4 @@
-﻿using Unity.Burst;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
@@ -10,13 +9,13 @@ namespace PeacefulHills.Network.Messages
     {
         protected override void OnCreate()
         {
-            RequireSingletonForUpdate<MessagesWritingInfo>();
+            RequireSingletonForUpdate<MessageWriteDependencies>();
         }
 
         protected override void OnUpdate()
         { 
-            var writeDependency = GetSingleton<MessagesWritingInfo>();
-            SetSingleton(new MessagesWritingInfo());
+            var writeDependency = GetSingleton<MessageWriteDependencies>();
+            SetSingleton(new MessageWriteDependencies());
 
             // TODO: change 1 to active connection count
             
@@ -60,42 +59,42 @@ namespace PeacefulHills.Network.Messages
             // }
         }
         
-        [BurstCompile]
-        public struct SortMessagesJob : IJobChunk
-        {
-            public BufferTypeHandle<OutputMessage> OutputMessagesBuffer;
-            public ComponentTypeHandle<MessageTarget> MessageTargetHandle; 
-            
-            // public void Execute(int index)
-            // {
-                // for (int i = 0; i < messages.Length - 1; i++)
-                // {
-                //     for (int j = i + 1; j > 0; j--)
-                //     {
-                //         OutputMessage message = messages[j];
-                //         
-                //         if (messages[j - 1].Index > message.Index)
-                //         {
-                //             int tempIndex = messages[j - 1].Index;
-                //             messages[j - 1] = message;
-                //             message.Index = tempIndex;
-                //             messages[j] = message;
-                //         }
-                //     }
-                // }
-            // }
-
-            public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
-            {
-                BufferAccessor<OutputMessage> bufferAccessor = chunk.GetBufferAccessor(OutputMessagesBuffer);
-                NativeArray<MessageTarget> messageTargets = chunk.GetNativeArray(MessageTargetHandle);
-
-                for (int i = 0; i < bufferAccessor.Length; i++)
-                {
-                    DynamicBuffer<OutputMessage> messages = bufferAccessor[i];
-                    
-                }
-            }
-        }
+        // [BurstCompile]
+        // public struct SortMessagesJob : IJobChunk
+        // {
+        //     public BufferTypeHandle<OutputMessage> OutputMessagesBuffer;
+        //     public ComponentTypeHandle<MessageTarget> MessageTargetHandle; 
+        //     
+        //     // public void Execute(int index)
+        //     // {
+        //         // for (int i = 0; i < messages.Length - 1; i++)
+        //         // {
+        //         //     for (int j = i + 1; j > 0; j--)
+        //         //     {
+        //         //         OutputMessage message = messages[j];
+        //         //         
+        //         //         if (messages[j - 1].Index > message.Index)
+        //         //         {
+        //         //             int tempIndex = messages[j - 1].Index;
+        //         //             messages[j - 1] = message;
+        //         //             message.Index = tempIndex;
+        //         //             messages[j] = message;
+        //         //         }
+        //         //     }
+        //         // }
+        //     // }
+        //
+        //     public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
+        //     {
+        //         BufferAccessor<OutputMessage> bufferAccessor = chunk.GetBufferAccessor(OutputMessagesBuffer);
+        //         NativeArray<MessageTarget> messageTargets = chunk.GetNativeArray(MessageTargetHandle);
+        //
+        //         for (int i = 0; i < bufferAccessor.Length; i++)
+        //         {
+        //             DynamicBuffer<OutputMessage> messages = bufferAccessor[i];
+        //             
+        //         }
+        //     }
+        // }
     }
 }
