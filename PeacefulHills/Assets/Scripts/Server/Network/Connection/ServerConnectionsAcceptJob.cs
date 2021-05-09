@@ -24,7 +24,7 @@ namespace PeacefulHills.Network.Connection
                 }
 
                 Entity entity = CommandBuffer.CreateEntity();
-                CommandBuffer.SetComponent(entity, new DriverNetworkConnection { Connection = connection });
+                CommandBuffer.SetComponent(entity, new NetworkConnectionWrapper { Connection = connection });
             }
         }
     }

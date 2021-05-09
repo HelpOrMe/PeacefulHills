@@ -23,7 +23,7 @@ namespace PeacefulHills.Network.Connection
                 .WithName("Clear_interrupted_connections")
                 .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
                 .WithAll<InterruptedNetworkConnection>()
-                .ForEach((Entity entity, in DriverNetworkConnection connectionTarget) =>
+                .ForEach((Entity entity, in NetworkConnectionWrapper connectionTarget) =>
                 {
                     commandBuffer.DestroyEntity(entity);
                 })
@@ -35,7 +35,7 @@ namespace PeacefulHills.Network.Connection
                 .WithName("Interrupt_connections")
                 .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
                 .WithAll<InterruptNetworkConnection>()
-                .ForEach((Entity entity, ref DriverNetworkConnection connectionTarget) =>
+                .ForEach((Entity entity, ref NetworkConnectionWrapper connectionTarget) =>
                 {
                     if (!connectionTarget.Connection.IsCreated)
                     {
