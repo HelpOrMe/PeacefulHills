@@ -3,7 +3,7 @@ using Unity.Jobs;
 
 namespace PeacefulHills.Network.Messages
 {
-    public struct MessageWriteDependencies : IComponentData
+    public struct MessagesSendingDependency : IComponentData
     {
         public JobHandle Handle;
     }
