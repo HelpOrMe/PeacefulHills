@@ -19,6 +19,19 @@ namespace PeacefulHills.ECS
         
         public static void SetExtension<TExtension>(this World world, TExtension extension) 
             where TExtension : IWorldExtension 
-            => WorldExtension<TExtension>.Add(world, extension);
+            => WorldExtension<TExtension>.Set(world, extension);
+        
+        public static void RequireExtension<TExtension>(this ComponentSystemBase system)
+            where TExtension : IWorldExtension
+        {
+            if (!WorldExtension<TExtension>.Exist(system.World))
+            {
+                WorldExtension<TExtension>.Request(system.World, extension =>
+                {
+                    system.SetSingleton(new ExtensionSingleton<TExtension>());
+                });
+            }
+            system.RequireSingletonForUpdate<ExtensionSingleton<TExtension>>();
+        }
     }
 }
