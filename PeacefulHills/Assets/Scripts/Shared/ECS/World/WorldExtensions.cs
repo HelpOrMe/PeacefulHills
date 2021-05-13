@@ -12,15 +12,19 @@ namespace PeacefulHills.ECS
             where TExtension : IWorldExtension 
             => WorldExtension<TExtension>.Exist(world.SequenceNumber);
 
+        public static void SetExtension<TExtension>(this World world, TExtension extension) 
+            where TExtension : IWorldExtension 
+            => WorldExtension<TExtension>.Set(world.SequenceNumber, extension);
+
+        public static void RemoveExtension<TExtension>(this World world)
+            where TExtension : IWorldExtension 
+            => WorldExtension<TExtension>.Remove(world.SequenceNumber);
+
         public static void RequestExtension<TExtension>(this World world,
             WorldExtension<TExtension>.RequestAction request)
             where TExtension : IWorldExtension 
             => WorldExtension<TExtension>.Request(world.SequenceNumber, request);
-        
-        public static void SetExtension<TExtension>(this World world, TExtension extension) 
-            where TExtension : IWorldExtension 
-            => WorldExtension<TExtension>.Set(world.SequenceNumber, extension);
-        
+
         public static void RequireExtension<TExtension>(this ComponentSystemBase system)
             where TExtension : IWorldExtension
         {
@@ -41,10 +45,7 @@ namespace PeacefulHills.ECS
         }
 
         private static void CreateSingleton<TExtension>(this ComponentSystemBase system) 
-            where TExtension : IWorldExtension
-        {
-            Entity entity = system.EntityManager.CreateEntity();
-            system.EntityManager.SetComponentData(entity, default(ExtensionSingleton<TExtension>));
-        }
+            where TExtension : IWorldExtension 
+            => system.EntityManager.CreateEntity(typeof(ExtensionSingleton<TExtension>));
     }
 }
