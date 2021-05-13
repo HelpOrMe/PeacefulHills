@@ -1,4 +1,5 @@
 using PeacefulHills.ECS;
+using PeacefulHills.Network.Messages;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
@@ -9,15 +10,11 @@ namespace PeacefulHills.Network
     {
         protected override void OnCreate()
         {
-            InitializeNetworkSingleton();
+            World.SetExtension(InitializeNetwork());
+            World.SetExtension(InitializeMessagesRegistry());
         }
         
-        private void InitializeNetworkSingleton()
-        {
-            World.SetExtension<INetwork>(new Network());
-        }
-
-        private Network InitializeNetwork()
+        protected virtual INetwork InitializeNetwork()
         {
             var network = new Network
             {
@@ -35,6 +32,8 @@ namespace PeacefulHills.Network
             network.Driver.Listen();
             return network;
         }
+
+        protected virtual IMessagesRegistry InitializeMessagesRegistry() => new MessagesRegistry();
 
         protected override void OnUpdate() { }
     }
