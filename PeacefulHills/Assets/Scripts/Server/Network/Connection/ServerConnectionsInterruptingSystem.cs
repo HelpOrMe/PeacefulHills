@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using PeacefulHills.ECS;
+using Unity.Entities;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Connection
@@ -11,13 +12,13 @@ namespace PeacefulHills.Network.Connection
         protected override void OnCreate()
         {
             _endSimulation = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
-            RequireSingletonForUpdate<NetworkSingleton>();
+           this.RequireExtension<INetwork>();
         }
 
         protected override void OnUpdate()
         {
             EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
-            INetwork network = this.GetNetworkFromSingleton();
+            var network = World.GetExtension<INetwork>();
             
             network.LastDriverJobHandle = Entities
                 .WithName("Clear_interrupted_connections")

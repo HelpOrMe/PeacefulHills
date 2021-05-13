@@ -6,7 +6,6 @@ namespace PeacefulHills.Network
     public class Network : INetwork
     {
         public NetworkDriver Driver { get; set; }
-        public NetworkPipeline DefaultPipeline { get; set; }
         public JobHandle LastDriverJobHandle { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using PeacefulHills.ECS;
+using Unity.Entities;
 using Unity.Jobs;
 
 namespace PeacefulHills.Network.Connection
@@ -11,12 +12,12 @@ namespace PeacefulHills.Network.Connection
         protected override void OnCreate()
         {
             _endSimulation = World.GetOrCreateSystem<BeginNetworkSimulationBuffer>();
-            RequireSingletonForUpdate<NetworkSingleton>();
+            this.RequireExtension<INetwork>();
         }
 
         protected override void OnUpdate()
         {
-            INetwork network = this.GetNetworkFromSingleton();
+            var network = World.GetExtension<INetwork>();
             EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob

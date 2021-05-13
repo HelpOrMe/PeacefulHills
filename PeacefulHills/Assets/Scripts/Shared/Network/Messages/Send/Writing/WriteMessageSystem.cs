@@ -20,7 +20,6 @@ namespace PeacefulHills.Network.Messages
         
         protected override void OnCreate()
         {
-            RequireSingletonForUpdate<NetworkSingleton>();
             RequireSingletonForUpdate<MessagesSendingDependency>();
             
             this.RequireExtension<IMessagesRegistry>();

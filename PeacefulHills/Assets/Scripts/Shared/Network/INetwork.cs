@@ -1,12 +1,12 @@
-﻿using Unity.Jobs;
+﻿using PeacefulHills.ECS;
+using Unity.Jobs;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
-    public interface INetwork
+    public interface INetwork : IWorldExtension
     {
         public NetworkDriver Driver { get; }
-        public NetworkPipeline DefaultPipeline { get; }
         public JobHandle LastDriverJobHandle { get; set; }
     }
 }

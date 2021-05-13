@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿using PeacefulHills.ECS;
+using Unity.Entities;
 using UnityEngine;
 
 namespace PeacefulHills.Network
@@ -30,18 +31,17 @@ namespace PeacefulHills.Network
     }
     
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
-    [ExecuteAlways]
     public class BeginNetworkSimulationBuffer : EntityCommandBufferSystem
     {
         protected override void OnCreate()
         {
             base.OnCreate();
-            RequireSingletonForUpdate<NetworkSingleton>();
+            this.RequireExtension<INetwork>();
         }
 
         protected override void OnUpdate()
         {
-            INetwork network = this.GetNetworkFromSingleton();
+            var network = World.GetExtension<INetwork>();
             network.LastDriverJobHandle = network.Driver.ScheduleUpdate();
             
             base.OnUpdate();
@@ -49,18 +49,17 @@ namespace PeacefulHills.Network
     }
     
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderLast = true)]
-    [ExecuteAlways]
     public class EndNetworkSimulationBuffer : EntityCommandBufferSystem
     {
         protected override void OnCreate()
         {
             base.OnCreate();
-            RequireSingletonForUpdate<NetworkSingleton>();
+            this.RequireExtension<INetwork>();
         }
 
         protected override void OnUpdate()
         {
-            INetwork network = this.GetNetworkFromSingleton();
+            var network = World.GetExtension<INetwork>();
             network.LastDriverJobHandle.Complete();
 
             base.OnUpdate();

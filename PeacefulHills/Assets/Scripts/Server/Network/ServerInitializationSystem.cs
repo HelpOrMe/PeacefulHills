@@ -1,6 +1,6 @@
+using PeacefulHills.ECS;
 using Unity.Entities;
 using Unity.Networking.Transport;
-using Unity.Networking.Transport.Utilities;
 
 namespace PeacefulHills.Network
 {
@@ -14,19 +14,15 @@ namespace PeacefulHills.Network
         
         private void InitializeNetworkSingleton()
         {
-            NetworkHandle networkHandle = NetworkManager.AddNetwork(InitializeNetwork());
-            Entity entity = EntityManager.CreateEntity(typeof(NetworkSingleton));
-            EntityManager.SetComponentData(entity, new NetworkSingleton {Handle = networkHandle});
+            World.SetExtension<INetwork>(new Network());
         }
 
         private Network InitializeNetwork()
         {
-            var network = new Network();
-         
-            var reliabilityParams = new ReliableUtility.Parameters { WindowSize = 32 };
-            
-            network.Driver = NetworkDriver.Create(reliabilityParams);
-            network.DefaultPipeline = network.Driver.CreatePipeline(typeof(ReliableSequencedPipelineStage));
+            var network = new Network
+            {
+                Driver = NetworkDriver.Create()
+            };
 
             NetworkEndPoint endpoint = NetworkEndPoint.AnyIpv4;
             endpoint.Port = 9000;
