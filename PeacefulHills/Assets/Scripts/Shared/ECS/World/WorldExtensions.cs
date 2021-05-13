@@ -32,6 +32,11 @@ namespace PeacefulHills.ECS
                     system.SetSingleton(new ExtensionSingleton<TExtension>());
                 });
             }
+            else if (!system.HasSingleton<ExtensionSingleton<TExtension>>())
+            {
+                system.SetSingleton(new ExtensionSingleton<TExtension>());
+            }
+            
             system.RequireSingletonForUpdate<ExtensionSingleton<TExtension>>();
         }
     }
