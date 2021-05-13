@@ -29,15 +29,22 @@ namespace PeacefulHills.ECS
             {
                 WorldExtension<TExtension>.Request(worldSequence, extension =>
                 {
-                    system.SetSingleton(new ExtensionSingleton<TExtension>());
+                    system.CreateSingleton<TExtension>();
                 });
             }
             else if (!system.HasSingleton<ExtensionSingleton<TExtension>>())
             {
-                system.SetSingleton(new ExtensionSingleton<TExtension>());
+                system.CreateSingleton<TExtension>();
             }
             
             system.RequireSingletonForUpdate<ExtensionSingleton<TExtension>>();
+        }
+
+        private static void CreateSingleton<TExtension>(this ComponentSystemBase system) 
+            where TExtension : IWorldExtension
+        {
+            Entity entity = system.GetSingletonEntity<ExtensionSingleton<TExtension>>();
+            system.EntityManager.SetComponentData(entity, default(ExtensionSingleton<TExtension>));
         }
     }
 }
