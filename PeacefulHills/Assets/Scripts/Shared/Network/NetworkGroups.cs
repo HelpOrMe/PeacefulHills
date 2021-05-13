@@ -11,14 +11,14 @@ namespace PeacefulHills.Network
     }
     
     [UpdateInGroup(typeof(NetworkInitializationGroup), OrderFirst = true)]
-    [ExecuteAlways]
+    [AlwaysUpdateSystem]
     public class BeginNetworkInitializationBuffer : EntityCommandBufferSystem
     {
         
     }
     
     [UpdateInGroup(typeof(NetworkInitializationGroup), OrderLast = true)]
-    [ExecuteAlways]
+    [AlwaysUpdateSystem]
     public class EndNetworkInitializationBuffer : EntityCommandBufferSystem
     {
         
