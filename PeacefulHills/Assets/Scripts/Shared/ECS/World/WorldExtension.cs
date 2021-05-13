@@ -16,32 +16,27 @@ namespace PeacefulHills.ECS
         private static readonly Dictionary<ulong, WorldExtensionInfo> Lookup = 
             new Dictionary<ulong, WorldExtensionInfo>();
 
-        public static bool Exist(World world)
-        {
-            ulong sequence = world.SequenceNumber;
-            return Lookup.ContainsKey(sequence) || Lookup[sequence].Instance != null;
-        }
-        
-        public static TExtension Get(World world) 
-            => Lookup[world.SequenceNumber].Instance;
+        public static bool Exist(ulong worldSequence) 
+            => Lookup.ContainsKey(worldSequence) || Lookup[worldSequence].Instance != null;
 
-        public static void Set(World world, TExtension extension)
+        public static TExtension Get(ulong worldSequenceNumber) 
+            => Lookup[worldSequenceNumber].Instance;
+
+        public static void Set(ulong worldSequence, TExtension extension)
         {
-            ulong sequence = world.SequenceNumber;
-            if (Lookup.TryGetValue(sequence, out WorldExtensionInfo info))
+            if (Lookup.TryGetValue(worldSequence, out WorldExtensionInfo info))
             {
                 info.Instance = extension;
                 info.Request?.Invoke(extension);
                 return;
             }
             
-            Lookup[sequence] = new WorldExtensionInfo { Instance = extension };
+            Lookup[worldSequence] = new WorldExtensionInfo { Instance = extension };
         }
         
-        public static void Request(World world, RequestAction request)
+        public static void Request(ulong worldSequence, RequestAction request)
         {
-            ulong sequence = world.SequenceNumber;
-            if (Lookup.TryGetValue(sequence, out WorldExtensionInfo extension))
+            if (Lookup.TryGetValue(worldSequence, out WorldExtensionInfo extension))
             {
                 if (extension.Instance != null)
                 {
@@ -52,7 +47,7 @@ namespace PeacefulHills.ECS
                 return;
             }
 
-            Lookup[sequence] = new WorldExtensionInfo { Request = request };
+            Lookup[worldSequence] = new WorldExtensionInfo { Request = request };
         }
     }
 }
