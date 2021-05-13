@@ -14,7 +14,7 @@ namespace PeacefulHills.Network.Messages
         {
             uint id = _lastMessageId++;
             TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
-            _messagesById[_lastMessageId] = new MessageInfo(typeInfo, _lastMessageId++);
+            _messagesById[_lastMessageId] = new MessageInfo(typeInfo, _lastMessageId);
             return id;
         }
 
