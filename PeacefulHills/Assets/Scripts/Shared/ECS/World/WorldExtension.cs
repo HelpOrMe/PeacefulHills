@@ -16,7 +16,7 @@ namespace PeacefulHills.ECS
             new Dictionary<ulong, WorldExtensionInfo>();
 
         public static bool Exist(ulong worldSequence) 
-            => Lookup.ContainsKey(worldSequence) || Lookup[worldSequence].Instance != null;
+            => Lookup.ContainsKey(worldSequence) && Lookup[worldSequence].Instance != null;
 
         public static TExtension Get(ulong worldSequenceNumber) 
             => Lookup[worldSequenceNumber].Instance;
