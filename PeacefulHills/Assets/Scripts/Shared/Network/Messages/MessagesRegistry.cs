@@ -1,45 +1,27 @@
-﻿using System;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
-    public struct MessagesRegistry : IMessagesRegistry
+    public class MessagesRegistry : IMessagesRegistry
     {
-        private NativeHashMap<ulong, uint> _messageIds;
+        private NativeHashMap<uint, MessageInfo> _messagesById;
+        private NativeHashMap<ulong, uint> _messageIdsByStableHash;
+        
         private uint _lastMessageId;
 
-        public uint GetOrRegisterId<TMessage>() where TMessage : IMessage
+        public uint Register<TMessage>() where TMessage : IMessage
         {
-            ulong stableHash = TypeManager.GetTypeInfo<TMessage>().StableTypeHash;
-            if (_messageIds.ContainsKey(stableHash))
-            {
-                return _messageIds[stableHash];
-            }
-            return _messageIds[stableHash] = _lastMessageId++;
+            uint id = _lastMessageId++;
+            TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
+            _messagesById[_lastMessageId] = new MessageInfo(typeInfo, _lastMessageId++);
+            return id;
         }
 
-        public uint RegisterId<TMessage>() where TMessage : IMessage
-        {
-            ulong stableHash = TypeManager.GetTypeInfo<TMessage>().StableTypeHash;
+        public MessageInfo GetInfoById(uint id) 
+            => _messagesById[id];
 
-            if (_messageIds.ContainsKey(stableHash))
-            {
-                throw new ArgumentException($"{nameof(TMessage)} id already registered.");
-            }
-            return _messageIds[stableHash] = _lastMessageId++;
-        }
-
-        public uint GetId<TMessage>() where TMessage : IMessage
-        {
-            ulong stableHash = TypeManager.GetTypeInfo<TMessage>().StableTypeHash;
-            
-            if (!_messageIds.ContainsKey(stableHash))
-            {
-                throw new ArgumentException($"{nameof(TMessage)} is not registered.");
-            }
-            
-            return _messageIds[stableHash];
-        }
+        public uint GetIdByStableHash(ulong stableHash) 
+            => _messageIdsByStableHash[stableHash];
     }
 }

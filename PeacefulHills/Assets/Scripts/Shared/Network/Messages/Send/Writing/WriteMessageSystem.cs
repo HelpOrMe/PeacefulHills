@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using PeacefulHills.ECS;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -15,27 +16,28 @@ namespace PeacefulHills.Network.Messages
         private EndWriteMessagesBuffer _commandBufferSystem;
         private EntityQuery _messageSendRequestQuery;
         
-        private uint? _messageId;
+        private uint _messageId;
         
         protected override void OnCreate()
         {
             RequireSingletonForUpdate<NetworkSingleton>();
             RequireSingletonForUpdate<MessagesSendingDependency>();
             
-            _commandBufferSystem = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
+            this.RequireExtension<IMessagesRegistry>();
+            World.RequestExtension<IMessagesRegistry>(ExtractMessageId);
             
+            _commandBufferSystem = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
             _messageSendRequestQuery = GetEntityQuery(
                 ComponentType.ReadOnly<MessageSendRequest>(),
                 ComponentType.ReadOnly<MessageTarget>(),
                 ComponentType.ReadOnly<TMessage>());
         }
 
-        protected override void OnStartRunning()
+        protected virtual void ExtractMessageId(IMessagesRegistry registry)
         {
-            INetwork network = this.GetNetworkFromSingleton();
-            _messageId ??= network.Messages.GetId<TMessage>();
+            _messageId = registry.GetIdByStableHash(TypeManager.GetTypeInfo<TMessage>().StableTypeHash);
         }
-
+        
         protected override void OnUpdate()
         {
             EntityCommandBuffer commandBuffer = _commandBufferSystem.CreateCommandBuffer();
@@ -43,7 +45,7 @@ namespace PeacefulHills.Network.Messages
             
             var writeMessageJob = new WriteMessageJob
             {
-               MessageId = _messageId!.Value,
+               MessageId = _messageId,
                EntityHandle = GetEntityTypeHandle(),
                MessageHandle = GetComponentTypeHandle<TMessage>(true),
                

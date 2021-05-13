@@ -1,11 +1,13 @@
-﻿namespace PeacefulHills.Network.Messages
+﻿using PeacefulHills.ECS;
+
+namespace PeacefulHills.Network.Messages
 {
-    public interface IMessagesRegistry
+    public interface IMessagesRegistry : IWorldExtension
     {
-        public uint GetOrRegisterId<TMessage>() where TMessage : IMessage;
+        public uint Register<TMessage>() where TMessage : IMessage;
 
-        public uint RegisterId<TMessage>() where TMessage : IMessage;
+        public MessageInfo GetInfoById(uint id);
 
-        public uint GetId<TMessage>() where TMessage : IMessage;
+        public uint GetIdByStableHash(ulong stableHash);
     }
 }
