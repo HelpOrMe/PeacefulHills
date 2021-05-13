@@ -41,10 +41,7 @@ namespace PeacefulHills.ECS
         }
 
         private static void CreateSingleton<TExtension>(this ComponentSystemBase system) 
-            where TExtension : IWorldExtension
-        {
-            Entity entity = system.GetSingletonEntity<ExtensionSingleton<TExtension>>();
-            system.EntityManager.SetComponentData(entity, default(ExtensionSingleton<TExtension>));
-        }
+            where TExtension : IWorldExtension 
+            => system.EntityManager.CreateEntity(typeof(ExtensionSingleton<TExtension>));
     }
 }
