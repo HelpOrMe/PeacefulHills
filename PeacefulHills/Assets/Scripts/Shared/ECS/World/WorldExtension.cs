@@ -33,6 +33,9 @@ namespace PeacefulHills.ECS
             Lookup[worldSequence] = new WorldExtensionInfo { Instance = extension };
         }
         
+        public static void Remove(ulong worldSequenceNumber) 
+            => Lookup.Remove(worldSequenceNumber);
+        
         public static void Request(ulong worldSequence, RequestAction request)
         {
             if (Lookup.TryGetValue(worldSequence, out WorldExtensionInfo extension))
