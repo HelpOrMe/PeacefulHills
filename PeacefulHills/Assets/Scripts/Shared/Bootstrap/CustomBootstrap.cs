@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Unity.Entities;
+using UnityEngine;
 
 namespace PeacefulHills.Bootstrap
 {
@@ -11,26 +12,43 @@ namespace PeacefulHills.Bootstrap
         public bool Initialize(string defaultWorldName)
         {
             IReadOnlyList<Type> systemTypes = TypeManager.GetSystems(WorldSystemFilterFlags.Default);
-            IEnumerable<Type> bootstrapWorldTypes = GetBootstrapWorldTypes();
+            IEnumerable<WorldInfo> bootstrapWorlds = GetBootstrapWorldsInfo();
             
-            List<SystemInfo> systems = GatherSystemsTree(systemTypes);
-            Dictionary<Type, List<SystemInfo>> systemsByWorld = SortSystemsByWorld(systems);
+            List<SystemInfo> groups = NestGroups(GatherGroupByTypes(systemTypes));
+            Dictionary<Type, List<SystemInfo>> systemsByWorld = GatherSystemsByWorld(groups);
             
-            foreach (Type worldType in bootstrapWorldTypes)
+            foreach (WorldInfo worldInfo in bootstrapWorlds)
             {
-                if (Activator.CreateInstance(worldType) is BootstrapWorldBase bootstrapWorld)
+                if (!systemsByWorld.ContainsKey(worldInfo.Type))
                 {
-                    bootstrapWorld.Systems = systemsByWorld[worldType];
-                    bootstrapWorld.Initialize();
+                    Debug.LogWarning($"{worldInfo.Type.Name} does not contain any groups that refer to it.");
+                    continue;
+                }
+                
+                if (Activator.CreateInstance(worldInfo.Type) is BootstrapWorldBase bootstrapWorld)
+                {
+                    List<SystemInfo> worldSystems = systemsByWorld[worldInfo.Type];
+                    
+                    bootstrapWorld.Systems = worldSystems;
+                    World world = bootstrapWorld.Initialize();
+                    
+                    foreach (Type worldPartType in worldInfo.PartTypes)
+                    {
+                        if (Activator.CreateInstance(worldPartType) is BootstrapWorldPart bootstrapWorldPart)
+                        {
+                            bootstrapWorldPart.Systems = worldSystems;
+                            bootstrapWorldPart.Initialize(world);
+                        }
+                    }
                 }
             }
             
             return true;
         }
     
-        private IEnumerable<Type> GetBootstrapWorldTypes()
+        private IEnumerable<WorldInfo> GetBootstrapWorldsInfo()
         {
-            var worldTypes = new List<Type>();
+            var worldsMap = new Dictionary<Type, WorldInfo>();
             
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -38,92 +56,118 @@ namespace PeacefulHills.Bootstrap
                 {
                     continue;
                 }
-                
-                foreach (Type type in assembly.GetTypes())
+
+                Type[] types = assembly.GetTypes();
+
+                WriteBootstrapWorldTypes(types, worldsMap);
+                WriteBootstrapWorldPartTypes(types, worldsMap);
+            }
+
+            return worldsMap.Values;
+        }
+
+        private void WriteBootstrapWorldTypes(IEnumerable<Type> types, Dictionary<Type, WorldInfo> worldsMap)
+        {
+            foreach (Type type in types)
+            {
+                if (typeof(BootstrapWorldBase).IsAssignableFrom(type) && !type.IsAbstract)
                 {
-                    if (typeof(BootstrapWorldBase).IsAssignableFrom(type) && !type.IsAbstract)
+                    if (!worldsMap.ContainsKey(type))
                     {
-                        worldTypes.Add(type);
+                        worldsMap[type] = new WorldInfo(type, new List<Type>());
                     }
                 }
             }
-
-            return worldTypes;
         }
 
-        private List<SystemInfo> GatherSystemsTree(IEnumerable<Type> systemTypes)
+        private void WriteBootstrapWorldPartTypes(IEnumerable<Type> types, Dictionary<Type, WorldInfo> worldsMap)
         {
-            var systems = new List<SystemInfo>
+            foreach (Type type in types)
             {
-                new SystemInfo(typeof(InitializationSystemGroup), new List<SystemInfo>()),
-                new SystemInfo(typeof(SimulationSystemGroup), new List<SystemInfo>()),
-                new SystemInfo(typeof(PresentationSystemGroup), new List<SystemInfo>()),
-            };
+                if (typeof(BootstrapWorldPart).IsAssignableFrom(type) && !type.IsAbstract)
+                {
+                    var attr = type.GetCustomAttribute<BootstrapWorldAttribute>();
+                    if (attr == null)
+                    {
+                        Debug.LogError("BootstrapWorldPart must contain BootstrapWorldAttribute!");
+                        continue;
+                    }
+                    worldsMap[attr.Type].PartTypes.Add(type);
+                }
+            }
+        }
 
-            var groupsMap = new Dictionary<Type, int>
-            {
-                [typeof(InitializationSystemGroup)] = 0,
-                [typeof(SimulationSystemGroup)] = 1,
-                [typeof(PresentationSystemGroup)] = 2,
-            };
+        private Dictionary<Type, SystemInfo> GatherGroupByTypes(IEnumerable<Type> systemTypes)
+        {
+            var systems = new Dictionary<Type, SystemInfo>();
             
             foreach (Type systemType in systemTypes)
             {
-                List<UpdateInGroupAttribute> attrs = systemType.GetCustomAttributes<UpdateInGroupAttribute>().ToList();
+                Type groupType = systemType.GetCustomAttribute<UpdateInGroupAttribute>()?.GroupType;
+                groupType ??= typeof(SimulationSystemGroup);
+
                 var systemInfo = new SystemInfo(systemType, new List<SystemInfo>());
                 
-                if (attrs.Count > 0)
+                if (!systems.ContainsKey(groupType))
                 {
-                    foreach (UpdateInGroupAttribute updateInGroupAttr in attrs)
-                    {
-                        if (!groupsMap.ContainsKey(updateInGroupAttr.GroupType))
-                        {
-                            groupsMap[updateInGroupAttr.GroupType] = systems.Count;
-                            systems.Add(new SystemInfo(updateInGroupAttr.GroupType, new List<SystemInfo>()));
-                        }
-                        systems[groupsMap[updateInGroupAttr.GroupType]].NestedSystems.Add(systemInfo);
-                    }
+                    systems[groupType] = new SystemInfo(groupType, new List<SystemInfo>());
                 }
-                else
-                {
-                    systems[1].NestedSystems.Add(systemInfo);
-                }
+                systems[groupType].NestedSystems.Add(systemInfo);
             }
 
             return systems;
         }
 
-        private Dictionary<Type, List<SystemInfo>> SortSystemsByWorld(List<SystemInfo> systems)
+        private List<SystemInfo> NestGroups(Dictionary<Type, SystemInfo> groups)
+        {
+            foreach (Type groupType in groups.Keys)
+            {
+                Type parentGroupType = groupType.GetCustomAttribute<UpdateInGroupAttribute>()?.GroupType;
+                if (parentGroupType != null)
+                {
+                    groups[parentGroupType].NestedSystems.Add(groups[groupType]);
+                }
+            }
+
+            return new List<SystemInfo>
+            {
+                groups[typeof(InitializationSystemGroup)],
+                groups[typeof(SimulationSystemGroup)],
+                groups[typeof(PresentationSystemGroup)]
+            };
+        }
+        
+        private Dictionary<Type, List<SystemInfo>> GatherSystemsByWorld(List<SystemInfo> groups)
         {
             var systemsByWorld = new Dictionary<Type, List<SystemInfo>>
             {
                 [typeof(BootstrapWorldDefault)] = new List<SystemInfo>()
             };
 
-            foreach (SystemInfo system in systems)
+            foreach (SystemInfo group in groups)
             {
-                List<UpdateInBootstrapWorldAttribute> updateInWorldAttrs = system.Type
-                    .GetCustomAttributes<UpdateInBootstrapWorldAttribute>()
-                    .ToList();
-
-                if (updateInWorldAttrs.Count > 0)
+                foreach (SystemInfo system in group.NestedSystems)
                 {
-                    foreach (var updateInWorldAttr in updateInWorldAttrs)
+                    List<BootstrapWorldAttribute> updateInWorldAttrs = system.Type
+                        .GetCustomAttributes<BootstrapWorldAttribute>()
+                        .ToList();
+
+                    if (updateInWorldAttrs.Count > 0)
                     {
-                        Type worldType = updateInWorldAttr.Type;
-                        if (!systemsByWorld.ContainsKey(worldType))
+                        foreach (BootstrapWorldAttribute worldAttr in updateInWorldAttrs)
                         {
-                            systemsByWorld[worldType] = new List<SystemInfo> { system };
-                        }
-                        else
-                        {
+                            Type worldType = worldAttr.Type;
+                            if (!systemsByWorld.ContainsKey(worldType))
+                            {
+                                systemsByWorld[worldType] = new List<SystemInfo>();
+                            }
                             systemsByWorld[worldType].Add(system);
                         }
                     }
-                }
-                else
-                {
-                    systemsByWorld[typeof(BootstrapWorldDefault)].Add(system);
+                    else
+                    {
+                        systemsByWorld[typeof(BootstrapWorldDefault)].Add(system);
+                    }
                 }
             }
 
