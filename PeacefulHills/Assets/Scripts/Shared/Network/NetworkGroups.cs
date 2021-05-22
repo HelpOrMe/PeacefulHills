@@ -1,9 +1,10 @@
-﻿using PeacefulHills.ECS;
+﻿using PeacefulHills.Bootstrap;
+using PeacefulHills.ECS;
 using Unity.Entities;
-using UnityEngine;
 
 namespace PeacefulHills.Network
 {
+    [BootstrapWorld(typeof(NetworkWorldBootstrap))]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class NetworkInitializationGroup : ComponentSystemGroup
     {
@@ -24,6 +25,7 @@ namespace PeacefulHills.Network
         
     }
     
+    [BootstrapWorld(typeof(NetworkWorldBootstrap))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class NetworkSimulationGroup : ComponentSystemGroup
     {
