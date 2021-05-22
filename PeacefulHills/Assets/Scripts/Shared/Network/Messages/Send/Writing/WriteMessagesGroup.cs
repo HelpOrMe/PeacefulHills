@@ -1,5 +1,4 @@
 ﻿using Unity.Entities;
-using UnityEngine;
 
 namespace PeacefulHills.Network.Messages
 {
@@ -10,14 +9,14 @@ namespace PeacefulHills.Network.Messages
     }
     
     [UpdateInGroup(typeof(WriteMessagesGroup), OrderFirst = true)]
-    [ExecuteAlways]
+    [AlwaysUpdateSystem]
     public class BeginWriteMessagesBuffer : EntityCommandBufferSystem
     {
         
     }
     
     [UpdateInGroup(typeof(WriteMessagesGroup), OrderLast = true)]
-    [ExecuteAlways]
+    [AlwaysUpdateSystem]
     public class EndWriteMessagesBuffer : EntityCommandBufferSystem
     {
         
