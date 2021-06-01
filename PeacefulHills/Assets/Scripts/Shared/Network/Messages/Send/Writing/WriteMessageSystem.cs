@@ -3,63 +3,60 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
-using Unity.Jobs;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Messages
 {
     [UpdateInGroup(typeof(WriteMessagesGroup))]
-    public class WriteMessageSystem<TMessage, TMessageSerializer> : SystemBase
+    public abstract class WriteMessageSystem<TMessage, TMessageSerializer> : SystemBase
         where TMessage : unmanaged, IComponentData, IMessage
         where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
     {
-        private EndWriteMessagesBuffer _commandBufferSystem;
-        private EntityQuery _messageSendRequestQuery;
+        protected EndWriteMessagesBuffer CommandBufferSystem;
+        protected EntityQuery MessageSendRequestQuery;
         
-        private uint _messageId;
+        protected uint MessageId;
         
         protected override void OnCreate()
         {
-            RequireSingletonForUpdate<MessagesSendingDependency>();
+            CommandBufferSystem = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
             
             this.RequireExtension<IMessagesRegistry>();
             World.RequestExtension<IMessagesRegistry>(ExtractMessageId);
             
-            _commandBufferSystem = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
-            _messageSendRequestQuery = GetEntityQuery(
+            MessageSendRequestQuery = GetEntityQuery(
                 ComponentType.ReadOnly<MessageSendRequest>(),
                 ComponentType.ReadOnly<MessageTarget>(),
-                ComponentType.ReadOnly<TMessage>());
+                ComponentType.ReadWrite<TMessage>());
         }
 
-        protected virtual void ExtractMessageId(IMessagesRegistry registry)
+        protected void ExtractMessageId(IMessagesRegistry registry)
         {
-            _messageId = registry.GetIdByStableHash(TypeManager.GetTypeInfo<TMessage>().StableTypeHash);
+            MessageId = registry.GetIdByStableHash(TypeManager.GetTypeInfo<TMessage>().StableTypeHash);
         }
-        
-        protected override void OnUpdate()
+
+        protected WriteMessageJob GetWriteJob()
         {
-            EntityCommandBuffer commandBuffer = _commandBufferSystem.CreateCommandBuffer();
+            EntityCommandBuffer commandBuffer = CommandBufferSystem.CreateCommandBuffer();
             EntityCommandBuffer.ParallelWriter commandBufferParallel = commandBuffer.AsParallelWriter();
             
-            var writeMessageJob = new WriteMessageJob
+            return new WriteMessageJob
             {
-               MessageId = _messageId,
-               EntityHandle = GetEntityTypeHandle(),
-               MessageHandle = GetComponentTypeHandle<TMessage>(true),
+                MessageId = MessageId,
+                EntityHandle = GetEntityTypeHandle(),
+                MessageHandle = GetComponentTypeHandle<TMessage>(true),
                
-               CommandBuffer = commandBufferParallel,
+                CommandBuffer = commandBufferParallel,
             };
-
-            JobHandle writeMessageDeps = writeMessageJob.ScheduleParallel(_messageSendRequestQuery);
-
-            var dependency = GetSingleton<MessagesSendingDependency>();
-            dependency.Handle = JobHandle.CombineDependencies(writeMessageDeps, dependency.Handle);
-            SetSingleton(dependency);
+        }
+        
+        protected void HandleDependency()
+        {
+            CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
         
         [BurstCompile]
-        public struct WriteMessageJob : IJobChunk
+        protected struct WriteMessageJob : IJobChunk
         {
             public uint MessageId;
 
@@ -75,21 +72,22 @@ namespace PeacefulHills.Network.Messages
 
                 int sortKey = chunkIndex + firstEntityIndex;
                 var serializer = default(TMessageSerializer);
-
+                
                 for (int i = 0; i < messages.Length; i++)
                 {
                     const int messageIdSize = 4;
-                    var bytes = new NativeArray<byte>(sizeof(TMessage) + messageIdSize, Allocator.TempJob);
-                    var dataStreamWriter = new DataStreamWriter(bytes);
+                    var bytes = new NativeArray<byte>(sizeof(TMessage) + messageIdSize, Allocator.Temp);
+                    var writer = new DataStreamWriter(bytes);
                  
                     TMessage message = messages[i];
                     
-                    dataStreamWriter.WriteUInt(MessageId);
-                    serializer.Write(in message, ref dataStreamWriter);
+                    writer.WriteUInt(MessageId);
+                    serializer.Write(in message, ref writer);
 
                     Entity entity = entities[i];
                     
                     CommandBuffer.RemoveComponent<TMessage>(sortKey, entity);
+                    CommandBuffer.AddComponent(sortKey, entity, ComponentType.ReadWrite<WrittenMessage>());
                     CommandBuffer.SetComponent(sortKey, entity, new WrittenMessage
                     {
                         Index = entity.Index,

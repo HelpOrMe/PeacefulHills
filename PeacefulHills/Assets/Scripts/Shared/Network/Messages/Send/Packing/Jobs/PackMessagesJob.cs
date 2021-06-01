@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using PeacefulHills.ECS.Collections;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
@@ -10,8 +11,8 @@ namespace PeacefulHills.Network.Messages
     public struct PackMessagesJob : IJobParallelFor
     {
         [ReadOnly] public NativeArray<MessageTarget> Targets;
-        public NativeArray<NativeList<WrittenMessage>> TargetsMessages;
-
+        [ReadOnly] public NativeJaggedArray<WrittenMessage> TargetsMessages;
+        
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
         
         public unsafe void Execute(int index)
@@ -43,8 +44,6 @@ namespace PeacefulHills.Network.Messages
                 remainingMessageCount -= 32;
                 priority++;
             }
-
-            targetMessages.Dispose();
         }
     }
 }

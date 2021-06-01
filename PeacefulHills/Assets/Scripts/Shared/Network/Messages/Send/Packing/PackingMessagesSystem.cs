@@ -1,9 +1,12 @@
-﻿using Unity.Collections;
+﻿using PeacefulHills.ECS.Collections;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 
 namespace PeacefulHills.Network.Messages
 {
+    [UpdateInGroup(typeof(NetworkSimulationGroup))]
+    [UpdateAfter(typeof(WriteMessagesGroup))]
     public class PackingMessagesSystem : SystemBase
     {
         private EntityQuery _messagesQuery;
@@ -11,12 +14,10 @@ namespace PeacefulHills.Network.Messages
         
         protected override void OnCreate()
         {
-            RequireSingletonForUpdate<MessagesSendingDependency>();
-
             _endSimulationBuffer = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
-            _messagesQuery = GetEntityQuery(
-                ComponentType.ReadOnly<WrittenMessage>(), 
-                ComponentType.ReadOnly<MessageTarget>());
+            // _messagesQuery = GetEntityQuery(
+                // ComponentType.ReadOnly<WrittenMessage>(), 
+                // ComponentType.ReadOnly<MessageTarget>());
         }
 
         protected override void OnUpdate()
@@ -24,30 +25,47 @@ namespace PeacefulHills.Network.Messages
             var targetIndexesMap = new NativeHashMap<int, int>(1, Allocator.TempJob);
             var targetMessagesCount = new NativeList<int>(1, Allocator.TempJob);
             var targets = new NativeList<MessageTarget>(1, Allocator.TempJob);
-
-            ComponentTypeHandle<MessageTarget> targetHandle = GetComponentTypeHandle<MessageTarget>();
             
-            var gatherTargetsJob = new GatherTargetsJob
-            {
-                TargetHandle = targetHandle,
-                TargetIndexesMap = targetIndexesMap,
-                TargetMessagesCount = targetMessagesCount,
-                Targets = targets
-            };
-
-            var jaggedMessages = new NativeArray<NativeList<WrittenMessage>>(targets.Length, Allocator.TempJob);
-
-            var setupJaggedMessagesArrayJob = new SetupJaggedMessagesArrayJob
-            {
-                TargetMessagesCount = targetMessagesCount,
-                JaggedMessages = jaggedMessages
-            };
+            Entities
+                .WithAll<WrittenMessage>()
+                .WithStoreEntityQueryInField(ref _messagesQuery)
+                .ForEach((in MessageTarget target) =>
+                {
+                    int targetConnectionId = target.Connection.InternalId;
+                
+                    if (!targetIndexesMap.TryGetValue(targetConnectionId, out int messageIndex))
+                    {
+                        targetIndexesMap[targetConnectionId] = targets.Length;
+                        targetMessagesCount.Add(1);
+                        targets.Add(target);
+                    }
+                    else
+                    {
+                        // ReSharper disable once AccessToDisposedClosure
+                        targetMessagesCount[messageIndex]++;
+                    }
+                }).Run();
             
-            var gatherMessagesJob = new GatherMessagesJob
+            var jaggedMessages = new NativeJaggedArray<WrittenMessage>(targets.Length, Allocator.TempJob);
+            
+            for (int i = 0; i < jaggedMessages.Length; i++)
             {
-                TargetHandle = targetHandle,
+                jaggedMessages[i] = new NativeArray<WrittenMessage>(targetMessagesCount[i], Allocator.TempJob);
+            }
+
+            targetMessagesCount.Dispose();
+            
+            var targetTempIndices = new NativeArray<int>(targets.Length, Allocator.TempJob);
+            EntityCommandBuffer.ParallelWriter parallelEcb = _endSimulationBuffer.CreateCommandBuffer().AsParallelWriter();
+            
+            var popMessagesJob = new PopMessagesJob
+            {
+                TargetHandle = GetComponentTypeHandle<MessageTarget>(),
                 MessageHandle = GetComponentTypeHandle<WrittenMessage>(),
+                EntityHandle = GetEntityTypeHandle(),
+                CommandBuffer = parallelEcb,
                 TargetIndexesMap = targetIndexesMap,
+                TargetTempIndices = targetTempIndices,
                 JaggedMessages = jaggedMessages
             };
 
@@ -55,23 +73,19 @@ namespace PeacefulHills.Network.Messages
             {
                 JaggedMessages = jaggedMessages
             };
-            
+
             var packMessagesJob = new PackMessagesJob
             {
                 Targets = targets,
                 TargetsMessages = jaggedMessages,
-                CommandBuffer = _endSimulationBuffer.CreateCommandBuffer().AsParallelWriter()
+                CommandBuffer = parallelEcb
             };
             
-            JobHandle packDeps = GetSingleton<MessagesSendingDependency>().Handle;
-            
-            // Gather targets
-            packDeps = gatherTargetsJob.Schedule(_messagesQuery, packDeps);
-            packDeps = setupJaggedMessagesArrayJob.Schedule(packDeps);
-            packDeps = targetMessagesCount.Dispose(packDeps);
-            
-            // Gather messages
-            packDeps = gatherMessagesJob.Schedule(_messagesQuery, packDeps);
+            JobHandle packDeps = Dependency;
+
+            // Pop messages
+            packDeps = popMessagesJob.Schedule(_messagesQuery, packDeps);
+            packDeps = targetTempIndices.Dispose(packDeps);
             packDeps = targetIndexesMap.Dispose(packDeps);
 
             // Sort messages
@@ -82,7 +96,9 @@ namespace PeacefulHills.Network.Messages
             packDeps = jaggedMessages.Dispose(packDeps);
             packDeps = targets.Dispose(packDeps);
             
-            SetSingleton(new MessagesSendingDependency { Handle = packDeps });
+            Dependency = packDeps;
+            
+            _endSimulationBuffer.AddJobHandleForProducer(Dependency);
         }
     }
 }

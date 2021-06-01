@@ -10,8 +10,8 @@ namespace PeacefulHills.Network.Messages
         [ReadOnly] public ComponentTypeHandle<MessageTarget> TargetHandle;
         
         public NativeHashMap<int, int> TargetIndexesMap;
-        [WriteOnly] public NativeList<int> TargetMessagesCount;
-        [WriteOnly] public NativeList<MessageTarget> Targets;
+        public NativeList<int> TargetMessagesCount;
+        public NativeList<MessageTarget> Targets;
             
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
