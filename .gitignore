@@ -22,6 +22,10 @@
 .vs/
 .idea/
 
+# Ignored folders
+~*/
+~*.meta
+
 # Gradle cache directory
 .gradle/
 
