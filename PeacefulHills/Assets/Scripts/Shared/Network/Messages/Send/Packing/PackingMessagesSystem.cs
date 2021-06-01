@@ -15,24 +15,29 @@ namespace PeacefulHills.Network.Messages
         protected override void OnCreate()
         {
             _endSimulationBuffer = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
-            // _messagesQuery = GetEntityQuery(
-                // ComponentType.ReadOnly<WrittenMessage>(), 
-                // ComponentType.ReadOnly<MessageTarget>());
+            _messagesQuery = GetEntityQuery(
+                ComponentType.ReadOnly<WrittenMessage>(), 
+                ComponentType.ReadOnly<MessageTarget>());
         }
 
         protected override void OnUpdate()
         {
+            Dependency = PackMessages(SortMessages(PopMessages(GatherTargets(Dependency))));
+            _endSimulationBuffer.AddJobHandleForProducer(Dependency);
+        }
+
+        private GatherTargetsStage GatherTargets(JobHandle dependency)
+        {
             var targetIndexesMap = new NativeHashMap<int, int>(1, Allocator.TempJob);
             var targetMessagesCount = new NativeList<int>(1, Allocator.TempJob);
             var targets = new NativeList<MessageTarget>(1, Allocator.TempJob);
-            
+
             Entities
                 .WithAll<WrittenMessage>()
-                .WithStoreEntityQueryInField(ref _messagesQuery)
                 .ForEach((in MessageTarget target) =>
                 {
                     int targetConnectionId = target.Connection.InternalId;
-                
+
                     if (!targetIndexesMap.TryGetValue(targetConnectionId, out int messageIndex))
                     {
                         targetIndexesMap[targetConnectionId] = targets.Length;
@@ -41,64 +46,111 @@ namespace PeacefulHills.Network.Messages
                     }
                     else
                     {
-                        // ReSharper disable once AccessToDisposedClosure
                         targetMessagesCount[messageIndex]++;
                     }
-                }).Run();
+                })
+                .Run();
             
-            var jaggedMessages = new NativeJaggedArray<WrittenMessage>(targets.Length, Allocator.TempJob);
+            // TODO: Replace the jaggedArray constructor with the scheduling of a jaggedList with the Temp allocator
+            var emptyJaggedMessages = new NativeJaggedArray<WrittenMessage>(targets.Length, Allocator.TempJob);
             
-            for (int i = 0; i < jaggedMessages.Length; i++)
+            for (int i = 0; i < emptyJaggedMessages.Length; i++)
             {
-                jaggedMessages[i] = new NativeArray<WrittenMessage>(targetMessagesCount[i], Allocator.TempJob);
+                emptyJaggedMessages[i] = new NativeArray<WrittenMessage>(targetMessagesCount[i], Allocator.TempJob);
             }
-
-            targetMessagesCount.Dispose();
             
-            var targetTempIndices = new NativeArray<int>(targets.Length, Allocator.TempJob);
-            EntityCommandBuffer.ParallelWriter parallelEcb = _endSimulationBuffer.CreateCommandBuffer().AsParallelWriter();
+            return new GatherTargetsStage
+            {
+                Dependency = dependency,
+                TargetIndexesMap = targetIndexesMap,
+                Targets = targets,
+                EmptyJaggedMessages = emptyJaggedMessages
+            };
+        }
+
+        private PopMessagesStage PopMessages(GatherTargetsStage gatherTargetsStage)
+        {
+            JobHandle dependency = gatherTargetsStage.Dependency;
+            NativeJaggedArray<WrittenMessage> jaggedMessages = gatherTargetsStage.EmptyJaggedMessages;
+            
+            var targetTempIndices = new NativeArray<int>(gatherTargetsStage.Targets.Length, Allocator.TempJob);
+            var commandBuffer = _endSimulationBuffer.CreateCommandBuffer().AsParallelWriter();
             
             var popMessagesJob = new PopMessagesJob
             {
                 TargetHandle = GetComponentTypeHandle<MessageTarget>(),
                 MessageHandle = GetComponentTypeHandle<WrittenMessage>(),
                 EntityHandle = GetEntityTypeHandle(),
-                CommandBuffer = parallelEcb,
-                TargetIndexesMap = targetIndexesMap,
+                CommandBuffer = commandBuffer,
+                TargetIndexesMap = gatherTargetsStage.TargetIndexesMap,
                 TargetTempIndices = targetTempIndices,
                 JaggedMessages = jaggedMessages
             };
+            
+            dependency = popMessagesJob.Schedule(_messagesQuery, dependency);
+            dependency = targetTempIndices.Dispose(dependency);
+            dependency = gatherTargetsStage.TargetIndexesMap.Dispose(dependency);
 
+            return new PopMessagesStage
+            {
+                Dependency = dependency,
+                Targets = gatherTargetsStage.Targets,
+                JaggedMessages = jaggedMessages
+            };
+        }
+
+        private PopMessagesStage SortMessages(PopMessagesStage popMessagesStage)
+        {
+            NativeJaggedArray<WrittenMessage> jaggedMessages = popMessagesStage.JaggedMessages;
+            JobHandle dependency = popMessagesStage.Dependency;
+            
             var sortMessagesJob = new SortMessagesJob
             {
                 JaggedMessages = jaggedMessages
             };
+            dependency = popMessagesStage.Dependency = sortMessagesJob.Schedule(jaggedMessages.Length, 1, dependency);
 
+            popMessagesStage.Dependency = dependency;
+            return popMessagesStage;
+        }
+        
+        private JobHandle PackMessages(PopMessagesStage popMessagesStage)
+        {
+            JobHandle dependency = popMessagesStage.Dependency;
+            NativeList<MessageTarget> targets = popMessagesStage.Targets;
+            NativeJaggedArray<WrittenMessage> jaggedMessages = popMessagesStage.JaggedMessages;
+            
+            var commandBuffer = _endSimulationBuffer.CreateCommandBuffer().AsParallelWriter();
+            
             var packMessagesJob = new PackMessagesJob
             {
                 Targets = targets,
                 TargetsMessages = jaggedMessages,
-                CommandBuffer = parallelEcb
+                CommandBuffer = commandBuffer
             };
             
-            JobHandle packDeps = Dependency;
+            dependency = packMessagesJob.Schedule(targets.Length, 1, dependency);
+            dependency = jaggedMessages.Dispose(dependency);
+            dependency = targets.Dispose(dependency);
 
-            // Pop messages
-            packDeps = popMessagesJob.Schedule(_messagesQuery, packDeps);
-            packDeps = targetTempIndices.Dispose(packDeps);
-            packDeps = targetIndexesMap.Dispose(packDeps);
-
-            // Sort messages
-            packDeps = sortMessagesJob.Schedule(jaggedMessages.Length, 1, packDeps);
+            return dependency;
+        }
+        
+        public struct GatherTargetsStage
+        {
+            public JobHandle Dependency;
             
-            // Pack messages
-            packDeps = packMessagesJob.Schedule(targets.Length, 1, packDeps);
-            packDeps = jaggedMessages.Dispose(packDeps);
-            packDeps = targets.Dispose(packDeps);
+            public NativeHashMap<int, int> TargetIndexesMap;
+            public NativeList<MessageTarget> Targets;
+            public NativeJaggedArray<WrittenMessage> EmptyJaggedMessages;
+        }
+        
+        public struct PopMessagesStage
+        {
+            public JobHandle Dependency;
             
-            Dependency = packDeps;
-            
-            _endSimulationBuffer.AddJobHandleForProducer(Dependency);
+            public NativeList<MessageTarget> Targets;
+            public NativeJaggedArray<WrittenMessage> JaggedMessages;
         }
     }
 }
