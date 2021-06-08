@@ -6,6 +6,7 @@ namespace PeacefulHills.Network.Messages
     [InternalBufferCapacity(32)]
     public struct OutputMessage : IBufferElementData
     {
+        public int Size;
         public unsafe byte* Bytes;
     }
 }

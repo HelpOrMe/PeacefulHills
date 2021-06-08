@@ -33,12 +33,15 @@ namespace PeacefulHills.Network.Messages
 
                 int start = targetMessagesCount - remainingMessageCount;
                 int length = min(32, remainingMessageCount);
-
+                
                 for (int i = 0; i < length; i++)
                 {
+                    WrittenMessage message = targetMessages[start + i];
+                    
                     outputBuffer.Add(new OutputMessage
                     {
-                        Bytes = targetMessages[start + i].Bytes
+                        Size = message.Size,
+                        Bytes = message.Bytes
                     });
                 }
                 remainingMessageCount -= 32;

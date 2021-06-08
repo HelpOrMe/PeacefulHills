@@ -91,6 +91,7 @@ namespace PeacefulHills.Network.Messages
                     CommandBuffer.SetComponent(sortKey, entity, new WrittenMessage
                     {
                         Index = entity.Index,
+                        Size = bytes.Length,
                         Bytes = (byte*)bytes.GetUnsafePtr(),
                     });
                 }
