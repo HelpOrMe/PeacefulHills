@@ -28,7 +28,6 @@ namespace PeacefulHills.Network.Messages
             {
                 Entity bufferEntity = CommandBuffer.CreateEntity(index);
                 CommandBuffer.AddComponent(index, bufferEntity, target);
-                CommandBuffer.AddComponent(index, bufferEntity, new OutputMessagesPriority { Priority = priority});
                 DynamicBuffer<OutputMessage> outputBuffer = CommandBuffer.AddBuffer<OutputMessage>(index, bufferEntity);
 
                 int start = targetMessagesCount - remainingMessageCount;
