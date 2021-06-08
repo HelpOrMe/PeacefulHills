@@ -7,20 +7,19 @@ namespace PeacefulHills.Network.Connection
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class ServerConnectionsInterruptingSystem : SystemBase
     {
-        private EndNetworkSimulationBuffer _endSimulation;
+        private EndNetworkSimulationBuffer _endSimulationBuffer;
         
         protected override void OnCreate()
         {
-            _endSimulation = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
-           this.RequireExtension<INetwork>();
+            _endSimulationBuffer = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
         }
 
         protected override void OnUpdate()
         {
-            EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
+            EntityCommandBuffer commandBuffer = _endSimulationBuffer.CreateCommandBuffer();
             var network = World.GetExtension<INetwork>();
             
-            network.LastDriverJobHandle = Entities
+            network.DriverDependency = Entities
                 .WithName("Clear_interrupted_connections")
                 .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
                 .WithAll<InterruptedNetworkConnection>()
@@ -28,11 +27,11 @@ namespace PeacefulHills.Network.Connection
                 {
                     commandBuffer.DestroyEntity(entity);
                 })
-                .Schedule(network.LastDriverJobHandle);
+                .Schedule(network.DriverDependency);
             
             NetworkDriver driver = network.Driver;
             
-            network.LastDriverJobHandle = Entities
+            network.DriverDependency = Entities
                 .WithName("Interrupt_connections")
                 .WithEntityQueryOptions(EntityQueryOptions.FilterWriteGroup)
                 .WithAll<InterruptNetworkConnection>()
@@ -43,7 +42,10 @@ namespace PeacefulHills.Network.Connection
                         connectionTarget.Connection.Disconnect(driver);
                     }
                 })
-                .Schedule(network.LastDriverJobHandle);
+                .Schedule(network.DriverDependency);
+
+            Dependency = network.DriverDependency;
+            _endSimulationBuffer.AddJobHandleForProducer(network.DriverDependency);
         }
     }
 }

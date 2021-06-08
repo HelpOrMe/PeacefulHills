@@ -1,4 +1,5 @@
 using PeacefulHills.ECS;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
@@ -14,20 +15,23 @@ namespace PeacefulHills.Network
         
         protected virtual INetwork InitializeNetwork()
         {
+            var driver = NetworkDriver.Create();
+            
             var network = new Network
             {
-                Driver = NetworkDriver.Create()
+                Driver = driver,
+                DriverConcurrent = driver.ToConcurrent(),
             };
 
             NetworkEndPoint endpoint = NetworkEndPoint.AnyIpv4;
             endpoint.Port = 9000;
             
-            if (network.Driver.Bind(endpoint) != 0)
+            if (driver.Bind(endpoint) != 0)
             {
                 throw new NetworkSimulationException("Unable to bind port " + endpoint.Port);
             }
 
-            network.Driver.Listen();
+            driver.Listen();
             return network;
         }
         

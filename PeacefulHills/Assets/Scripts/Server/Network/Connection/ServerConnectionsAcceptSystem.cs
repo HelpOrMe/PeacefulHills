@@ -1,32 +1,58 @@
 ﻿using PeacefulHills.ECS;
+using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
+using Unity.Jobs.LowLevel.Unsafe;
+using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Connection
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class ServerConnectionsAcceptSystem : SystemBase
     {
-        private BeginNetworkSimulationBuffer _endSimulation;
+        private BeginNetworkSimulationBuffer _endSimulationBuffer;
         
         protected override void OnCreate()
         {
-            _endSimulation = World.GetOrCreateSystem<BeginNetworkSimulationBuffer>();
-            this.RequireExtension<INetwork>();
+            _endSimulationBuffer = World.GetOrCreateSystem<BeginNetworkSimulationBuffer>();
         }
 
+        [BurstCompile]
+        public struct ServerConnectionsAcceptJob : IJob
+        {
+            public NetworkDriver Driver;
+            public EntityCommandBuffer CommandBuffer;
+
+            public void Execute()
+            {
+                NetworkConnection connection;
+                while ((connection = Driver.Accept()) != default)
+                {
+                    if (connection.PopEvent(Driver, out DataStreamReader _) != NetworkEvent.Type.Empty)
+                    {
+                        continue;
+                    }
+
+                    Entity entity = CommandBuffer.CreateEntity();
+                    CommandBuffer.SetComponent(entity, new NetworkConnectionWrapper { Connection = connection });
+                }
+            }
+        }
+        
         protected override void OnUpdate()
         {
             var network = World.GetExtension<INetwork>();
-            EntityCommandBuffer commandBuffer = _endSimulation.CreateCommandBuffer();
+            EntityCommandBuffer commandBuffer = _endSimulationBuffer.CreateCommandBuffer();
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob
             {
                 Driver = network.Driver,
                 CommandBuffer = commandBuffer
             };
-
-            network.LastDriverJobHandle = connectionsAcceptJob.Schedule(network.LastDriverJobHandle);
+            
+            network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);
+            Dependency = network.DriverDependency;
+            _endSimulationBuffer.AddJobHandleForProducer(network.DriverDependency);
         }
     }
 }

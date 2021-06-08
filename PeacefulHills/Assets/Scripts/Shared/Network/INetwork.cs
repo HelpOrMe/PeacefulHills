@@ -1,5 +1,6 @@
 ﻿using PeacefulHills.ECS;
 using PeacefulHills.Network;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Networking.Transport;
@@ -11,6 +12,7 @@ namespace PeacefulHills.Network
     public interface INetwork : IWorldExtension
     {
         public NetworkDriver Driver { get; }
-        public JobHandle LastDriverJobHandle { get; set; }
+        public NetworkDriver.Concurrent DriverConcurrent { get; set; }
+        public JobHandle DriverDependency { get; set; }
     }
 }
