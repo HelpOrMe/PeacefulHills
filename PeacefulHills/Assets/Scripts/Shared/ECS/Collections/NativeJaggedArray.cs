@@ -40,12 +40,6 @@ namespace PeacefulHills.ECS.Collections
 #endif
                 return array;
             }
-            [WriteAccessRequired]
-            set
-            {
-                _buffers[row] = (ulong) value.GetUnsafePtr();
-                _bufferLengths[row] = value.Length;
-            }
         }
         
         public int Length { get; private set; }
@@ -79,7 +73,13 @@ namespace PeacefulHills.ECS.Collections
             InitStaticSafetyId(ref m_Safety);
 #endif
         }
-        
+
+        public unsafe void Allocate(int row, int length)
+        {
+            _buffers[row] = (ulong)UnsafeUtility.Malloc(length, UnsafeUtility.AlignOf<T>(), _allocator);
+            _bufferLengths[row] = length;
+        }
+
         [BurstDiscard]
         private static void InitStaticSafetyId(ref AtomicSafetyHandle handle)
         {
@@ -162,7 +162,6 @@ namespace PeacefulHills.ECS.Collections
                 dependency = _bufferLengths.Dispose(dependency);
 
 #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                
                 DisposeSentinel.Clear(ref m_DisposeSentinel);
                 AtomicSafetyHandle.Release(m_Safety);
 #endif   

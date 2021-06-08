@@ -56,8 +56,10 @@ namespace PeacefulHills.Network.Messages
             
             for (int i = 0; i < emptyJaggedMessages.Length; i++)
             {
-                emptyJaggedMessages[i] = new NativeArray<WrittenMessage>(targetMessagesCount[i], Allocator.TempJob);
+                emptyJaggedMessages.Allocate(i, targetMessagesCount[i]);
             }
+
+            dependency = targetMessagesCount.Dispose(dependency);
             
             return new GatherTargetsStage
             {
