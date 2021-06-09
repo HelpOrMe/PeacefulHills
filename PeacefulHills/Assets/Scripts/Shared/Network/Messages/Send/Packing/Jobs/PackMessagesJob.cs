@@ -12,9 +12,9 @@ namespace PeacefulHills.Network.Messages
     {
         [ReadOnly] public NativeArray<MessageTarget> Targets;
         [ReadOnly] public NativeJaggedArray<WrittenMessage> TargetsMessages;
-        
+
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
-        
+
         public unsafe void Execute(int index)
         {
             MessageTarget target = Targets[index];
@@ -22,8 +22,7 @@ namespace PeacefulHills.Network.Messages
 
             int targetMessagesCount = targetMessages.Length;
             int remainingMessageCount = targetMessagesCount;
-            int priority = 0;
-            
+
             while (remainingMessageCount > 0)
             {
                 Entity bufferEntity = CommandBuffer.CreateEntity(index);
@@ -32,19 +31,15 @@ namespace PeacefulHills.Network.Messages
 
                 int start = targetMessagesCount - remainingMessageCount;
                 int length = min(32, remainingMessageCount);
-                
+
                 for (int i = 0; i < length; i++)
                 {
                     WrittenMessage message = targetMessages[start + i];
-                    
-                    outputBuffer.Add(new OutputMessage
-                    {
-                        Size = message.Size,
-                        Bytes = message.Bytes
-                    });
+
+                    outputBuffer.Add(new OutputMessage {Size = message.Size, Bytes = message.Bytes});
                 }
+
                 remainingMessageCount -= 32;
-                priority++;
             }
         }
     }

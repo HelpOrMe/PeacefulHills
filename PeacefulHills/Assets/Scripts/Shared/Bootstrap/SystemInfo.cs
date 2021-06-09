@@ -5,8 +5,8 @@ namespace PeacefulHills.Bootstrap
 {
     public class SystemInfo
     {
-        public readonly Type Type;
         public readonly List<SystemInfo> NestedSystems;
+        public readonly Type Type;
 
         public SystemInfo(Type type, List<SystemInfo> nestedSystems)
         {

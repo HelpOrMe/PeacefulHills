@@ -13,10 +13,10 @@ namespace PeacefulHills.Bootstrap
         {
             IReadOnlyList<Type> systemTypes = TypeManager.GetSystems(WorldSystemFilterFlags.Default);
             IEnumerable<WorldInfo> bootstrapWorlds = GetBootstrapWorldsInfo();
-            
+
             List<SystemInfo> groups = NestGroups(GatherGroupByTypes(systemTypes));
             Dictionary<Type, List<SystemInfo>> systemsByWorld = GatherSystemsByWorld(groups);
-            
+
             foreach (WorldInfo worldInfo in bootstrapWorlds)
             {
                 if (!systemsByWorld.ContainsKey(worldInfo.Type))
@@ -24,14 +24,14 @@ namespace PeacefulHills.Bootstrap
                     Debug.LogWarning($"{worldInfo.Type.Name} does not contain any groups that refer to it.");
                     continue;
                 }
-                
+
                 if (Activator.CreateInstance(worldInfo.Type) is BootstrapWorldBase bootstrapWorld)
                 {
                     List<SystemInfo> worldSystems = systemsByWorld[worldInfo.Type];
-                    
+
                     bootstrapWorld.Systems = worldSystems;
                     World world = bootstrapWorld.Initialize();
-                    
+
                     foreach (Type worldPartType in worldInfo.PartTypes)
                     {
                         if (Activator.CreateInstance(worldPartType) is BootstrapWorldPart bootstrapWorldPart)
@@ -42,14 +42,14 @@ namespace PeacefulHills.Bootstrap
                     }
                 }
             }
-            
+
             return true;
         }
-    
+
         private IEnumerable<WorldInfo> GetBootstrapWorldsInfo()
         {
             var worldsMap = new Dictionary<Type, WorldInfo>();
-            
+
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 if (assembly.GetCustomAttribute<BootstrapAssemblyIndexAttribute>() == null)
@@ -92,6 +92,7 @@ namespace PeacefulHills.Bootstrap
                         Debug.LogError("BootstrapWorldPart must contain BootstrapWorldAttribute!");
                         continue;
                     }
+
                     worldsMap[attr.Type].PartTypes.Add(type);
                 }
             }
@@ -100,18 +101,19 @@ namespace PeacefulHills.Bootstrap
         private Dictionary<Type, SystemInfo> GatherGroupByTypes(IEnumerable<Type> systemTypes)
         {
             var systems = new Dictionary<Type, SystemInfo>();
-            
+
             foreach (Type systemType in systemTypes)
             {
                 Type groupType = systemType.GetCustomAttribute<UpdateInGroupAttribute>()?.GroupType;
                 groupType ??= typeof(SimulationSystemGroup);
 
                 var systemInfo = new SystemInfo(systemType, new List<SystemInfo>());
-                
+
                 if (!systems.ContainsKey(groupType))
                 {
                     systems[groupType] = new SystemInfo(groupType, new List<SystemInfo>());
                 }
+
                 systems[groupType].NestedSystems.Add(systemInfo);
             }
 
@@ -136,7 +138,7 @@ namespace PeacefulHills.Bootstrap
                 groups[typeof(PresentationSystemGroup)]
             };
         }
-        
+
         private Dictionary<Type, List<SystemInfo>> GatherSystemsByWorld(List<SystemInfo> groups)
         {
             var systemsByWorld = new Dictionary<Type, List<SystemInfo>>
@@ -149,8 +151,9 @@ namespace PeacefulHills.Bootstrap
                 foreach (SystemInfo system in group.NestedSystems)
                 {
                     List<BootstrapWorldAttribute> updateInWorldAttrs = system.Type
-                        .GetCustomAttributes<BootstrapWorldAttribute>()
-                        .ToList();
+                                                                             .GetCustomAttributes<
+                                                                                 BootstrapWorldAttribute>()
+                                                                             .ToList();
 
                     if (updateInWorldAttrs.Count > 0)
                     {
@@ -161,6 +164,7 @@ namespace PeacefulHills.Bootstrap
                             {
                                 systemsByWorld[worldType] = new List<SystemInfo>();
                             }
+
                             systemsByWorld[worldType].Add(system);
                         }
                     }

@@ -13,7 +13,7 @@ namespace PeacefulHills.Bootstrap
             {
                 throw new ArgumentException("Invalid bootstrap world type " + type.Name);
             }
-            
+
             Type = type;
         }
     }

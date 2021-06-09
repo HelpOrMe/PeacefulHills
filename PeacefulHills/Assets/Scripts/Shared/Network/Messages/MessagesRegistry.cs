@@ -5,10 +5,9 @@ namespace PeacefulHills.Network.Messages
 {
     public class MessagesRegistry : IMessagesRegistry
     {
-        private NativeHashMap<uint, MessageInfo> _messagesById;
-        private NativeHashMap<ulong, uint> _messageIdsByStableHash; 
-        
         private uint _lastMessageId;
+        private NativeHashMap<ulong, uint> _messageIdsByStableHash;
+        private NativeHashMap<uint, MessageInfo> _messagesById;
 
         public MessagesRegistry()
         {
@@ -25,10 +24,14 @@ namespace PeacefulHills.Network.Messages
             return id;
         }
 
-        public MessageInfo GetInfoById(uint id) 
-            => _messagesById[id];
+        public MessageInfo GetInfoById(uint id)
+        {
+            return _messagesById[id];
+        }
 
-        public uint GetIdByStableHash(ulong stableHash) 
-            => _messageIdsByStableHash[stableHash];
+        public uint GetIdByStableHash(ulong stableHash)
+        {
+            return _messageIdsByStableHash[stableHash];
+        }
     }
 }

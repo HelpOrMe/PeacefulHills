@@ -3,6 +3,6 @@
     public enum NetworkStreamType
     {
         Chunk,
-        Message,
+        Message
     }
 }

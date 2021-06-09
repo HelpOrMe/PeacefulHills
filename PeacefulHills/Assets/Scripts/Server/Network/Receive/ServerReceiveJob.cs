@@ -10,7 +10,7 @@ namespace PeacefulHills.Network.Receive
     {
         public NetworkDriver.Concurrent Driver;
         [ReadOnly] public NativeArray<NetworkConnection> Connections;
-        
+
         public void Execute(int index)
         {
             Assert.IsTrue(Connections[index].IsCreated);
@@ -21,16 +21,16 @@ namespace PeacefulHills.Network.Receive
                 {
                     ReceiveData(ref reader);
                 }
-                
+
                 else if (eventType == NetworkEvent.Type.Disconnect)
                 {
                     Connections[index] = default;
                 }
             }
         }
-        
+
         private bool PopEvent(NetworkConnection connection, out NetworkEvent.Type eventType,
-            out DataStreamReader reader)
+                              out DataStreamReader reader)
         {
             eventType = Driver.PopEventForConnection(connection, out reader);
             return eventType != NetworkEvent.Type.Disconnect;
@@ -43,15 +43,15 @@ namespace PeacefulHills.Network.Receive
                 case NetworkStreamType.Chunk:
                     ReceiveChunkData(ref reader);
                     break;
-                
+
                 case NetworkStreamType.Message:
                     ReceiveMessageData(ref reader);
                     break;
 
-#if ENABLE_UNITY_COLLECTIONS_CHECKS
+                #if ENABLE_UNITY_COLLECTIONS_CHECKS
                 default:
                     throw new InvalidOperationException("Received unknown message type");
-#endif
+                #endif
             }
         }
 

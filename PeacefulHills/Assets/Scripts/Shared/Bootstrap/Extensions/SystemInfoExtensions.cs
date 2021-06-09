@@ -8,28 +8,38 @@ namespace PeacefulHills.Bootstrap
     public static class SystemInfoExtensions
     {
         public static SystemInfo Group<TGroup>(this IEnumerable<SystemInfo> systems)
-            where TGroup : ComponentSystemGroup 
-            => systems.First(system => typeof(TGroup).IsAssignableFrom(system.Type));
+            where TGroup : ComponentSystemGroup
+        {
+            return systems.First(system => typeof(TGroup).IsAssignableFrom(system.Type));
+        }
 
-        public static IEnumerable<SystemInfo> Groups<TGroup0, TGroup1>(this IEnumerable<SystemInfo> systems) 
+        public static IEnumerable<SystemInfo> Groups<TGroup0, TGroup1>(this IEnumerable<SystemInfo> systems)
             where TGroup0 : ComponentSystemGroup
             where TGroup1 : ComponentSystemGroup
-            => systems.Groups(new[] { typeof(TGroup0), typeof(TGroup1) });
-        
-        public static IEnumerable<SystemInfo> Groups<TGroup0, TGroup1, TGroup2>(this IEnumerable<SystemInfo> systems) 
+        {
+            return systems.Groups(new[] {typeof(TGroup0), typeof(TGroup1)});
+        }
+
+        public static IEnumerable<SystemInfo> Groups<TGroup0, TGroup1, TGroup2>(this IEnumerable<SystemInfo> systems)
             where TGroup0 : ComponentSystemGroup
             where TGroup1 : ComponentSystemGroup
             where TGroup2 : ComponentSystemGroup
-            => systems.Groups(new[] { typeof(TGroup0), typeof(TGroup1), typeof(TGroup2) });
-        
-        public static IEnumerable<SystemInfo> Groups(this IEnumerable<SystemInfo> systems, 
-            IEnumerable<Type> targetGroups) 
-            => systems.Where(system => targetGroups.Contains(system.Type));
-        
-        public static IEnumerable<SystemInfo> Groups(this IEnumerable<SystemInfo> systems, 
-            IEnumerable<SystemInfo> targetGroups) 
-            => systems.Where(targetGroups.Contains);
-        
+        {
+            return systems.Groups(new[] {typeof(TGroup0), typeof(TGroup1), typeof(TGroup2)});
+        }
+
+        public static IEnumerable<SystemInfo> Groups(this IEnumerable<SystemInfo> systems,
+                                                     IEnumerable<Type> targetGroups)
+        {
+            return systems.Where(system => targetGroups.Contains(system.Type));
+        }
+
+        public static IEnumerable<SystemInfo> Groups(this IEnumerable<SystemInfo> systems,
+                                                     IEnumerable<SystemInfo> targetGroups)
+        {
+            return systems.Where(targetGroups.Contains);
+        }
+
         public static IEnumerable<SystemInfo> Nested(this IEnumerable<SystemInfo> systems)
         {
             foreach (SystemInfo system in systems)
@@ -40,7 +50,7 @@ namespace PeacefulHills.Bootstrap
                 }
             }
         }
-        
+
         public static IEnumerable<SystemInfo> All(this IEnumerable<SystemInfo> systems)
         {
             foreach (SystemInfo system in systems)
@@ -51,7 +61,7 @@ namespace PeacefulHills.Bootstrap
                 }
             }
         }
-        
+
         public static IEnumerable<SystemInfo> All(this SystemInfo system)
         {
             yield return system;
@@ -64,8 +74,10 @@ namespace PeacefulHills.Bootstrap
                 }
             }
         }
-        
-        public static IEnumerable<Type> Types(this IEnumerable<SystemInfo> systems) 
-            => systems.Select(system => system.Type);
+
+        public static IEnumerable<Type> Types(this IEnumerable<SystemInfo> systems)
+        {
+            return systems.Select(system => system.Type);
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Unity.Collections;
-using Unity.Jobs;
+﻿using Unity.Jobs;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network

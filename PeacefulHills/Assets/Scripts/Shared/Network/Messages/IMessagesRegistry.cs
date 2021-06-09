@@ -1,8 +1,8 @@
-﻿using PeacefulHills.ECS;
+﻿using PeacefulHills.ECS.World;
 using PeacefulHills.Network.Messages;
 using Unity.Entities;
 
-[assembly:RegisterGenericComponentType(typeof(ExtensionSingleton<IMessagesRegistry>))]
+[assembly: RegisterGenericComponentType(typeof(ExtensionSingleton<IMessagesRegistry>))]
 
 namespace PeacefulHills.Network.Messages
 {

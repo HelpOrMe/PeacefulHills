@@ -1,7 +1,6 @@
-﻿namespace PeacefulHills.ECS
+﻿namespace PeacefulHills.ECS.World
 {
     public interface IWorldExtension
     {
-        
     }
-} 
+}

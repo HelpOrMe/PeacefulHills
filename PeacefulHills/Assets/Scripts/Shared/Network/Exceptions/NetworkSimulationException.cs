@@ -4,6 +4,8 @@ namespace PeacefulHills.Network
 {
     public class NetworkSimulationException : Exception
     {
-        public NetworkSimulationException(string message) : base(message) { }
+        public NetworkSimulationException(string message) : base(message)
+        {
+        }
     }
 }

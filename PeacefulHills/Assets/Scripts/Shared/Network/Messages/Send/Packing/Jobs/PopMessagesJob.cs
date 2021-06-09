@@ -13,23 +13,23 @@ namespace PeacefulHills.Network.Messages
         [ReadOnly] public ComponentTypeHandle<WrittenMessage> MessageHandle;
         [ReadOnly] public EntityTypeHandle EntityHandle;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
-        
+
         [ReadOnly] public NativeHashMap<int, int> TargetIndexesMap;
         public NativeArray<int> TargetTempIndices;
-        
+
         [NativeDisableContainerSafetyRestriction]
         public NativeJaggedArray<WrittenMessage> JaggedMessages;
-        
+
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             NativeArray<WrittenMessage> chunkMessages = chunk.GetNativeArray(MessageHandle);
             NativeArray<MessageTarget> chunkTargets = chunk.GetNativeArray(TargetHandle);
             NativeArray<Entity> chunkEntities = chunk.GetNativeArray(EntityHandle);
-            
+
             for (int i = 0; i < chunkMessages.Length; i++)
             {
                 CommandBuffer.DestroyEntity(chunkIndex * firstEntityIndex, chunkEntities[i]);
-                
+
                 int targetIndex = TargetIndexesMap[chunkTargets[i].Connection.InternalId];
                 NativeArray<WrittenMessage> messages = JaggedMessages[targetIndex];
                 messages[TargetTempIndices[targetIndex]++] = chunkMessages[i];

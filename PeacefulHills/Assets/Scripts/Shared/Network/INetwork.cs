@@ -1,11 +1,10 @@
-﻿using PeacefulHills.ECS;
+﻿using PeacefulHills.ECS.World;
 using PeacefulHills.Network;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Networking.Transport;
 
-[assembly:RegisterGenericComponentType(typeof(ExtensionSingleton<INetwork>))]
+[assembly: RegisterGenericComponentType(typeof(ExtensionSingleton<INetwork>))]
 
 namespace PeacefulHills.Network
 {

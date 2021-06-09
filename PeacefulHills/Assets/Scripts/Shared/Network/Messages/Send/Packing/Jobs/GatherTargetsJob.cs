@@ -8,11 +8,11 @@ namespace PeacefulHills.Network.Messages
     public struct GatherTargetsJob : IJobChunk
     {
         [ReadOnly] public ComponentTypeHandle<MessageTarget> TargetHandle;
-        
+
         public NativeHashMap<int, int> TargetIndexesMap;
         public NativeList<int> TargetMessagesCount;
         public NativeList<MessageTarget> Targets;
-            
+
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             NativeArray<MessageTarget> chunkTargets = chunk.GetNativeArray(TargetHandle);

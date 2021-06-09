@@ -1,8 +1,7 @@
-﻿using PeacefulHills.ECS;
+﻿using PeacefulHills.ECS.World;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Jobs.LowLevel.Unsafe;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Connection
@@ -11,10 +10,25 @@ namespace PeacefulHills.Network.Connection
     public class ServerConnectionsAcceptSystem : SystemBase
     {
         private BeginNetworkSimulationBuffer _endSimulationBuffer;
-        
+
         protected override void OnCreate()
         {
             _endSimulationBuffer = World.GetOrCreateSystem<BeginNetworkSimulationBuffer>();
+        }
+
+        protected override void OnUpdate()
+        {
+            var network = World.GetExtension<INetwork>();
+            EntityCommandBuffer commandBuffer = _endSimulationBuffer.CreateCommandBuffer();
+
+            var connectionsAcceptJob = new ServerConnectionsAcceptJob
+            {
+                Driver = network.Driver, CommandBuffer = commandBuffer
+            };
+
+            network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);
+            Dependency = network.DriverDependency;
+            _endSimulationBuffer.AddJobHandleForProducer(network.DriverDependency);
         }
 
         [BurstCompile]
@@ -34,25 +48,9 @@ namespace PeacefulHills.Network.Connection
                     }
 
                     Entity entity = CommandBuffer.CreateEntity();
-                    CommandBuffer.SetComponent(entity, new NetworkConnectionWrapper { Connection = connection });
+                    CommandBuffer.SetComponent(entity, new NetworkConnectionWrapper {Connection = connection});
                 }
             }
-        }
-        
-        protected override void OnUpdate()
-        {
-            var network = World.GetExtension<INetwork>();
-            EntityCommandBuffer commandBuffer = _endSimulationBuffer.CreateCommandBuffer();
-
-            var connectionsAcceptJob = new ServerConnectionsAcceptJob
-            {
-                Driver = network.Driver,
-                CommandBuffer = commandBuffer
-            };
-            
-            network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);
-            Dependency = network.DriverDependency;
-            _endSimulationBuffer.AddJobHandleForProducer(network.DriverDependency);
         }
     }
 }

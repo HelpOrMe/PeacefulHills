@@ -1,4 +1,4 @@
-﻿using PeacefulHills.ECS;
+﻿using PeacefulHills.ECS.World;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -13,21 +13,20 @@ namespace PeacefulHills.Network.Messages
         where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
     {
         protected EndWriteMessagesBuffer CommandBufferSystem;
-        protected EntityQuery MessageSendRequestQuery;
-        
+
         protected uint MessageId;
-        
+        protected EntityQuery MessageSendRequestQuery;
+
         protected override void OnCreate()
         {
             CommandBufferSystem = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
-            
+
             this.RequireExtension<IMessagesRegistry>();
             World.RequestExtension<IMessagesRegistry>(ExtractMessageId);
-            
-            MessageSendRequestQuery = GetEntityQuery(
-                ComponentType.ReadOnly<MessageSendRequest>(),
-                ComponentType.ReadOnly<MessageTarget>(),
-                ComponentType.ReadWrite<TMessage>());
+
+            MessageSendRequestQuery = GetEntityQuery(ComponentType.ReadOnly<MessageSendRequest>(),
+                                                     ComponentType.ReadOnly<MessageTarget>(),
+                                                     ComponentType.ReadWrite<TMessage>());
         }
 
         protected void ExtractMessageId(IMessagesRegistry registry)
@@ -39,22 +38,21 @@ namespace PeacefulHills.Network.Messages
         {
             EntityCommandBuffer commandBuffer = CommandBufferSystem.CreateCommandBuffer();
             EntityCommandBuffer.ParallelWriter commandBufferParallel = commandBuffer.AsParallelWriter();
-            
+
             return new WriteMessageJob
             {
                 MessageId = MessageId,
                 EntityHandle = GetEntityTypeHandle(),
                 MessageHandle = GetComponentTypeHandle<TMessage>(true),
-               
-                CommandBuffer = commandBufferParallel,
+                CommandBuffer = commandBufferParallel
             };
         }
-        
+
         protected void HandleDependency()
         {
             CommandBufferSystem.AddJobHandleForProducer(Dependency);
         }
-        
+
         [BurstCompile]
         protected struct WriteMessageJob : IJobChunk
         {
@@ -64,7 +62,7 @@ namespace PeacefulHills.Network.Messages
             [ReadOnly] public ComponentTypeHandle<TMessage> MessageHandle;
 
             public EntityCommandBuffer.ParallelWriter CommandBuffer;
-            
+
             public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
             {
                 NativeArray<Entity> entities = chunk.GetNativeArray(EntityHandle);
@@ -72,28 +70,29 @@ namespace PeacefulHills.Network.Messages
 
                 int sortKey = chunkIndex + firstEntityIndex;
                 var serializer = default(TMessageSerializer);
-                
+
                 for (int i = 0; i < messages.Length; i++)
                 {
                     const int messageIdSize = 4;
                     var bytes = new NativeArray<byte>(sizeof(TMessage) + messageIdSize, Allocator.Temp);
                     var writer = new DataStreamWriter(bytes);
-                 
+
                     TMessage message = messages[i];
-                    
+
                     writer.WriteUInt(MessageId);
                     serializer.Write(in message, ref writer);
 
                     Entity entity = entities[i];
-                    
+
                     CommandBuffer.RemoveComponent<TMessage>(sortKey, entity);
                     CommandBuffer.AddComponent(sortKey, entity, ComponentType.ReadWrite<WrittenMessage>());
-                    CommandBuffer.SetComponent(sortKey, entity, new WrittenMessage
-                    {
-                        Index = entity.Index,
-                        Size = bytes.Length,
-                        Bytes = (byte*)bytes.GetUnsafePtr(),
-                    });
+                    CommandBuffer.SetComponent(sortKey, entity,
+                                               new WrittenMessage
+                                               {
+                                                   Index = entity.Index,
+                                                   Size = bytes.Length,
+                                                   Bytes = (byte*) bytes.GetUnsafePtr()
+                                               });
                 }
             }
         }

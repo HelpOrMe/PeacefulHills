@@ -1,5 +1,5 @@
 ﻿using PeacefulHills.Bootstrap;
-using PeacefulHills.ECS;
+using PeacefulHills.ECS.World;
 using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages

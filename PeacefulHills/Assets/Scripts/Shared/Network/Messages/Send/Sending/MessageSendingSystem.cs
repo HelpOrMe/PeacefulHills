@@ -1,4 +1,4 @@
-﻿using PeacefulHills.ECS;
+﻿using PeacefulHills.ECS.World;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
@@ -17,22 +17,25 @@ namespace PeacefulHills.Network.Messages
         {
             var network = World.GetExtension<INetwork>();
 
-            var concurrentDriver = network.DriverConcurrent;
-            
+            NetworkDriver.Concurrent concurrentDriver = network.DriverConcurrent;
+
             network.DriverDependency = Entities
-                .ForEach((Entity entity, in DynamicBuffer<OutputMessage> outputMessage, in MessageTarget target) =>
-                {
-                    if (concurrentDriver.BeginSend(target.Connection, out DataStreamWriter writer) == 0)
-                    {
-                        foreach (OutputMessage message in outputMessage)
-                        {
-                            writer.WriteBytes(message.Bytes, message.Size);
-                        }
-                        concurrentDriver.EndSend(writer);
-                    }
-                })
-                .ScheduleParallel(network.DriverDependency);
-            
+                                       .ForEach((Entity entity, in DynamicBuffer<OutputMessage> outputMessage,
+                                                 in MessageTarget target) =>
+                                       {
+                                           if (concurrentDriver.BeginSend(
+                                               target.Connection, out DataStreamWriter writer) == 0)
+                                           {
+                                               foreach (OutputMessage message in outputMessage)
+                                               {
+                                                   writer.WriteBytes(message.Bytes, message.Size);
+                                               }
+
+                                               concurrentDriver.EndSend(writer);
+                                           }
+                                       })
+                                       .ScheduleParallel(network.DriverDependency);
+
             Dependency = network.DriverDependency;
         }
     }

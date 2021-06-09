@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 
 namespace PeacefulHills.Bootstrap
@@ -9,11 +11,11 @@ namespace PeacefulHills.Bootstrap
         {
             var world = new World("Default world");
 
-            var types = Systems.All().Types().ToList();
-            
+            List<Type> types = Systems.All().Types().ToList();
+
             world.AddSystems(types);
             world.Loop();
-            
+
             World.DefaultGameObjectInjectionWorld = world;
             return world;
         }
