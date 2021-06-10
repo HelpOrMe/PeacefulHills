@@ -29,7 +29,7 @@ namespace PeacefulHills.ECS.World
         }
 
         public static void RequestExtension<TExtension>(this Unity.Entities.World world,
-                                                        WorldExtension<TExtension>.RequestAction request)
+            WorldExtension<TExtension>.RequestAction request)
             where TExtension : IWorldExtension
         {
             WorldExtension<TExtension>.Request(world.SequenceNumber, request);

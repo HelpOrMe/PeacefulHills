@@ -20,21 +20,18 @@ namespace PeacefulHills.Network.Messages
             NetworkDriver.Concurrent concurrentDriver = network.DriverConcurrent;
 
             network.DriverDependency = Entities
-                                       .ForEach((Entity entity, in DynamicBuffer<OutputMessage> outputMessage,
-                                                 in MessageTarget target) =>
-                                       {
-                                           if (concurrentDriver.BeginSend(
-                                               target.Connection, out DataStreamWriter writer) == 0)
-                                           {
-                                               foreach (OutputMessage message in outputMessage)
-                                               {
-                                                   writer.WriteBytes(message.Bytes, message.Size);
-                                               }
-
-                                               concurrentDriver.EndSend(writer);
-                                           }
-                                       })
-                                       .ScheduleParallel(network.DriverDependency);
+               .ForEach((Entity entity, in DynamicBuffer<OutputMessage> outputMessage, in MessageTarget target) => 
+                {
+                    if (concurrentDriver.BeginSend(target.Connection, out DataStreamWriter writer) == 0)
+                    {
+                        foreach (OutputMessage message in outputMessage)
+                        {
+                            writer.WriteBytes(message.Bytes, message.Size);
+                        }
+                        concurrentDriver.EndSend(writer);
+                    }
+                })
+               .ScheduleParallel(network.DriverDependency);
 
             Dependency = network.DriverDependency;
         }

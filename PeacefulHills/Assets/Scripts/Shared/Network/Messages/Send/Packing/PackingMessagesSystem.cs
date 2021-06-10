@@ -32,8 +32,8 @@ namespace PeacefulHills.Network.Messages
             var targets = new NativeList<MessageTarget>(1, Allocator.TempJob);
 
             Entities
-                .WithAll<WrittenMessage>()
-                .ForEach((in MessageTarget target) =>
+               .WithAll<WrittenMessage>()
+               .ForEach((in MessageTarget target) =>
                 {
                     int targetConnectionId = target.Connection.InternalId;
 
@@ -48,7 +48,7 @@ namespace PeacefulHills.Network.Messages
                         targetMessagesCount[messageIndex]++;
                     }
                 })
-                .Run();
+               .Run();
 
             // TODO: Replace the jaggedArray constructor with the scheduling of a jaggedList with the Temp allocator
             var emptyJaggedMessages = new NativeJaggedArray<WrittenMessage>(targets.Length, Allocator.TempJob);

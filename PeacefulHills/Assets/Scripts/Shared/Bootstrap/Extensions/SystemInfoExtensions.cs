@@ -29,13 +29,13 @@ namespace PeacefulHills.Bootstrap
         }
 
         public static IEnumerable<SystemInfo> Groups(this IEnumerable<SystemInfo> systems,
-                                                     IEnumerable<Type> targetGroups)
+            IEnumerable<Type> targetGroups)
         {
             return systems.Where(system => targetGroups.Contains(system.Type));
         }
 
         public static IEnumerable<SystemInfo> Groups(this IEnumerable<SystemInfo> systems,
-                                                     IEnumerable<SystemInfo> targetGroups)
+            IEnumerable<SystemInfo> targetGroups)
         {
             return systems.Where(targetGroups.Contains);
         }

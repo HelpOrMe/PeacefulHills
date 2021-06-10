@@ -30,7 +30,7 @@ namespace PeacefulHills.Network.Receive
         }
 
         private bool PopEvent(NetworkConnection connection, out NetworkEvent.Type eventType,
-                              out DataStreamReader reader)
+            out DataStreamReader reader)
         {
             eventType = Driver.PopEventForConnection(connection, out reader);
             return eventType != NetworkEvent.Type.Disconnect;
