@@ -1,4 +1,5 @@
-﻿using PeacefulHills.ECS.World;
+﻿using System;
+using PeacefulHills.ECS.World;
 using PeacefulHills.Network.Messages;
 using Unity.Entities;
 
@@ -6,12 +7,12 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
-    public interface IMessagesRegistry : IWorldExtension
+    public interface IMessagesRegistry : IWorldExtension, IDisposable
     {
         public uint Register<TMessage>() where TMessage : IMessage;
 
-        public MessageInfo GetInfoById(uint id);
+        public MessageInfo GetInfoById(ushort id);
 
-        public uint GetIdByStableHash(ulong stableHash);
+        public ushort GetIdByStableHash(ulong stableHash);
     }
 }
