@@ -5,33 +5,39 @@ namespace PeacefulHills.Network.Messages
 {
     public class MessagesRegistry : IMessagesRegistry
     {
-        private uint _lastMessageId;
-        private NativeHashMap<ulong, uint> _messageIdsByStableHash;
-        private NativeHashMap<uint, MessageInfo> _messagesById;
+        private ushort _lastMessageId;
+        private NativeHashMap<ulong, ushort> _messageIdsByStableHash;
+        private NativeHashMap<ushort, MessageInfo> _messagesById;
 
         public MessagesRegistry()
         {
-            _messageIdsByStableHash = new NativeHashMap<ulong, uint>(1, Allocator.Persistent);
-            _messagesById = new NativeHashMap<uint, MessageInfo>(1, Allocator.Persistent);
+            _messageIdsByStableHash = new NativeHashMap<ulong, ushort>(1, Allocator.Persistent);
+            _messagesById = new NativeHashMap<ushort, MessageInfo>(1, Allocator.Persistent);
         }
 
         public uint Register<TMessage>() where TMessage : IMessage
         {
-            uint id = _lastMessageId++;
+            ushort id = _lastMessageId++;
             TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
             _messagesById[_lastMessageId] = new MessageInfo(typeInfo, _lastMessageId);
             _messageIdsByStableHash[typeInfo.StableTypeHash] = id;
             return id;
         }
 
-        public MessageInfo GetInfoById(uint id)
+        public MessageInfo GetInfoById(ushort id)
         {
             return _messagesById[id];
         }
 
-        public uint GetIdByStableHash(ulong stableHash)
+        public ushort GetIdByStableHash(ulong stableHash)
         {
             return _messageIdsByStableHash[stableHash];
+        }
+
+        public void Dispose()
+        {
+            _messageIdsByStableHash.Dispose();
+            _messagesById.Dispose();
         }
     }
 }
