@@ -6,20 +6,20 @@ using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Connection
 {
-    [UpdateInGroup(typeof(NetworkSimulationGroup))]
+    [UpdateInGroup(typeof(ConnectionSimulationGroup))]
     public class ServerConnectionsAcceptSystem : SystemBase
     {
-        private BeginNetworkSimulationBuffer _endSimulationBuffer;
+        private EndConnectionSimulationBuffer _buffer;
 
         protected override void OnCreate()
         {
-            _endSimulationBuffer = World.GetOrCreateSystem<BeginNetworkSimulationBuffer>();
+            _buffer = World.GetOrCreateSystem<EndConnectionSimulationBuffer>();
         }
 
         protected override void OnUpdate()
         {
             var network = World.GetExtension<INetwork>();
-            EntityCommandBuffer commandBuffer = _endSimulationBuffer.CreateCommandBuffer();
+            EntityCommandBuffer commandBuffer = _buffer.CreateCommandBuffer();
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob
             {
@@ -28,7 +28,7 @@ namespace PeacefulHills.Network.Connection
 
             network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);
             Dependency = network.DriverDependency;
-            _endSimulationBuffer.AddJobHandleForProducer(network.DriverDependency);
+            _buffer.AddJobHandleForProducer(network.DriverDependency);
         }
 
         [BurstCompile]
@@ -48,7 +48,7 @@ namespace PeacefulHills.Network.Connection
                     }
 
                     Entity entity = CommandBuffer.CreateEntity();
-                    CommandBuffer.SetComponent(entity, new NetworkConnectionWrapper {Connection = connection});
+                    CommandBuffer.SetComponent(entity, new ConnectionWrapper {Connection = connection});
                 }
             }
         }
