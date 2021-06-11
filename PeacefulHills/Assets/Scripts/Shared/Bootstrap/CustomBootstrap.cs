@@ -151,9 +151,8 @@ namespace PeacefulHills.Bootstrap
                 foreach (SystemInfo system in group.NestedSystems)
                 {
                     List<BootstrapWorldAttribute> updateInWorldAttrs = system.Type
-                                                                             .GetCustomAttributes<
-                                                                                 BootstrapWorldAttribute>()
-                                                                             .ToList();
+                       .GetCustomAttributes<BootstrapWorldAttribute>()
+                       .ToList();
 
                     if (updateInWorldAttrs.Count > 0)
                     {
