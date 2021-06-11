@@ -1,12 +1,14 @@
-﻿using Unity.Entities;
+﻿using PeacefulHills.Network.Connection;
+using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
-    [UpdateInGroup(typeof(NetworkSimulationGroup))]
+    [UpdateInGroup(typeof(MessagesSimulationGroup))]
     public class WriteMessagesGroup : ComponentSystemGroup
     {
+        
     }
-
+    
     [UpdateInGroup(typeof(WriteMessagesGroup), OrderFirst = true)]
     [AlwaysUpdateSystem]
     public class BeginWriteMessagesBuffer : EntityCommandBufferSystem

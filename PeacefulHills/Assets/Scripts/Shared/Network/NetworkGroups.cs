@@ -28,11 +28,13 @@ namespace PeacefulHills.Network
     }
 
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
+    [AlwaysUpdateSystem]
     public class BeginNetworkSimulationBuffer : EntityCommandBufferSystem
     {
     }
 
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderLast = true)]
+    [AlwaysUpdateSystem]
     public class EndNetworkSimulationBuffer : EntityCommandBufferSystem
     {
     }
