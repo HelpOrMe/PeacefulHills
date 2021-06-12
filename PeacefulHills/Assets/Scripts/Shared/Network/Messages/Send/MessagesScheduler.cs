@@ -20,7 +20,7 @@ namespace PeacefulHills.Network.Messages
         {
             var serializer = default(TMessageSerializer);
             
-            const int messageIdSize = 4;
+            const int messageIdSize = 2;
             var writer = new DataStreamWriter(sizeof(TMessage) + messageIdSize, Allocator.Temp);
                 
             writer.WriteUShort(MessageId);
