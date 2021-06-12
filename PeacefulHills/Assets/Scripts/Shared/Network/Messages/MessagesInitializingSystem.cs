@@ -3,6 +3,7 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
+    [UpdateInGroup(typeof(MessagesInitializationGroup))]
     public class MessagesInitializingSystem : SystemBase
     {
         protected override void OnCreate()
