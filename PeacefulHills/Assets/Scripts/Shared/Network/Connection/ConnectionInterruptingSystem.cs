@@ -11,7 +11,6 @@ namespace PeacefulHills.Network.Connection
 
         protected override void OnCreate()
         {
-            this.RequireExtension<INetwork>();
             _buffer = World.GetOrCreateSystem<EndConnectionSimulationBuffer>();
         }
 

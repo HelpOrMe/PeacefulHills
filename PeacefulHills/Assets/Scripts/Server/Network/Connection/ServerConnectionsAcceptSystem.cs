@@ -28,6 +28,7 @@ namespace PeacefulHills.Network.Connection
 
             network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);
             Dependency = network.DriverDependency;
+            
             _buffer.AddJobHandleForProducer(network.DriverDependency);
         }
 
@@ -42,13 +43,10 @@ namespace PeacefulHills.Network.Connection
                 NetworkConnection connection;
                 while ((connection = Driver.Accept()) != default)
                 {
-                    if (connection.PopEvent(Driver, out DataStreamReader _) != NetworkEvent.Type.Empty)
+                    if (connection.PopEvent(Driver, out DataStreamReader _) == NetworkEvent.Type.Empty)
                     {
-                        continue;
+                        ConnectionBuilder.CreateConnection(CommandBuffer, connection);
                     }
-
-                    Entity entity = CommandBuffer.CreateEntity();
-                    CommandBuffer.SetComponent(entity, new ConnectionWrapper {Connection = connection});
                 }
             }
         }
