@@ -3,18 +3,17 @@
 namespace PeacefulHills.Network.Connection
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
+    [UpdateAfter(typeof(BeginNetworkSimulationBuffer))]
     public class ConnectionSimulationGroup : ComponentSystemGroup
     {
     }
 
     [UpdateInGroup(typeof(ConnectionSimulationGroup), OrderFirst = true)]
-    [AlwaysUpdateSystem]
     public class BeginConnectionSimulationBuffer : EntityCommandBufferSystem
     {
     }
 
     [UpdateInGroup(typeof(ConnectionSimulationGroup), OrderLast = true)]
-    [AlwaysUpdateSystem]
     public class EndConnectionSimulationBuffer : EntityCommandBufferSystem
     {
     }

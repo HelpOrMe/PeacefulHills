@@ -10,13 +10,11 @@ namespace PeacefulHills.Network.Messages
     }
 
     [UpdateInGroup(typeof(MessagesSimulationGroup), OrderFirst = true)]
-    [AlwaysUpdateSystem]
     public class BeginMessagesSimulationBuffer : EntityCommandBufferSystem
     {
     }
 
     [UpdateInGroup(typeof(MessagesSimulationGroup), OrderLast = true)]
-    [AlwaysUpdateSystem]
     public class EndMessagesSimulationBuffer : EntityCommandBufferSystem
     {
     }

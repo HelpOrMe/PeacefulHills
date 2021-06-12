@@ -10,13 +10,11 @@ namespace PeacefulHills.Network
     }
 
     [UpdateInGroup(typeof(NetworkInitializationGroup), OrderFirst = true)]
-    [AlwaysUpdateSystem]
     public class BeginNetworkInitializationBuffer : EntityCommandBufferSystem
     {
     }
 
     [UpdateInGroup(typeof(NetworkInitializationGroup), OrderLast = true)]
-    [AlwaysUpdateSystem]
     public class EndNetworkInitializationBuffer : EntityCommandBufferSystem
     {
     }
@@ -28,13 +26,11 @@ namespace PeacefulHills.Network
     }
 
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
-    [AlwaysUpdateSystem]
     public class BeginNetworkSimulationBuffer : EntityCommandBufferSystem
     {
     }
 
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderLast = true)]
-    [AlwaysUpdateSystem]
     public class EndNetworkSimulationBuffer : EntityCommandBufferSystem
     {
     }

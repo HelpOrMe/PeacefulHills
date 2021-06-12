@@ -4,7 +4,6 @@ using Unity.Entities;
 namespace PeacefulHills.Network
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
-    [UpdateBefore(typeof(EndNetworkSimulationBuffer))]
     public class NetworkDriverSystem : SystemBase
     {
         protected override void OnCreate()
