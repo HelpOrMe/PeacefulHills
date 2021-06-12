@@ -13,18 +13,25 @@ namespace PeacefulHills.Network.Messages
     {
         protected EntityQuery MessagesQuery;
         protected EntityQuery ConnectionsQuery;
+
         protected EndWriteMessagesBuffer Buffer;
-     
         protected MessagesScheduler<TMessage, TMessageSerializer> Scheduler;
         
         protected override void OnCreate()
         {
-            this.RequireExtension<IMessagesRegistry>();
-            World.RequestExtension<IMessagesRegistry>(CreateScheduler);
-
-            MessagesQuery = GetEntityQuery(typeof(TMessage), typeof(MessageSendRequest));
-            ConnectionsQuery = GetEntityQuery(typeof(ConnectionWrapper));
+            MessagesQuery = GetEntityQuery(
+                ComponentType.ReadOnly<TMessage>(),
+                ComponentType.ReadOnly<MessageSendRequest>());
+            
+            ConnectionsQuery = GetEntityQuery(
+                ComponentType.ReadOnly<ConnectionWrapper>());
+            
+            // RequireForUpdate overwrites cached requirements of system,
+            // so system will only update when MessagesQuery has matches.
+            RequireForUpdate(MessagesQuery);
+            
             Buffer = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
+            World.RequestExtension<IMessagesRegistry>(CreateScheduler);
         }
 
         private void CreateScheduler(IMessagesRegistry registry)
@@ -32,6 +39,9 @@ namespace PeacefulHills.Network.Messages
             Scheduler = new MessagesScheduler<TMessage, TMessageSerializer>(registry.GetId<TMessage>());
         }
 
+        /// <summary>
+        ///     Provides a write job for inherited message systems.
+        /// </summary>
         protected WriteMessageJob<TMessage, TMessageSerializer> GetWriteJob()
         {
             var connections = ConnectionsQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle dependency);
@@ -48,7 +58,10 @@ namespace PeacefulHills.Network.Messages
                 CommandBuffer = Buffer.CreateCommandBuffer().AsParallelWriter()
             };
         }
-
+        
+        /// <summary>
+        ///     Handle dependency of a write job from inherited message systems.
+        /// </summary>
         protected void HandleDependency(JobHandle dependency)
         {
             Dependency = dependency;
