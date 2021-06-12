@@ -3,6 +3,7 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Networking.Transport;
+using UnityEngine;
 
 namespace PeacefulHills.Network.Connection
 {
@@ -23,7 +24,8 @@ namespace PeacefulHills.Network.Connection
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob
             {
-                Driver = network.Driver, CommandBuffer = commandBuffer
+                Driver = network.Driver, 
+                CommandBuffer = commandBuffer
             };
 
             network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);

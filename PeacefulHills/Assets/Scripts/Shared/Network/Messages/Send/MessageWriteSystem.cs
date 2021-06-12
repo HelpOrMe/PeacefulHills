@@ -1,9 +1,8 @@
 ﻿using PeacefulHills.ECS.World;
-using Unity.Burst;
+using PeacefulHills.Network.Connection;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
-using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Messages
 {
@@ -24,6 +23,7 @@ namespace PeacefulHills.Network.Messages
             World.RequestExtension<IMessagesRegistry>(CreateScheduler);
 
             MessagesQuery = GetEntityQuery(typeof(TMessage), typeof(MessageSendRequest));
+            ConnectionsQuery = GetEntityQuery(typeof(ConnectionWrapper));
             Buffer = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
         }
 
@@ -43,15 +43,15 @@ namespace PeacefulHills.Network.Messages
                 MessageHandle = GetComponentTypeHandle<TMessage>(true),
                 RequestHandle = GetComponentTypeHandle<MessageSendRequest>(true),
                 Connections = connections,
+                MessagesBufferFromEntity = GetBufferFromEntity<MessagesSendBuffer>(),
                 Scheduler = Scheduler,
-                MessagesBufferFromEntity = GetBufferFromEntity<MessagesSendBuffer>(true),
                 CommandBuffer = Buffer.CreateCommandBuffer().AsParallelWriter()
             };
         }
 
-        protected void ScheduleWriteJob<TJob>(TJob job) where TJob : unmanaged, IJobChunk
+        protected void HandleDependency(JobHandle dependency)
         {
-            Dependency = job.ScheduleParallel(MessagesQuery, Dependency);
+            Dependency = dependency;
             Buffer.AddJobHandleForProducer(Dependency);
         }
     }

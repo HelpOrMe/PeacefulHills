@@ -12,11 +12,10 @@ namespace PeacefulHills.Network.Messages
         [ReadOnly] public EntityTypeHandle EntityHandle;
         [ReadOnly] public ComponentTypeHandle<TMessage> MessageHandle;
         [ReadOnly] public ComponentTypeHandle<MessageSendRequest> RequestHandle;
-        [ReadOnly] public NativeArray<Entity> Connections;
+        [ReadOnly, DeallocateOnJobCompletion] public NativeArray<Entity> Connections;
+        [NativeDisableParallelForRestriction] public BufferFromEntity<MessagesSendBuffer> MessagesBufferFromEntity;
         
         public MessagesScheduler<TMessage, TMessageSerializer> Scheduler;
-
-        public BufferFromEntity<MessagesSendBuffer> MessagesBufferFromEntity;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
