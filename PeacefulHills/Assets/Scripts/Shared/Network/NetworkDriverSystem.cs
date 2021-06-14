@@ -15,7 +15,6 @@ namespace PeacefulHills.Network
         {
             var network = World.GetExtension<INetwork>();
             network.DriverDependency.Complete();
-            network.DriverConcurrent = network.Driver.ToConcurrent();
             network.DriverDependency = network.Driver.ScheduleUpdate();
         }
     }
