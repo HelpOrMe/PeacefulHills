@@ -5,28 +5,30 @@ namespace PeacefulHills.Network.Messages
 {
     public class MessagesRegistry : IMessagesRegistry
     {
-        private ushort _lastMessageId;
+        public NativeList<MessageInfo> Messages => _messages;
+        
         private NativeHashMap<ulong, ushort> _messageIdsByStableHash;
-        private NativeHashMap<ushort, MessageInfo> _messagesById;
+        private NativeList<MessageInfo> _messages;
 
         public MessagesRegistry()
         {
             _messageIdsByStableHash = new NativeHashMap<ulong, ushort>(1, Allocator.Persistent);
-            _messagesById = new NativeHashMap<ushort, MessageInfo>(1, Allocator.Persistent);
+            _messages = new NativeList<MessageInfo>(1, Allocator.Persistent);
         }
-
-        public uint Register<TMessage>() where TMessage : IMessage
+        
+        public ushort Register<TMessage>() where TMessage : IMessage
         {
-            ushort id = _lastMessageId++;
+            ushort id = (ushort)_messages.Length;
             TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
-            _messagesById[_lastMessageId] = new MessageInfo(typeInfo, _lastMessageId);
+            _messages.Add(new MessageInfo(typeInfo, id));
             _messageIdsByStableHash[typeInfo.StableTypeHash] = id;
+            
             return id;
         }
 
         public MessageInfo GetInfoById(ushort id)
         {
-            return _messagesById[id];
+            return _messages[id];
         }
 
         public ushort GetIdByStableHash(ulong stableHash)
@@ -37,7 +39,7 @@ namespace PeacefulHills.Network.Messages
         public void Dispose()
         {
             _messageIdsByStableHash.Dispose();
-            _messagesById.Dispose();
+            _messages.Dispose();
         }
     }
 }
