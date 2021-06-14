@@ -11,7 +11,11 @@ namespace PeacefulHills.Network
     public interface INetwork : IWorldExtension
     {
         public NetworkDriver Driver { get; }
-        public NetworkDriver.Concurrent DriverConcurrent { get; set; }
+        public NetworkDriver.Concurrent DriverConcurrent { get; }
+        
+        public NetworkPipeline ReliablePipeline { get; }
+        public NetworkPipeline UnreliablePipeline { get; }
+     
         public JobHandle DriverDependency { get; set; }
     }
 }
