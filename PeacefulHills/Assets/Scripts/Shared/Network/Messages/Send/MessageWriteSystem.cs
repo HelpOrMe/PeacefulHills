@@ -6,7 +6,7 @@ using Unity.Jobs;
 
 namespace PeacefulHills.Network.Messages
 {
-    [UpdateInGroup(typeof(WriteMessagesGroup))]
+    [UpdateInGroup(typeof(MessagesWriteGroup))]
     public abstract class WriteMessageSystem<TMessage, TMessageSerializer> : SystemBase
         where TMessage : unmanaged, IComponentData, IMessage
         where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
@@ -14,7 +14,7 @@ namespace PeacefulHills.Network.Messages
         protected EntityQuery MessagesQuery;
         protected EntityQuery ConnectionsQuery;
 
-        protected EndWriteMessagesBuffer Buffer;
+        protected EndMessagesWriteBuffer Buffer;
         protected MessagesScheduler<TMessage, TMessageSerializer> Scheduler;
         
         protected override void OnCreate()
@@ -30,7 +30,7 @@ namespace PeacefulHills.Network.Messages
             // so system will only update when MessagesQuery has matches.
             RequireForUpdate(MessagesQuery);
             
-            Buffer = World.GetOrCreateSystem<EndWriteMessagesBuffer>();
+            Buffer = World.GetOrCreateSystem<EndMessagesWriteBuffer>();
             World.RequestExtension<IMessagesRegistry>(CreateScheduler);
         }
 

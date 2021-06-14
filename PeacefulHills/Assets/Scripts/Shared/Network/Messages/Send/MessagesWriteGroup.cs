@@ -1,21 +1,20 @@
-﻿using PeacefulHills.Network.Connection;
-using Unity.Entities;
+﻿using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
     [UpdateInGroup(typeof(MessagesSimulationGroup))]
-    public class WriteMessagesGroup : ComponentSystemGroup
+    public class MessagesWriteGroup : ComponentSystemGroup
     {
         
     }
     
-    [UpdateInGroup(typeof(WriteMessagesGroup), OrderFirst = true)]
-    public class BeginWriteMessagesBuffer : EntityCommandBufferSystem
+    [UpdateInGroup(typeof(MessagesWriteGroup), OrderFirst = true)]
+    public class BeginMessagesWriteBuffer : EntityCommandBufferSystem
     {
     }
 
-    [UpdateInGroup(typeof(WriteMessagesGroup), OrderLast = true)]
-    public class EndWriteMessagesBuffer : EntityCommandBufferSystem
+    [UpdateInGroup(typeof(MessagesWriteGroup), OrderLast = true)]
+    public class EndMessagesWriteBuffer : EntityCommandBufferSystem
     {
     }
 }
