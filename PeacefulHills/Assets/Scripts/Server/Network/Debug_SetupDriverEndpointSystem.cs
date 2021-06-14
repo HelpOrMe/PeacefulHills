@@ -5,29 +5,24 @@ using Unity.Networking.Transport;
 namespace PeacefulHills.Network
 {
     [UpdateInGroup(typeof(NetworkInitializationGroup))]
-    public class ServerInitializationSystem : SystemBase
+    public class SetupDriverEndpointSystem : SystemBase
     {
         protected override void OnCreate()
         {
-            World.SetExtension(InitializeNetwork());
+            World.RequestExtension<INetwork>(SetupDriverEndpoint);
         }
 
-        protected virtual INetwork InitializeNetwork()
+        protected void SetupDriverEndpoint(INetwork network)
         {
-            var driver = NetworkDriver.Create();
-
-            var network = new Network {Driver = driver, DriverConcurrent = driver.ToConcurrent()};
-
             NetworkEndPoint endpoint = NetworkEndPoint.AnyIpv4;
             endpoint.Port = 9000;
 
-            if (driver.Bind(endpoint) != 0)
+            if (network.Driver.Bind(endpoint) != 0)
             {
                 throw new NetworkSimulationException("Unable to bind port " + endpoint.Port);
             }
 
-            driver.Listen();
-            return network;
+            network.Driver.Listen();
         }
 
         protected override void OnUpdate()

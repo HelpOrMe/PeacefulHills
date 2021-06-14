@@ -11,7 +11,7 @@ namespace E7.EcsTesting
     [DisableAutoCreation]
     public class ConstantDeltaTimeSystem : ComponentSystem
     {
-        float defaultDeltaTime = 1 / 60f;
+        private float defaultDeltaTime = 1 / 60f;
         private float simulatedElapsedTime;
         private float constantDeltaTime;
 
@@ -24,23 +24,26 @@ namespace E7.EcsTesting
             {
                 timeSystem.Enabled = false;
             }
-            this.constantDeltaTime = defaultDeltaTime;
+            constantDeltaTime = defaultDeltaTime;
         }
 
         public void ForceDeltaTime(float dt)
         {
-            this.constantDeltaTime = dt;
+            constantDeltaTime = dt;
         }
 
-        public void RestoreDeltaTime() => this.constantDeltaTime = defaultDeltaTime;
+        public void RestoreDeltaTime()
+        {
+            constantDeltaTime = defaultDeltaTime;
+        }
 
         protected override void OnUpdate()
         {
             simulatedElapsedTime += constantDeltaTime;
             World.SetTime(new TimeData(
-                elapsedTime: simulatedElapsedTime,
-                deltaTime: constantDeltaTime
-            ));
+                              simulatedElapsedTime,
+                              constantDeltaTime
+                          ));
         }
     }
 }

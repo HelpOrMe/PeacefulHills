@@ -16,11 +16,11 @@ namespace E7.EcsTesting
     /// </summary>
     public partial class EntityAssertionQuery
     {
-        EntityManager em;
+        private EntityManager em;
 
         public EntityAssertionQuery(World world)
         {
-            this.em = world.EntityManager;
+            em = world.EntityManager;
         }
 
         public int EntityCountComponentObject<CD>(Func<CD, bool> where = null) where CD : class, IComponentData
@@ -31,11 +31,11 @@ namespace E7.EcsTesting
         public CD[] ComponentObjects<CD>(Func<CD, bool> where = null) where CD : class, IComponentData
         {
             CD[] array;
-            using (var eq = em.CreateEntityQuery(
+            using (EntityQuery eq = em.CreateEntityQuery(
                 ComponentType.ReadOnly<CD>()
             ))
             {
-                var na = eq.ToEntityArray(Allocator.TempJob);
+                NativeArray<Entity> na = eq.ToEntityArray(Allocator.TempJob);
                 array = new CD[na.Length];
                 for (int i = 0; i < na.Length; i++)
                 {
@@ -48,7 +48,7 @@ namespace E7.EcsTesting
                 return array;
             }
 
-            List<CD> list = new List<CD>();
+            var list = new List<CD>();
             for (int i = 0; i < array.Length; i++)
             {
                 if (where.Invoke(array[i]) == true)
@@ -67,17 +67,17 @@ namespace E7.EcsTesting
 
         public Entity GetSingleEntityObject<CD>() where CD : class, IComponentData
         {
-            using (var eq = em.CreateEntityQuery(
+            using (EntityQuery eq = em.CreateEntityQuery(
                 ComponentType.ReadOnly<CD>()
             ))
             {
-                var na = eq.ToEntityArray(Allocator.TempJob);
+                NativeArray<Entity> na = eq.ToEntityArray(Allocator.TempJob);
 
-                var array = na.ToArray();
+                Entity[] array = na.ToArray();
                 na.Dispose();
                 if (array.Length != 1)
                 {
-                    throw new System.InvalidOperationException(
+                    throw new InvalidOperationException(
                         $"GetSingleObject() requires that exactly one exists but there are {array.Length}.");
                 }
 
