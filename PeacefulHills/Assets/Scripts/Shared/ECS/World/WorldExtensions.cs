@@ -41,8 +41,7 @@ namespace PeacefulHills.ECS.World
             ulong worldSequence = system.World.SequenceNumber;
             if (!WorldExtension<TExtension>.Exist(worldSequence))
             {
-                WorldExtension<TExtension>.Request(worldSequence,
-                                                   extension => { system.CreateSingleton<TExtension>(); });
+                WorldExtension<TExtension>.Request(worldSequence, extension => { system.CreateSingleton<TExtension>(); });
             }
             else if (!system.HasSingleton<ExtensionSingleton<TExtension>>())
             {
