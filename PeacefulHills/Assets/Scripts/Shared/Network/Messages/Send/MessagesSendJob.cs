@@ -21,18 +21,18 @@ namespace PeacefulHills.Network.Messages
         
         public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
-            NativeArray<ConnectionWrapper> connectionWrappers = chunk.GetNativeArray(ConnectionHandle);
+            NativeArray<ConnectionWrapper> connections = chunk.GetNativeArray(ConnectionHandle);
             BufferAccessor<MessagesSendBuffer> messageBuffers = chunk.GetBufferAccessor(MessagesBufferHandle);
 
             for (int i = 0; i < chunk.Count; i++)
             {
-                ConnectionWrapper connectionWrapper = connectionWrappers[i];
+                ConnectionWrapper connectionWrapper = connections[i];
                 DynamicBuffer<MessagesSendBuffer> messagesBuffer = messageBuffers[i];
 
                 while (messagesBuffer.Length > 1)
                 {
                     int result;
-                    if ((result = Driver.BeginSend(Pipeline, connectionWrapper.Connection, out var writer)) != 0)
+                    if ((result = Driver.BeginSend(Pipeline, connectionWrapper.Value, out var writer)) != 0)
                     {
                         Debug.LogWarning($"An error occured during BeginSend. ErrorCode: {result}");
                         break;

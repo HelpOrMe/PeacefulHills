@@ -5,6 +5,6 @@ namespace PeacefulHills.Network.Connection
 {
     public struct ConnectionWrapper : IComponentData
     {
-        public NetworkConnection Connection;
+        public NetworkConnection Value;
     }
 }

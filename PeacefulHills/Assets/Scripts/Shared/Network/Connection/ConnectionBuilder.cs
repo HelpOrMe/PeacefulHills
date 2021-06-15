@@ -4,18 +4,20 @@ using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Connection
 {
-    public struct ConnectionBuilder
+    public static class ConnectionBuilder
     {
         public static void CreateConnection(EntityCommandBuffer commandBuffer, NetworkConnection connection)
         {
-            Entity entity = commandBuffer.CreateEntity();
+            Entity connectionEntity = commandBuffer.CreateEntity();
                     
-            commandBuffer.AddComponent(entity, new ConnectionWrapper {Connection = connection});
-            commandBuffer.AddBuffer<MessagesSendBuffer>(entity)
-               .Add(new MessagesSendBuffer 
-                {
-                    Value = (byte)NetworkPackageType.Message
-                });
+            // TODO: Temporary solution
+            
+            commandBuffer.AddComponent(connectionEntity, new ConnectionWrapper {Value = connection});
+            
+            commandBuffer.AddBuffer<MessagesSendBuffer>(connectionEntity).Add(new MessagesSendBuffer 
+            {
+                Value = (byte)NetworkPackageType.Message
+            });
         }
     }
 }

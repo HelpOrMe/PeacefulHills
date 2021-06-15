@@ -24,11 +24,11 @@ namespace PeacefulHills.Network.Connection
             network.DriverDependency = Entities
                .WithName("Interrupt_connections")
                .WithAll<ConnectionInterrupt>()
-               .ForEach((Entity entity, ref ConnectionWrapper connectionWrapper) =>
+               .ForEach((Entity entity, ref ConnectionWrapper connection) =>
                 {
-                    if (!connectionWrapper.Connection.IsCreated)
+                    if (!connection.Value.IsCreated)
                     {
-                        driver.Disconnect(connectionWrapper.Connection);
+                        driver.Disconnect(connection.Value);
                     }
                     commandBuffer.DestroyEntity(entity);
                 })
