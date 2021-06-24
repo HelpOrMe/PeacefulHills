@@ -3,7 +3,6 @@ using Unity.Burst;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Networking.Transport;
-using UnityEngine;
 
 namespace PeacefulHills.Network.Connection
 {
