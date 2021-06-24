@@ -11,7 +11,7 @@ namespace PeacefulHills.Bootstrap
         {
             var world = new World("Default world");
 
-            List<Type> types = Systems.All().Types().ToList();
+            List<Type> types = Systems.AllTree().Types().ToList();
 
             world.AddSystems(types);
             world.Loop();

@@ -6,12 +6,14 @@ namespace PeacefulHills.Bootstrap
     public readonly struct WorldInfo
     {
         public readonly Type Type;
+        public readonly Type BaseType;
         public readonly List<Type> PartTypes;
 
-        public WorldInfo(Type type, List<Type> partTypes)
+        public WorldInfo(Type type, Type baseType, List<Type> partTypes)
         {
             Type = type;
             PartTypes = partTypes;
+            BaseType = baseType;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace PeacefulHills.Network
         public override World Initialize()
         {
             var world = new World("Network world");
-            world.AddSystems(Systems.All().Types());
+            world.AddSystems(Systems.AllTree().Types());
             world.Loop();
             return world;
         }

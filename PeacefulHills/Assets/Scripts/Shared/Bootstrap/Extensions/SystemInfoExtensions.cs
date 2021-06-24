@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Unity.Entities;
+using UnityEngine;
 
 namespace PeacefulHills.Bootstrap
 {
@@ -40,6 +42,11 @@ namespace PeacefulHills.Bootstrap
             return systems.Where(targetGroups.Contains);
         }
 
+        public static IEnumerable<SystemInfo> MatchAssembly(this IEnumerable<SystemInfo> systems, string pattern)
+        {
+            return systems.Where(system => Regex.IsMatch(system.Type.Assembly.FullName, pattern));
+        }
+        
         public static IEnumerable<SystemInfo> Nested(this IEnumerable<SystemInfo> systems)
         {
             foreach (SystemInfo system in systems)
@@ -51,24 +58,24 @@ namespace PeacefulHills.Bootstrap
             }
         }
 
-        public static IEnumerable<SystemInfo> All(this IEnumerable<SystemInfo> systems)
+        public static IEnumerable<SystemInfo> AllTree(this IEnumerable<SystemInfo> systems)
         {
             foreach (SystemInfo system in systems)
             {
-                foreach (SystemInfo systemInfo in system.All())
+                foreach (SystemInfo systemInfo in system.AllTree())
                 {
                     yield return systemInfo;
                 }
             }
         }
 
-        public static IEnumerable<SystemInfo> All(this SystemInfo system)
+        public static IEnumerable<SystemInfo> AllTree(this SystemInfo system)
         {
             yield return system;
 
             foreach (SystemInfo nestedSystem in system.NestedSystems)
             {
-                foreach (SystemInfo systemInfo in All(nestedSystem))
+                foreach (SystemInfo systemInfo in AllTree(nestedSystem))
                 {
                     yield return systemInfo;
                 }

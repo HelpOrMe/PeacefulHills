@@ -19,7 +19,7 @@ namespace PeacefulHills.Bootstrap
 
             foreach (WorldInfo worldInfo in bootstrapWorlds)
             {
-                if (!systemsByWorld.ContainsKey(worldInfo.Type))
+                if (!systemsByWorld.ContainsKey(worldInfo.BaseType))
                 {
                     Debug.LogWarning($"{worldInfo.Type.Name} does not contain any groups that refer to it.");
                     continue;
@@ -27,7 +27,7 @@ namespace PeacefulHills.Bootstrap
 
                 if (Activator.CreateInstance(worldInfo.Type) is BootstrapWorldBase bootstrapWorld)
                 {
-                    List<SystemInfo> worldSystems = systemsByWorld[worldInfo.Type];
+                    List<SystemInfo> worldSystems = systemsByWorld[worldInfo.BaseType];
 
                     bootstrapWorld.Systems = worldSystems;
                     World world = bootstrapWorld.Initialize();
@@ -70,12 +70,19 @@ namespace PeacefulHills.Bootstrap
         {
             foreach (Type type in types)
             {
-                if (typeof(BootstrapWorldBase).IsAssignableFrom(type) && !type.IsAbstract)
+                if (!typeof(BootstrapWorldBase).IsAssignableFrom(type) || type.IsAbstract)
                 {
-                    if (!worldsMap.ContainsKey(type))
-                    {
-                        worldsMap[type] = new WorldInfo(type, new List<Type>());
-                    }
+                    continue;
+                }
+
+                Type worldBaseType = type;
+                for (; worldBaseType!.BaseType != typeof(BootstrapWorldBase); worldBaseType = worldBaseType!.BaseType)
+                {
+                }
+                
+                if (!worldsMap.ContainsKey(worldBaseType) || worldsMap[worldBaseType].Type.IsAssignableFrom(type))
+                {
+                    worldsMap[worldBaseType] = new WorldInfo(type, worldBaseType, new List<Type>());
                 }
             }
         }
