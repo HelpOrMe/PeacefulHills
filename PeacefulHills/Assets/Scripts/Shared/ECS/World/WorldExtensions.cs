@@ -41,20 +41,29 @@ namespace PeacefulHills.ECS.World
             ulong worldSequence = system.World.SequenceNumber;
             if (!WorldExtension<TExtension>.Exist(worldSequence))
             {
-                WorldExtension<TExtension>.Request(worldSequence, extension => { system.CreateSingleton<TExtension>(); });
+                WorldExtension<TExtension>.Request(worldSequence, extension =>
+                {
+                    system.CreateExtensionSingleton<TExtension>();
+                });
             }
-            else if (!system.HasSingleton<ExtensionSingleton<TExtension>>())
+            else if (!system.HasExtensionSingleton<TExtension>())
             {
-                system.CreateSingleton<TExtension>();
+                system.CreateExtensionSingleton<TExtension>();
             }
 
             system.RequireSingletonForUpdate<ExtensionSingleton<TExtension>>();
         }
 
-        private static void CreateSingleton<TExtension>(this ComponentSystemBase system)
+        private static void CreateExtensionSingleton<TExtension>(this ComponentSystemBase system)
             where TExtension : IWorldExtension
         {
             system.EntityManager.CreateEntity(typeof(ExtensionSingleton<TExtension>));
+        }
+        
+        private static bool HasExtensionSingleton<TExtension>(this ComponentSystemBase system)
+            where TExtension : IWorldExtension
+        {
+            return system.HasSingleton<ExtensionSingleton<TExtension>>();
         }
     }
 }
