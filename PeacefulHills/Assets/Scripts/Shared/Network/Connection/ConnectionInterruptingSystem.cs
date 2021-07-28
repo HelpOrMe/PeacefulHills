@@ -7,11 +7,11 @@ namespace PeacefulHills.Network.Connection
     [UpdateInGroup(typeof(ConnectionSimulationGroup))]
     public class ConnectionInterruptingSystem : SystemBase
     {
-        private EndConnectionSimulationBuffer _buffer;
+        private EndNetworkSimulationBuffer _buffer;
 
         protected override void OnCreate()
         {
-            _buffer = World.GetOrCreateSystem<EndConnectionSimulationBuffer>();
+            _buffer = World.GetOrCreateSystem<EndNetworkSimulationBuffer>();
         }
 
         protected override void OnUpdate()
