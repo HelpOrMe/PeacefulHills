@@ -1,5 +1,4 @@
-﻿using PeacefulHills.Network.Connection;
-using Unity.Entities;
+﻿using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {

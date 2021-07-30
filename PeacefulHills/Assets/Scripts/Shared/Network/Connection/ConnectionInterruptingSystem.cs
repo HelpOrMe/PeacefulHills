@@ -2,7 +2,7 @@
 using Unity.Entities;
 using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network.Connection
+namespace PeacefulHills.Network
 {
     [UpdateInGroup(typeof(ConnectionSimulationGroup))]
     public class ConnectionInterruptingSystem : SystemBase

@@ -3,7 +3,7 @@ using PeacefulHills.Network.Receive;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network.Connection
+namespace PeacefulHills.Network
 {
     // TODO: Temporary solution
     public static class ConnectionBuilder

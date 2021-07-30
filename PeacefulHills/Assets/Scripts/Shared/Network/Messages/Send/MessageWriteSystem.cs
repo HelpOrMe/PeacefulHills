@@ -1,5 +1,4 @@
 ﻿using PeacefulHills.ECS.World;
-using PeacefulHills.Network.Connection;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;

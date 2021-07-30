@@ -1,7 +1,7 @@
 ﻿using Unity.Entities;
 using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network.Connection
+namespace PeacefulHills.Network
 {
     public struct ConnectionWrapper : IComponentData
     {

@@ -7,7 +7,7 @@ namespace PeacefulHills.Editor.Network.Simulation
 {
     public class NetworkSimulationWindow : EditorWindow
     {
-        private ProfilingSettings _settings;
+        private WorldsInitializationSettings _settings;
         
         [MenuItem("Window/Network/Simulation", priority=3000)]
         private static void MenuShow()
@@ -24,7 +24,7 @@ namespace PeacefulHills.Editor.Network.Simulation
 
         private void OnGUI()
         {
-            _settings ??= ProfilingSettings.Load();
+            _settings ??= WorldsInitializationSettings.Load();
             
             EditorGUI.indentLevel++;
 

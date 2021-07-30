@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-namespace PeacefulHills.Network.Connection
+namespace PeacefulHills.Network
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
     [UpdateAfter(typeof(BeginNetworkSimulationBuffer))]

@@ -1,4 +1,4 @@
-﻿using PeacefulHills.Network.Connection;
+﻿using PeacefulHills.Network.Profiling;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;

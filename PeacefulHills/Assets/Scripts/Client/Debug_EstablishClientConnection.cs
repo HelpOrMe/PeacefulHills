@@ -1,6 +1,4 @@
-﻿using System;
-using PeacefulHills.Network;
-using Unity.Collections;
+﻿using PeacefulHills.Network;
 using Unity.Entities;
 using Unity.Networking.Transport;
 using UnityEngine;
@@ -44,7 +42,6 @@ namespace PeacefulHills
             
             while ((cmd = _driver.PopEventForConnection(_connection, out reader)) != NetworkEvent.Type.Empty)
             {
-                Debug.Log(cmd);
                 switch (cmd)
                 {
                     case NetworkEvent.Type.Data:

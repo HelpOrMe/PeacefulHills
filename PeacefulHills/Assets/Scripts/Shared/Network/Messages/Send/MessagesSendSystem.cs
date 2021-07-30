@@ -1,6 +1,6 @@
 ﻿using PeacefulHills.ECS.World;
-using PeacefulHills.Network.Connection;
 using Unity.Entities;
+using Unity.Profiling;
 
 namespace PeacefulHills.Network.Messages
 {
@@ -13,11 +13,13 @@ namespace PeacefulHills.Network.Messages
         protected override void OnCreate()
         {
             _connectionsQuery = GetEntityQuery(ComponentType.ReadOnly<ConnectionWrapper>(), typeof(MessagesSendBuffer));
-            _connectionsQuery.AddChangedVersionFilter(typeof(MessagesSendBuffer));
         }
 
         protected override void OnUpdate()
         {
+            var counter = new ProfilerCounterValue<int>(ProfilerCategory.Network, "Network.Messages.Send", ProfilerMarkerDataUnit.Bytes);
+            counter.Value += 1;
+            
             var registry = World.GetExtension<IMessagesRegistry>();
             var network = World.GetExtension<INetwork>();
             
@@ -30,8 +32,8 @@ namespace PeacefulHills.Network.Messages
                 Driver = network.DriverConcurrent
             };
 
-            Dependency = job.ScheduleParallel(_connectionsQuery, network.DriverDependency);
-            network.DriverDependency = Dependency;
+            network.DriverDependency = job.ScheduleParallel(_connectionsQuery, network.DriverDependency);
+            Dependency = network.DriverDependency;
         }
     }
 }

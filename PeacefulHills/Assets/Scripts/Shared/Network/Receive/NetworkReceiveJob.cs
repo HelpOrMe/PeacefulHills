@@ -1,5 +1,4 @@
-﻿using PeacefulHills.Network.Connection;
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
