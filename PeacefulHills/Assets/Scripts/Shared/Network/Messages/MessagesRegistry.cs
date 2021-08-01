@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
@@ -16,14 +17,17 @@ namespace PeacefulHills.Network.Messages
             _messages = new NativeList<MessageInfo>(1, Allocator.Persistent);
         }
         
-        public ushort Register<TMessage>() where TMessage : IMessage
+        public void Register<TMessage, TMessageSerializer>() 
+            where TMessage : struct, IMessage 
+            where TMessageSerializer : struct, IMessageSerializer<TMessage>
         {
             ushort id = (ushort)_messages.Length;
             TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
-            _messages.Add(new MessageInfo(typeInfo, id));
-            _messageIdsByStableHash[typeInfo.StableTypeHash] = id;
+            FunctionPointer<DeserializeAction> deserialize = 
+                MessageSerializerStatic<TMessage, TMessageSerializer>.DeserializeAction;
             
-            return id;
+            _messages.Add(new MessageInfo(typeInfo, id, deserialize));
+            _messageIdsByStableHash[typeInfo.StableTypeHash] = id;
         }
 
         public MessageInfo GetInfoById(ushort id)

@@ -4,7 +4,6 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Networking.Transport;
 using Unity.Profiling;
-using UnityEngine;
 
 namespace PeacefulHills.Network.Messages
 {
@@ -101,7 +100,7 @@ namespace PeacefulHills.Network.Messages
             if (writer.Length == 0)
             {
                 throw new NetworkSimulationException(
-                    $"Cannot send message {messageId}, because its size is too big: ({messageSize}/{writer.Capacity}");
+                    $"Cannot send message {messageId} because its size is too big: ({messageSize}/{writer.Capacity}");
             }
         }
         

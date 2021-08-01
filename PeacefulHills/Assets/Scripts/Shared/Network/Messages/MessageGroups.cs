@@ -19,7 +19,7 @@ namespace PeacefulHills.Network.Messages
     {
         protected override void OnUpdate()
         {
-            MessageProfilerCounters.BytesSent.Value = 0;
+            MessagesProfilerCounters.BytesSent.Value = 0;
             base.OnUpdate();
         }
     }
@@ -30,7 +30,7 @@ namespace PeacefulHills.Network.Messages
         protected override void OnUpdate()
         {
             base.OnUpdate();
-            MessageProfilerCounters.BytesSent.Sample();
+            MessagesProfilerCounters.BytesSent.Sample();
         }
     }
 }

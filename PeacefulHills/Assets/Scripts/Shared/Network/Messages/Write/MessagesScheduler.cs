@@ -24,7 +24,7 @@ namespace PeacefulHills.Network.Messages
             var writer = new DataStreamWriter(sizeof(TMessage) + messageIdSize, Allocator.Temp);
                 
             writer.WriteUShort(MessageId);
-            serializer.Write(in message, ref writer);
+            serializer.Serialize(in message, ref writer);
 
             int previousBufferLength = messagesSendBuffer.Length;
             messagesSendBuffer.ResizeUninitialized(messagesSendBuffer.Length + writer.Length);

@@ -28,7 +28,7 @@ namespace PeacefulHills.Network.Messages
                 MessagesBufferHandle = GetBufferTypeHandle<MessagesSendBuffer>(),
                 Pipeline = network.ReliablePipeline,
                 Driver = network.DriverConcurrent,
-                MessagesBytesSentCounter = MessageProfilerCounters.BytesSent,
+                MessagesBytesSentCounter = MessagesProfilerCounters.BytesSent,
                 BytesSentCounter = NetworkProfilerCounters.BytesSent
             };
 

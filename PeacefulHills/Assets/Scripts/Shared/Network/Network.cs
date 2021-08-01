@@ -12,5 +12,11 @@ namespace PeacefulHills.Network
         public NetworkPipeline UnreliablePipeline { get; set;}
         
         public JobHandle DriverDependency { get; set; }
+
+        public void Dispose()
+        {
+            DriverDependency.Complete();
+            Driver.Dispose();
+        }
     }
 }

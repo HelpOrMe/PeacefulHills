@@ -10,12 +10,14 @@ namespace PeacefulHills.Network.Messages
 {
     public interface IMessagesRegistry : IWorldExtension, IDisposable
     {
-        public NativeList<MessageInfo> Messages { get; }
-        
-        public ushort Register<TMessage>() where TMessage : IMessage;
+        NativeList<MessageInfo> Messages { get; }
 
-        public MessageInfo GetInfoById(ushort id);
+        void Register<TMessage, TMessageSerializer>()
+            where TMessage : struct, IMessage
+            where TMessageSerializer : struct, IMessageSerializer<TMessage>;
 
-        public ushort GetIdByStableHash(ulong stableHash);
+        MessageInfo GetInfoById(ushort id);
+
+        ushort GetIdByStableHash(ulong stableHash);
     }
 }

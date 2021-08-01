@@ -25,8 +25,7 @@ namespace PeacefulHills.Network
         protected override void OnDestroy()
         {
             var network = World.GetExtension<INetwork>();
-            network.DriverDependency.Complete();
-            network.Driver.Dispose();
+            network.Dispose();
         }
 
         protected override void OnUpdate()

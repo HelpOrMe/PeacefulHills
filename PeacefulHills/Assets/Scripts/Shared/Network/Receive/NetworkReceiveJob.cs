@@ -27,6 +27,7 @@ namespace PeacefulHills.Network.Receive
                     
                     DataStreamReader reader;
                     NetworkEvent.Type cmd;
+                    
                     while ((cmd = Driver.PopEventForConnection(connection.Value, out reader)) != NetworkEvent.Type.Empty)
                     {
                         if (cmd == NetworkEvent.Type.Data)
