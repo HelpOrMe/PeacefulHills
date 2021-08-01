@@ -9,11 +9,11 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network.Profiling
 {
-    public class ProfiledNetworkWorldBootstrap : NetworkWorldBootstrap
+    public class SplitNetworkWorldBootstrap : NetworkWorldBootstrap
     {
         public override World Initialize()
         {
-            IProfilingSettings settings = ProfilingSettings.Load();
+            IWorldsInitializationSettings settings = WorldsInitializationSettings.Load();
             
             if (settings.SeparateWorlds)
             {
@@ -23,16 +23,16 @@ namespace PeacefulHills.Network.Profiling
  
                 for (int i = 0; i < settings.ClientCount; i++)
                 {
-                    InitializeSideWorld($"Client world №{i + 1}", clients, settings);
+                    InitializeSideWorld($@"Client world №{i + 1}", clients, settings);
                 }
                 
                 return InitializeSideWorld("Server world", servers, settings);
             }
 
-            return StandardWorldInitialization();
+            return InitializeNetworkWorld();
         }
 
-        private World InitializeSideWorld(string worldName, IEnumerable<Type> systems, IProfilingSettings settings)
+        private World InitializeSideWorld(string worldName, IEnumerable<Type> systems, IWorldsInitializationSettings settings)
         {
             var world = new World(worldName);
             world.AddSystems(systems);
@@ -41,7 +41,7 @@ namespace PeacefulHills.Network.Profiling
             return world;
         }
         
-        private World StandardWorldInitialization()
+        private World InitializeNetworkWorld()
         {
             var world = new World("Network world");
             world.AddSystems(Systems.AllTree().Types());

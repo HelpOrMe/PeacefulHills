@@ -1,4 +1,5 @@
 ﻿using PeacefulHills.ECS.World;
+using PeacefulHills.Network.Profiling;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
@@ -26,7 +27,8 @@ namespace PeacefulHills.Network.Receive
                 ReceiveBufferPoolHandle = GetBufferTypeHandle<NetworkReceiveBufferPool>(true),
                 ConnectionsHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
                 ReceiveBufferFromEntity = GetBufferFromEntity<NetworkReceiveBuffer>(),
-                Driver = driver
+                Driver = driver,
+                BytesReceivedCounter = NetworkProfilerCounters.BytesReceived
             };
 
             network.DriverDependency = receiveJob.Schedule(_connectionsQuery, network.DriverDependency);

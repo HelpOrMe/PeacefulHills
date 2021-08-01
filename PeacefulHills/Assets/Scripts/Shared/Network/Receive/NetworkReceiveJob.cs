@@ -1,6 +1,7 @@
 ﻿using Unity.Collections;
 using Unity.Entities;
 using Unity.Networking.Transport;
+using Unity.Profiling;
 
 namespace PeacefulHills.Network.Receive
 {
@@ -11,11 +12,13 @@ namespace PeacefulHills.Network.Receive
             [NativeDisableParallelForRestriction] public BufferFromEntity<NetworkReceiveBuffer> ReceiveBufferFromEntity;
             
             public NetworkDriver.Concurrent Driver;
+
+            public ProfilerCounterValue<int> BytesReceivedCounter;
             
             public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
             {
-                var receiveBuffersPool = chunk.GetBufferAccessor(ReceiveBufferPoolHandle);
-                var connections = chunk.GetNativeArray(ConnectionsHandle);
+                BufferAccessor<NetworkReceiveBufferPool> receiveBuffersPool = chunk.GetBufferAccessor(ReceiveBufferPoolHandle);
+                NativeArray<ConnectionWrapper> connections = chunk.GetNativeArray(ConnectionsHandle);
 
                 for (int i = 0; i < chunk.Count; i++)
                 {
@@ -31,6 +34,7 @@ namespace PeacefulHills.Network.Receive
                             Entity bufferEntity = receiveBufferPools[reader.ReadByte()].Entity;
                             DynamicBuffer<NetworkReceiveBuffer> receiveBuffer = ReceiveBufferFromEntity[bufferEntity];
                             CopyToBuffer(ref reader, receiveBuffer);
+                            BytesReceivedCounter.Value += reader.Length;
                         }
                     }
                 }

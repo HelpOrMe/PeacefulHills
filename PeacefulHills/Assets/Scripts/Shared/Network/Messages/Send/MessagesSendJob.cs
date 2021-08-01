@@ -1,9 +1,9 @@
-﻿using PeacefulHills.Network.Profiling;
-using Unity.Burst;
+﻿using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Networking.Transport;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace PeacefulHills.Network.Messages
@@ -18,55 +18,58 @@ namespace PeacefulHills.Network.Messages
         
         public NetworkPipeline Pipeline;
         public NetworkDriver.Concurrent Driver;
+
+        public ProfilerCounterValue<int> MessagesBytesSentCounter;
+        public ProfilerCounterValue<int> BytesSentCounter;
         
         public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             NativeArray<ConnectionWrapper> connections = chunk.GetNativeArray(ConnectionHandle);
-            BufferAccessor<MessagesSendBuffer> messageBuffers = chunk.GetBufferAccessor(MessagesBufferHandle);
+            BufferAccessor<MessagesSendBuffer> messagesBuffers = chunk.GetBufferAccessor(MessagesBufferHandle);
 
             for (int i = 0; i < chunk.Count; i++)
             {
                 ConnectionWrapper connectionWrapper = connections[i];
-                DynamicBuffer<MessagesSendBuffer> messagesBuffer = messageBuffers[i];
-
-                while (messagesBuffer.Length > 1)
+                DynamicBuffer<MessagesSendBuffer> messagesBytesBuffer = messagesBuffers[i];
+                
+                while (messagesBytesBuffer.Length > 1)
                 {
-                    int result;
-                    if ((result = Driver.BeginSend(Pipeline, connectionWrapper.Value, out var writer)) != 0)
+                    if (Driver.BeginSend(Pipeline, connectionWrapper.Value, out DataStreamWriter writer) != 0)
                     {
-                        Debug.LogWarning($"An error occured during BeginSend. ErrorCode: {result}");
                         break;
                     }
                 
-                    if (messagesBuffer.Length <= writer.Capacity)
+                    if (messagesBytesBuffer.Length <= writer.Capacity)
                     {
-                        writer.WriteBytes((byte*)messagesBuffer.GetUnsafeReadOnlyPtr(), messagesBuffer.Length);
-                    }
+                        writer.WriteBytes((byte*)messagesBytesBuffer.GetUnsafeReadOnlyPtr(), messagesBytesBuffer.Length);
+                    }  
                     else
                     {
-                        SendFitPart(ref writer, messagesBuffer);
+                        SendFitPart(ref writer, messagesBytesBuffer);
                     }
                     
-                    if ((result = Driver.EndSend(writer)) <= 0)
+                    if (Driver.EndSend(writer) <= 0)
                     {
-                        Debug.LogWarning($"An error occured during EndSend. ErrorCode: {result}");
                         break;
                     }
+
+                    MessagesBytesSentCounter.Value += writer.Length;
+                    BytesSentCounter.Value += writer.Length;
                     
-                    if (writer.Length >= messagesBuffer.Length)
+                    if (writer.Length >= messagesBytesBuffer.Length)
                     {
-                        messagesBuffer.ResizeUninitialized(1);
+                        messagesBytesBuffer.ResizeUninitialized(1);
                     }
                     else
                     {
                         // Compact the buffer
-                        for (int moveIndex = writer.Length; moveIndex < messagesBuffer.Length; moveIndex++)
+                        for (int moveIndex = writer.Length; moveIndex < messagesBytesBuffer.Length; moveIndex++)
                         {
-                            messagesBuffer[1 + moveIndex - writer.Length] = messagesBuffer[moveIndex];
+                            messagesBytesBuffer[1 + moveIndex - writer.Length] = messagesBytesBuffer[moveIndex];
                         }
                         
                         // Clear all except the first byte that identifies the packet as a message
-                        messagesBuffer.ResizeUninitialized(1 + messagesBuffer.Length - writer.Length);
+                        messagesBytesBuffer.ResizeUninitialized(1 + messagesBytesBuffer.Length - writer.Length);
                     }
                 }
             }

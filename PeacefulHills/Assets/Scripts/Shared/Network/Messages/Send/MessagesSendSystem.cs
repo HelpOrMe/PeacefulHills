@@ -1,6 +1,7 @@
 ﻿using PeacefulHills.ECS.World;
+using PeacefulHills.Network.Messages.Profiling;
+using PeacefulHills.Network.Profiling;
 using Unity.Entities;
-using Unity.Profiling;
 
 namespace PeacefulHills.Network.Messages
 {
@@ -17,19 +18,18 @@ namespace PeacefulHills.Network.Messages
 
         protected override void OnUpdate()
         {
-            var counter = new ProfilerCounterValue<int>(ProfilerCategory.Network, "Network.Messages.Send", ProfilerMarkerDataUnit.Bytes);
-            counter.Value += 1;
-            
             var registry = World.GetExtension<IMessagesRegistry>();
             var network = World.GetExtension<INetwork>();
-            
+
             var job = new MessagesSendJob
             {
                 ConnectionHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
                 Messages = registry.Messages,
                 MessagesBufferHandle = GetBufferTypeHandle<MessagesSendBuffer>(),
                 Pipeline = network.ReliablePipeline,
-                Driver = network.DriverConcurrent
+                Driver = network.DriverConcurrent,
+                MessagesBytesSentCounter = MessageProfilerCounters.BytesSent,
+                BytesSentCounter = NetworkProfilerCounters.BytesSent
             };
 
             network.DriverDependency = job.ScheduleParallel(_connectionsQuery, network.DriverDependency);

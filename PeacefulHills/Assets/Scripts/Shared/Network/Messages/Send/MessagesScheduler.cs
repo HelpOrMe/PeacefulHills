@@ -16,7 +16,7 @@ namespace PeacefulHills.Network.Messages
             MessageId = messageId;
         }
 
-        public unsafe void Schedule(DynamicBuffer<MessagesSendBuffer> buffer, TMessage message)
+        public unsafe void Schedule(DynamicBuffer<MessagesSendBuffer> messagesSendBuffer, TMessage message)
         {
             var serializer = default(TMessageSerializer);
             
@@ -26,9 +26,9 @@ namespace PeacefulHills.Network.Messages
             writer.WriteUShort(MessageId);
             serializer.Write(in message, ref writer);
 
-            int previousBufferLength = buffer.Length;
-            buffer.ResizeUninitialized(buffer.Length + writer.Length);
-            byte* ptr = (byte*) buffer.GetUnsafePtr() + previousBufferLength;
+            int previousBufferLength = messagesSendBuffer.Length;
+            messagesSendBuffer.ResizeUninitialized(messagesSendBuffer.Length + writer.Length);
+            byte* ptr = (byte*) messagesSendBuffer.GetUnsafePtr() + previousBufferLength;
              
             UnsafeUtility.MemCpy(ptr, writer.AsNativeArray().GetUnsafeReadOnlyPtr(), writer.Length);
         }

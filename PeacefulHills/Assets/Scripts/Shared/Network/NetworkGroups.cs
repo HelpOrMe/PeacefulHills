@@ -1,4 +1,5 @@
 ﻿using PeacefulHills.Bootstrap;
+using PeacefulHills.Network.Profiling;
 using Unity.Entities;
 
 namespace PeacefulHills.Network
@@ -28,10 +29,22 @@ namespace PeacefulHills.Network
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderFirst = true)]
     public class BeginNetworkSimulationBuffer : EntityCommandBufferSystem
     {
+        protected override void OnUpdate()
+        {
+            NetworkProfilerCounters.BytesSent.Value = 0;
+            NetworkProfilerCounters.BytesReceived.Value = 0;
+            base.OnUpdate();
+        }
     }
 
     [UpdateInGroup(typeof(NetworkSimulationGroup), OrderLast = true)]
     public class EndNetworkSimulationBuffer : EntityCommandBufferSystem
     {
+        protected override void OnUpdate()
+        {
+            base.OnUpdate();
+            NetworkProfilerCounters.BytesSent.Sample();
+            NetworkProfilerCounters.BytesReceived.Sample();
+        }
     }
 }
