@@ -2,7 +2,7 @@
 
 namespace PeacefulHills.Network.Messages.Profiling
 {
-    public static class MessageProfilerCounters
+    public static class MessagesProfilerCounters
     {
         public static readonly ProfilerCounterValue<int> BytesSent =
             new ProfilerCounterValue<int>(ProfilerCategory.Scripts, "Network.Messages.Sent", 
