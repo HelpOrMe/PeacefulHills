@@ -4,6 +4,7 @@ using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
+    // todo: del
     [UpdateInGroup(typeof(NetworkInitializationGroup))]
     public class SetupDriverEndpointSystem : SystemBase
     {
@@ -12,7 +13,7 @@ namespace PeacefulHills.Network
             World.RequestExtension<INetwork>(SetupDriverEndpoint);
         }
 
-        protected void SetupDriverEndpoint(INetwork network)
+        protected void SetupDriverEndpoint(INetwork network)    
         {
             NetworkEndPoint endpoint = NetworkEndPoint.AnyIpv4;
             endpoint.Port = 9000;

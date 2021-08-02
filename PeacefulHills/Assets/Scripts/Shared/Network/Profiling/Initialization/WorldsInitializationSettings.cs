@@ -5,14 +5,14 @@ using UnityEngine;
 
 namespace PeacefulHills.Network.Profiling
 {
-    public class WorldsInitializationSettings : ScriptableObject, IWorldsInitializationSettings
+    public class WorldsInitializationSettings : ScriptableObject
     {
-        [field: SerializeField] public bool SeparateWorlds { get; set; }
-        [field: SerializeField] public int ClientCount { get; set; } = 1;
+        public bool hostWorld = true;
+        public int clientCount = 1;
 
         public static WorldsInitializationSettings Load()
         {
-            const string path = "Assets/Editor/Resources/Network/Simulation/InitializationSettings.asset";
+            const string path = "Assets/Editor/Resources/Network/InitializationSettings.asset";
             
             var settings = AssetDatabase.LoadAssetAtPath<WorldsInitializationSettings>(path);
             if (settings == null)
@@ -20,6 +20,7 @@ namespace PeacefulHills.Network.Profiling
                 settings = CreateInstance<WorldsInitializationSettings>();
                 AssetDatabase.CreateAsset(settings, path);
             }
+            
             return settings;
         }
     }

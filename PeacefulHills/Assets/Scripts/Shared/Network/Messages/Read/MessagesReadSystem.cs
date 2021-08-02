@@ -28,7 +28,7 @@ namespace PeacefulHills.Network.Messages
 
             var job = new MessageReadJob
             {
-                ConnectionWrapperHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
+                EntityHandle = GetEntityTypeHandle(),
                 PoolHandle = GetBufferTypeHandle<NetworkReceiveBufferPool>(true),
                 ReceiveBufferFromEntity = GetBufferFromEntity<NetworkReceiveBuffer>(),
                 Messages = messages,

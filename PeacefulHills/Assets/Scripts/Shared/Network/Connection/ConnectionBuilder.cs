@@ -8,7 +8,18 @@ namespace PeacefulHills.Network
     // TODO: Temporary solution
     public static class ConnectionBuilder
     {
-        public static void CreateConnection(EntityCommandBuffer commandBuffer, NetworkConnection connection)
+        #if !UNITY_SERVER || UNITY_EDITOR
+
+        public static Entity CreateHostConnection(EntityCommandBuffer commandBuffer, NetworkConnection connection)
+        {
+            Entity connectionEntity = CreateConnection(commandBuffer, connection);
+            commandBuffer.AddComponent<HostConnection>(connectionEntity);
+            return connectionEntity;
+        }
+
+        #endif
+        
+        public static Entity CreateConnection(EntityCommandBuffer commandBuffer, NetworkConnection connection)
         {
             Entity connectionEntity = commandBuffer.CreateEntity();
             
@@ -22,6 +33,8 @@ namespace PeacefulHills.Network
             {
                 Entity = CreateReceiveBufferEntity(commandBuffer)
             });
+
+            return connectionEntity;
         }
 
         private static Entity CreateReceiveBufferEntity(EntityCommandBuffer commandBuffer)

@@ -11,7 +11,7 @@ namespace PeacefulHills.Network.Messages
     {
         [ReadOnly] public EntityTypeHandle EntityHandle;
         [ReadOnly] public ComponentTypeHandle<TMessage> MessageHandle;
-        [ReadOnly] public ComponentTypeHandle<MessageSendRequest> RequestHandle;
+        [ReadOnly] public ComponentTypeHandle<MessageTarget> TargetHandle;
         [ReadOnly, DeallocateOnJobCompletion] public NativeArray<Entity> Connections;
         [NativeDisableParallelForRestriction] public BufferFromEntity<MessagesSendBuffer> MessagesBufferFromEntity;
         
@@ -21,7 +21,7 @@ namespace PeacefulHills.Network.Messages
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             NativeArray<Entity> entities = chunk.GetNativeArray(EntityHandle);
-            NativeArray<MessageSendRequest> requests = chunk.GetNativeArray(RequestHandle);
+            NativeArray<MessageTarget> targets = chunk.GetNativeArray(TargetHandle);
 
             int sortKey = chunkIndex + firstEntityIndex;
 
@@ -30,7 +30,7 @@ namespace PeacefulHills.Network.Messages
                 TMessage message = default;
                 for (int i = 0; i < chunk.Count; i++)
                 {
-                    Write(entities[i], requests[i], message, sortKey);
+                    Write(entities[i], targets[i], message, sortKey);
                 }
             }
             else
@@ -38,23 +38,23 @@ namespace PeacefulHills.Network.Messages
                 NativeArray<TMessage> messages = chunk.GetNativeArray(MessageHandle);
                 for (int i = 0; i < chunk.Count; i++)
                 {
-                    Write(entities[i], requests[i], messages[i], sortKey);
+                    Write(entities[i], targets[i], messages[i], sortKey);
                 }
             }
         }
 
-        public void Write(Entity entity, MessageSendRequest request, TMessage message, int sortKey)
+        public void Write(Entity entity, MessageTarget target, TMessage message, int sortKey)
         {
             CommandBuffer.DestroyEntity(sortKey, entity);
             
-            if (request.Connection != Entity.Null)
+            if (target.Connection != Entity.Null)
             {
-                if (!MessagesBufferFromEntity.HasComponent(request.Connection))
+                if (!MessagesBufferFromEntity.HasComponent(target.Connection))
                 {
                     throw new NetworkSimulationException("Unable to send message to connection without messages buffer");
                 }
                 
-                DynamicBuffer<MessagesSendBuffer> buffer = MessagesBufferFromEntity[request.Connection];
+                DynamicBuffer<MessagesSendBuffer> buffer = MessagesBufferFromEntity[target.Connection];
                 Scheduler.Schedule(buffer, message);
             }
             else

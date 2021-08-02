@@ -10,7 +10,7 @@ namespace PeacefulHills.Network.Messages
     [BurstCompile]
     public struct MessageReadJob : IJobEntityBatch
     {
-        [ReadOnly] public ComponentTypeHandle<ConnectionWrapper> ConnectionWrapperHandle;
+        [ReadOnly] public EntityTypeHandle EntityHandle;
         [ReadOnly] public BufferTypeHandle<NetworkReceiveBufferPool> PoolHandle;
         [NativeDisableParallelForRestriction] public BufferFromEntity<NetworkReceiveBuffer> ReceiveBufferFromEntity;
 
@@ -20,12 +20,11 @@ namespace PeacefulHills.Network.Messages
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
             BufferAccessor<NetworkReceiveBufferPool> pools = batchInChunk.GetBufferAccessor(PoolHandle);
-            NativeArray<ConnectionWrapper> connectionWrappers = batchInChunk.GetNativeArray(ConnectionWrapperHandle);
+            NativeArray<Entity> entities = batchInChunk.GetNativeArray(EntityHandle);
             
             for (int i = 0; i < batchInChunk.Count; i++)
             {
                 DynamicBuffer<NetworkReceiveBufferPool> pool = pools[i];
-                ConnectionWrapper connectionWrapper = connectionWrappers[i];
                 
                 Entity receiveBufferEntity = pool[(int) NetworkPackageType.Message].Entity;
                 DynamicBuffer<NetworkReceiveBuffer> networkReceiveBuffer = ReceiveBufferFromEntity[receiveBufferEntity];
@@ -39,7 +38,7 @@ namespace PeacefulHills.Network.Messages
                     var context = new MessageDeserializerContext
                     {
                         CommandBuffer = CommandBuffer,
-                        Connection = connectionWrapper.Value,
+                        Connection = entities[i],
                         SortIndex = batchIndex
                     };
                         

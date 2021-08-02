@@ -20,10 +20,16 @@ namespace PeacefulHills.Network.Messages
         {
             MessagesQuery = GetEntityQuery(
                 ComponentType.ReadOnly<TMessage>(),
+                ComponentType.ReadOnly<MessageTarget>(),
                 ComponentType.ReadOnly<MessageSendRequest>());
             
             ConnectionsQuery = GetEntityQuery(
-                ComponentType.ReadOnly<ConnectionWrapper>());
+                ComponentType.ReadOnly<ConnectionWrapper>()
+                
+                #if !UNITY_SERVER || UNITY_EDITOR
+                , ComponentType.Exclude<HostConnection>()
+                #endif
+            );
             
             // RequireForUpdate overwrites cached requirements of system,
             // so system will only update when MessagesQuery has matches.
@@ -50,7 +56,7 @@ namespace PeacefulHills.Network.Messages
             {
                 EntityHandle = GetEntityTypeHandle(),
                 MessageHandle = GetComponentTypeHandle<TMessage>(true),
-                RequestHandle = GetComponentTypeHandle<MessageSendRequest>(true),
+                TargetHandle = GetComponentTypeHandle<MessageTarget>(true),
                 Connections = connections,
                 MessagesBufferFromEntity = GetBufferFromEntity<MessagesSendBuffer>(),
                 Scheduler = Scheduler,

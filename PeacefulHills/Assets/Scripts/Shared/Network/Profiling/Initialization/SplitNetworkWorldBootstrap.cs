@@ -13,31 +13,30 @@ namespace PeacefulHills.Network.Profiling
     {
         public override World Initialize()
         {
-            IWorldsInitializationSettings settings = WorldsInitializationSettings.Load();
+            WorldsInitializationSettings settings = WorldsInitializationSettings.Load();
             
-            if (settings.SeparateWorlds)
+            if (!settings.hostWorld)
             {
                 List<SystemInfo> allGroups = Systems.AllTree().ToList();
                 List<Type> clients = allGroups.MatchAssembly(@"\.(Shared|Client),").Types().ToList();
                 List<Type> servers = allGroups.MatchAssembly(@"\.(Shared|Server),").Types().ToList();
  
-                for (int i = 0; i < settings.ClientCount; i++)
+                for (int i = 0; i < settings.clientCount; i++)
                 {
-                    InitializeSideWorld($@"Client world №{i + 1}", clients, settings);
+                    InitializeSideWorld($"Client world №{i + 1}", clients);
                 }
                 
-                return InitializeSideWorld("Server world", servers, settings);
+                return InitializeSideWorld("Server world", servers);
             }
 
             return InitializeNetworkWorld();
         }
 
-        private World InitializeSideWorld(string worldName, IEnumerable<Type> systems, IWorldsInitializationSettings settings)
+        private World InitializeSideWorld(string worldName, IEnumerable<Type> systems)
         {
             var world = new World(worldName);
             world.AddSystems(systems);
             world.Loop();
-            world.SetExtension(settings);
             return world;
         }
         
