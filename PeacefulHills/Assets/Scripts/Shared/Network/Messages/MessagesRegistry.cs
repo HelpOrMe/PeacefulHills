@@ -7,7 +7,7 @@ namespace PeacefulHills.Network.Messages
     public class MessagesRegistry : IMessagesRegistry
     {
         public NativeList<MessageInfo> Messages => _messages;
-        
+
         private NativeHashMap<ulong, ushort> _messageIdsByStableHash;
         private NativeList<MessageInfo> _messages;
 
@@ -16,16 +16,16 @@ namespace PeacefulHills.Network.Messages
             _messageIdsByStableHash = new NativeHashMap<ulong, ushort>(1, Allocator.Persistent);
             _messages = new NativeList<MessageInfo>(1, Allocator.Persistent);
         }
-        
-        public void Register<TMessage, TMessageSerializer>() 
-            where TMessage : unmanaged, IMessage 
+
+        public void Register<TMessage, TMessageSerializer>()
+            where TMessage : unmanaged, IMessage
             where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
         {
-            ushort id = (ushort)_messages.Length;
+            ushort id = (ushort) _messages.Length;
             TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
-            FunctionPointer<DeserializeAction> deserialize = 
+            FunctionPointer<DeserializeAction> deserialize =
                 MessageSerializerStatic<TMessage, TMessageSerializer>.DeserializeAction;
-            
+
             _messages.Add(new MessageInfo(id, typeInfo, deserialize));
             _messageIdsByStableHash[typeInfo.StableTypeHash] = id;
         }

@@ -17,7 +17,7 @@ namespace PeacefulHills.Network.Messages
         protected override void OnUpdate()
         {
             var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
-            
+
             Entities
                .WithName("Convert_host_messages")
                .WithAll<MessageSendRequest>()
@@ -27,13 +27,13 @@ namespace PeacefulHills.Network.Messages
                     {
                         messageEntity = commandBuffer.Instantiate(messageEntity);
                     }
-                    
+
                     commandBuffer.RemoveComponent<MessageSendRequest>(messageEntity);
                     commandBuffer.AddComponent<MessageReceiveRequest>(messageEntity);
                 })
                .WithoutBurst()
                .Run();
-            
+
             commandBuffer.Playback(EntityManager);
         }
     }

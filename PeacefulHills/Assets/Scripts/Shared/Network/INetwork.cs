@@ -13,10 +13,10 @@ namespace PeacefulHills.Network
     {
         public NetworkDriver Driver { get; }
         public NetworkDriver.Concurrent DriverConcurrent { get; }
-        
+
         public NetworkPipeline ReliablePipeline { get; }
         public NetworkPipeline UnreliablePipeline { get; }
-     
+
         public JobHandle DriverDependency { get; set; }
     }
 }

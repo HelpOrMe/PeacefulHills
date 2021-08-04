@@ -18,16 +18,16 @@ namespace PeacefulHills.Network
         }
 
         #endif
-        
+
         public static Entity CreateConnection(EntityCommandBuffer commandBuffer, NetworkConnection connection)
         {
             Entity connectionEntity = commandBuffer.CreateEntity();
-            
+
             commandBuffer.AddComponent(connectionEntity, new ConnectionWrapper {Value = connection});
-            
-            commandBuffer.AddBuffer<MessagesSendBuffer>(connectionEntity).Add(new MessagesSendBuffer 
+
+            commandBuffer.AddBuffer<MessagesSendBuffer>(connectionEntity).Add(new MessagesSendBuffer
             {
-                Value = (byte)NetworkPackageType.Message
+                Value = (byte) NetworkPackageType.Message
             });
             commandBuffer.AddBuffer<NetworkReceiveBufferPool>(connectionEntity).Add(new NetworkReceiveBufferPool
             {

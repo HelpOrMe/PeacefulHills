@@ -15,7 +15,7 @@ namespace PeacefulHills.Network.Messages
         {
             _buffer = World.GetOrCreateSystem<EndMessagesSimulationBuffer>();
             _connectionsQuery = GetEntityQuery(
-                ComponentType.ReadOnly<ConnectionWrapper>(), 
+                ComponentType.ReadOnly<ConnectionWrapper>(),
                 ComponentType.ReadOnly<NetworkReceiveBufferPool>());
         }
 

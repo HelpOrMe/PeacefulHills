@@ -16,9 +16,9 @@ namespace PeacefulHills.Network
                 Driver = driver,
                 DriverConcurrent = driver.ToConcurrent(),
                 ReliablePipeline = driver.CreatePipeline(typeof(ReliableSequencedPipelineStage)),
-                UnreliablePipeline = driver.CreatePipeline(typeof(NullPipelineStage)),
+                UnreliablePipeline = driver.CreatePipeline(typeof(NullPipelineStage))
             };
-            
+
             World.SetExtension<INetwork>(network);
         }
 

@@ -15,14 +15,14 @@ namespace PeacefulHills.Network.Messages
 
         protected EndMessagesWriteBuffer Buffer;
         protected MessagesScheduler<TMessage, TMessageSerializer> Scheduler;
-        
+
         protected override void OnCreate()
         {
             MessagesQuery = GetEntityQuery(
                 ComponentType.ReadOnly<TMessage>(),
                 ComponentType.ReadOnly<MessageTarget>(),
                 ComponentType.ReadOnly<MessageSendRequest>());
-            
+
             ConnectionsQuery = GetEntityQuery(
                 ComponentType.ReadOnly<ConnectionWrapper>()
                 
@@ -30,11 +30,11 @@ namespace PeacefulHills.Network.Messages
                 , ComponentType.Exclude<HostConnection>()
                 #endif
             );
-            
+
             // RequireForUpdate overwrites cached requirements of system,
             // so system will only update when MessagesQuery has matches.
             RequireForUpdate(MessagesQuery);
-            
+
             Buffer = World.GetOrCreateSystem<EndMessagesWriteBuffer>();
             World.RequestExtension<IMessagesRegistry>(CreateScheduler);
         }
@@ -51,8 +51,8 @@ namespace PeacefulHills.Network.Messages
         {
             var connections = ConnectionsQuery.ToEntityArrayAsync(Allocator.TempJob, out JobHandle dependency);
             Dependency = JobHandle.CombineDependencies(Dependency, dependency);
-            
-            return new WriteMessageJob<TMessage, TMessageSerializer> 
+
+            return new WriteMessageJob<TMessage, TMessageSerializer>
             {
                 EntityHandle = GetEntityTypeHandle(),
                 MessageHandle = GetComponentTypeHandle<TMessage>(true),
@@ -63,7 +63,7 @@ namespace PeacefulHills.Network.Messages
                 CommandBuffer = Buffer.CreateCommandBuffer().AsParallelWriter()
             };
         }
-        
+
         /// <summary>
         ///     Handle dependency of a write job from inherited message systems.
         /// </summary>

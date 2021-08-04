@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
-     [BurstCompile]
+    [BurstCompile]
     public struct WriteMessageJob<TMessage, TMessageSerializer> : IJobChunk
         where TMessage : unmanaged, IComponentData, IMessage
         where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
@@ -12,9 +12,9 @@ namespace PeacefulHills.Network.Messages
         [ReadOnly] public EntityTypeHandle EntityHandle;
         [ReadOnly] public ComponentTypeHandle<TMessage> MessageHandle;
         [ReadOnly] public ComponentTypeHandle<MessageTarget> TargetHandle;
-        [ReadOnly, DeallocateOnJobCompletion] public NativeArray<Entity> Connections;
+        [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<Entity> Connections;
         [NativeDisableParallelForRestriction] public BufferFromEntity<MessagesSendBuffer> MessagesBufferFromEntity;
-        
+
         public MessagesScheduler<TMessage, TMessageSerializer> Scheduler;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
 
@@ -46,14 +46,14 @@ namespace PeacefulHills.Network.Messages
         public void Write(Entity entity, MessageTarget target, TMessage message, int sortKey)
         {
             CommandBuffer.DestroyEntity(sortKey, entity);
-            
+
             if (target.Connection != Entity.Null)
             {
                 if (!MessagesBufferFromEntity.HasComponent(target.Connection))
                 {
                     throw new NetworkSimulationException("Unable to send message to connection without messages buffer");
                 }
-                
+
                 DynamicBuffer<MessagesSendBuffer> buffer = MessagesBufferFromEntity[target.Connection];
                 Scheduler.Schedule(buffer, message);
             }

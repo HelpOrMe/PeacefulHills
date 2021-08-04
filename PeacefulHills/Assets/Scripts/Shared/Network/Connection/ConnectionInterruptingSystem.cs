@@ -17,10 +17,10 @@ namespace PeacefulHills.Network
         protected override void OnUpdate()
         {
             EntityCommandBuffer commandBuffer = _buffer.CreateCommandBuffer();
-            
+
             var network = World.GetExtension<INetwork>();
             NetworkDriver driver = network.Driver;
-            
+
             network.DriverDependency = Entities
                .WithName("Interrupt_connections")
                .WithAll<ConnectionInterrupt>()

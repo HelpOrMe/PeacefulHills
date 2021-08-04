@@ -10,7 +10,7 @@ namespace PeacefulHills.Network.Messages
     public class MessagesSendSystem : SystemBase
     {
         private EntityQuery _connectionsQuery;
-        
+
         protected override void OnCreate()
         {
             _connectionsQuery = GetEntityQuery(ComponentType.ReadOnly<ConnectionWrapper>(), typeof(MessagesSendBuffer));

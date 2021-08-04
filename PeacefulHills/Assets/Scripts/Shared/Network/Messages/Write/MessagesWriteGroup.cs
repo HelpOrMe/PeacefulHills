@@ -5,9 +5,9 @@ namespace PeacefulHills.Network.Messages
     [UpdateInGroup(typeof(MessagesSimulationGroup))]
     public class MessagesWriteGroup : ComponentSystemGroup
     {
-        
+
     }
-    
+
     [UpdateInGroup(typeof(MessagesWriteGroup), OrderFirst = true)]
     public class BeginMessagesWriteBuffer : EntityCommandBufferSystem
     {

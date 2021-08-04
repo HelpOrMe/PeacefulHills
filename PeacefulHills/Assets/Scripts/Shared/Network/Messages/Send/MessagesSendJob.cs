@@ -14,13 +14,13 @@ namespace PeacefulHills.Network.Messages
         [ReadOnly] public NativeList<MessageInfo> Messages;
 
         public BufferTypeHandle<MessagesSendBuffer> MessagesBufferHandle;
-        
+
         public NetworkPipeline Pipeline;
         public NetworkDriver.Concurrent Driver;
 
         public ProfilerCounterValue<int> MessagesBytesSentCounter;
         public ProfilerCounterValue<int> BytesSentCounter;
-        
+
         public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
             NativeArray<ConnectionWrapper> connections = chunk.GetNativeArray(ConnectionHandle);
@@ -30,23 +30,23 @@ namespace PeacefulHills.Network.Messages
             {
                 ConnectionWrapper connectionWrapper = connections[i];
                 DynamicBuffer<MessagesSendBuffer> messagesBytesBuffer = messagesBuffers[i];
-                
+
                 while (messagesBytesBuffer.Length > 1)
                 {
                     if (Driver.BeginSend(Pipeline, connectionWrapper.Value, out DataStreamWriter writer) != 0)
                     {
                         break;
                     }
-                
+
                     if (messagesBytesBuffer.Length <= writer.Capacity)
                     {
-                        writer.WriteBytes((byte*)messagesBytesBuffer.GetUnsafeReadOnlyPtr(), messagesBytesBuffer.Length);
-                    }  
+                        writer.WriteBytes((byte*) messagesBytesBuffer.GetUnsafeReadOnlyPtr(), messagesBytesBuffer.Length);
+                    }
                     else
                     {
                         SendFitPart(ref writer, messagesBytesBuffer);
                     }
-                    
+
                     if (Driver.EndSend(writer) <= 0)
                     {
                         break;
@@ -54,7 +54,7 @@ namespace PeacefulHills.Network.Messages
 
                     MessagesBytesSentCounter.Value += writer.Length;
                     BytesSentCounter.Value += writer.Length;
-                    
+
                     if (writer.Length >= messagesBytesBuffer.Length)
                     {
                         messagesBytesBuffer.ResizeUninitialized(1);
@@ -66,7 +66,7 @@ namespace PeacefulHills.Network.Messages
                         {
                             messagesBytesBuffer[1 + moveIndex - writer.Length] = messagesBytesBuffer[moveIndex];
                         }
-                        
+
                         // Clear all except the first byte that identifies the packet as a message
                         messagesBytesBuffer.ResizeUninitialized(1 + messagesBytesBuffer.Length - writer.Length);
                     }
@@ -77,17 +77,17 @@ namespace PeacefulHills.Network.Messages
         private unsafe void SendFitPart(ref DataStreamWriter writer, DynamicBuffer<MessagesSendBuffer> messagesBuffer)
         {
             NativeArray<byte> messageBytesArray = ToArray(messagesBuffer);
-                    
+
             var reader = new DataStreamReader(messageBytesArray);
             reader.ReadByte(); // Skip package type byte
             ushort messageId = reader.ReadUShort(); // Get message id size (two bytes)
             int messageSize = Messages[messageId].TypeInfo.TypeSize + 2 + 1;
-            
+
             while (writer.Length + messageSize <= writer.Capacity)
             {
-                writer.WriteBytes((byte*)messageBytesArray.GetUnsafeReadOnlyPtr(), messageSize);
+                writer.WriteBytes((byte*) messageBytesArray.GetUnsafeReadOnlyPtr(), messageSize);
                 int bytesLeft = messageBytesArray.Length - messageSize;
-                
+
                 if (bytesLeft > 0)
                 {
                     messageBytesArray = messageBytesArray.GetSubArray(messageSize, bytesLeft);
@@ -96,22 +96,22 @@ namespace PeacefulHills.Network.Messages
                     messageSize = Messages[messageId].TypeInfo.TypeSize + 2;
                 }
             }
-            
+
             if (writer.Length == 0)
             {
                 throw new NetworkSimulationException(
                     $"Cannot send message {messageId} because its size is too big: ({messageSize}/{writer.Capacity}");
             }
         }
-        
+
         private unsafe NativeArray<byte> ToArray(DynamicBuffer<MessagesSendBuffer> buffer)
         {
             NativeArray<byte> sendArray = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(
                 buffer.GetUnsafePtr(), buffer.Length, Allocator.Invalid);
-            
+
             #if ENABLE_UNITY_COLLECTIONS_CHECKS
-                AtomicSafetyHandle safety = NativeArrayUnsafeUtility.GetAtomicSafetyHandle(buffer.AsNativeArray());
-                NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref sendArray, safety);
+            AtomicSafetyHandle safety = NativeArrayUnsafeUtility.GetAtomicSafetyHandle(buffer.AsNativeArray());
+            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref sendArray, safety);
             #endif
 
             return sendArray;

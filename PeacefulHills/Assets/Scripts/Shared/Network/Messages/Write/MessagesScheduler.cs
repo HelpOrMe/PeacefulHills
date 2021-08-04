@@ -19,17 +19,17 @@ namespace PeacefulHills.Network.Messages
         public unsafe void Schedule(DynamicBuffer<MessagesSendBuffer> messagesSendBuffer, TMessage message)
         {
             var serializer = default(TMessageSerializer);
-            
+
             const int messageIdSize = 2;
             var writer = new DataStreamWriter(sizeof(TMessage) + messageIdSize, Allocator.Temp);
-                
+
             writer.WriteUShort(MessageId);
             serializer.Serialize(ref writer, in message);
 
             int previousBufferLength = messagesSendBuffer.Length;
             messagesSendBuffer.ResizeUninitialized(messagesSendBuffer.Length + writer.Length);
             byte* ptr = (byte*) messagesSendBuffer.GetUnsafePtr() + previousBufferLength;
-             
+
             UnsafeUtility.MemCpy(ptr, writer.AsNativeArray().GetUnsafeReadOnlyPtr(), writer.Length);
         }
     }

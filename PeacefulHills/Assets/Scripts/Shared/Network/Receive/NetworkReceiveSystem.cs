@@ -9,7 +9,7 @@ namespace PeacefulHills.Network.Receive
     public class NetworkReceiveSystem : SystemBase
     {
         private EntityQuery _connectionsQuery;
-        
+
         protected override void OnCreate()
         {
             _connectionsQuery = GetEntityQuery(
