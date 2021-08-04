@@ -1,5 +1,4 @@
-﻿using Unity.Entities;
-using Unity.Networking.Transport;
+﻿using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Messages
 {

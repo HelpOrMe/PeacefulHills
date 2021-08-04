@@ -13,8 +13,8 @@ namespace PeacefulHills.Network.Messages
         NativeList<MessageInfo> Messages { get; }
 
         void Register<TMessage, TMessageSerializer>()
-            where TMessage : struct, IMessage
-            where TMessageSerializer : struct, IMessageSerializer<TMessage>;
+            where TMessage : unmanaged, IMessage
+            where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>;
 
         MessageInfo GetInfoById(ushort id);
 

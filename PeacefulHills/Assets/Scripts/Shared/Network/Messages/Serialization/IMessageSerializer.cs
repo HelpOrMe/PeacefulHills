@@ -1,11 +1,10 @@
-﻿using Unity.Entities;
-using Unity.Networking.Transport;
+﻿using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network.Messages
 {
-    public interface IMessageSerializer<TMessage> where TMessage : struct, IMessage
+    public interface IMessageSerializer<TMessage> where TMessage : unmanaged, IMessage
     {
-        void Serialize(in TMessage message, ref DataStreamWriter writer);
+        void Serialize(ref DataStreamWriter writer, in TMessage message);
 
         void Deserialize(ref DataStreamReader reader, ref MessageDeserializerContext context);
     }

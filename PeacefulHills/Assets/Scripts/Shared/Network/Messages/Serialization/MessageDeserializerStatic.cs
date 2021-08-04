@@ -6,8 +6,8 @@ namespace PeacefulHills.Network.Messages
 {
     [BurstCompile]
     public static class MessageSerializerStatic<TMessage, TMessageSerializer>
-        where TMessage : struct, IMessage 
-        where TMessageSerializer : struct, IMessageSerializer<TMessage>
+        where TMessage : unmanaged, IMessage 
+        where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
     {
         // ReSharper disable once StaticMemberInGenericType
         public static readonly FunctionPointer<DeserializeAction> DeserializeAction = 

@@ -18,15 +18,15 @@ namespace PeacefulHills.Network.Messages
         }
         
         public void Register<TMessage, TMessageSerializer>() 
-            where TMessage : struct, IMessage 
-            where TMessageSerializer : struct, IMessageSerializer<TMessage>
+            where TMessage : unmanaged, IMessage 
+            where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
         {
             ushort id = (ushort)_messages.Length;
             TypeManager.TypeInfo typeInfo = TypeManager.GetTypeInfo<TMessage>();
             FunctionPointer<DeserializeAction> deserialize = 
                 MessageSerializerStatic<TMessage, TMessageSerializer>.DeserializeAction;
             
-            _messages.Add(new MessageInfo(typeInfo, id, deserialize));
+            _messages.Add(new MessageInfo(id, typeInfo, deserialize));
             _messageIdsByStableHash[typeInfo.StableTypeHash] = id;
         }
 

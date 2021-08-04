@@ -6,6 +6,6 @@ namespace PeacefulHills.Network.Messages
     {
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
         public Entity Connection;
-        public int SortIndex;
+        public int SortKey;
     }
 }

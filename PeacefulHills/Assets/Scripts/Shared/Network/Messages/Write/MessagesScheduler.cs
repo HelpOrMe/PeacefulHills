@@ -6,7 +6,7 @@ using Unity.Networking.Transport;
 namespace PeacefulHills.Network.Messages
 {
     public readonly struct MessagesScheduler<TMessage, TMessageSerializer>
-        where TMessage : unmanaged, IComponentData, IMessage
+        where TMessage : unmanaged, IMessage
         where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
     {
         public readonly ushort MessageId;
@@ -24,7 +24,7 @@ namespace PeacefulHills.Network.Messages
             var writer = new DataStreamWriter(sizeof(TMessage) + messageIdSize, Allocator.Temp);
                 
             writer.WriteUShort(MessageId);
-            serializer.Serialize(in message, ref writer);
+            serializer.Serialize(ref writer, in message);
 
             int previousBufferLength = messagesSendBuffer.Length;
             messagesSendBuffer.ResizeUninitialized(messagesSendBuffer.Length + writer.Length);

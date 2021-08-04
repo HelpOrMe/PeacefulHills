@@ -5,14 +5,14 @@ namespace PeacefulHills.Network.Messages
 {
     public readonly struct MessageInfo
     {
-        public readonly TypeManager.TypeInfo TypeInfo;
         public readonly ushort Id;
+        public readonly TypeManager.TypeInfo TypeInfo;
         public readonly FunctionPointer<DeserializeAction> Deserialize;
 
-        public MessageInfo(TypeManager.TypeInfo typeInfo, ushort id, FunctionPointer<DeserializeAction> deserialize)
+        public MessageInfo(ushort id, TypeManager.TypeInfo typeInfo, FunctionPointer<DeserializeAction> deserialize)
         {
-            TypeInfo = typeInfo;
             Id = id;
+            TypeInfo = typeInfo;
             Deserialize = deserialize;
         }
     }

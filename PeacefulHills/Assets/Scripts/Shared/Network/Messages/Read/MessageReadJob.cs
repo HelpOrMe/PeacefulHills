@@ -39,7 +39,7 @@ namespace PeacefulHills.Network.Messages
                     {
                         CommandBuffer = CommandBuffer,
                         Connection = entities[i],
-                        SortIndex = batchIndex
+                        SortKey = batchIndex
                     };
                         
                     messageInfo.Deserialize.Invoke(ref reader, ref context);
