@@ -1,0 +1,24 @@
+{
+    "name": "PeacefulHills.Network",
+    "rootNamespace": "PeacefulHills.Network",
+    "references": [
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:734d92eba21c94caba915361bd5ac177",
+        "GUID:8819f35a0fc84499b990e90a4ca1911f",
+        "GUID:8a2eafa29b15f444eb6d74f94a930e1d",
+        "GUID:f2d49d9fa7e7eb3418e39723a7d3b92f",
+        "GUID:b46779583a009f04ba9f5f31d0e7e6ac",
+        "GUID:f5b9803ac69cb20489775d260d734278",
+        "GUID:8d04bd15f5e4a30418dfdc6c68c8c58a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
