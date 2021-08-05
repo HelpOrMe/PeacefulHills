@@ -12,7 +12,7 @@ namespace PeacefulHills.Network.Profiling
 
         public static WorldsInitializationSettings Load()
         {
-            const string path = "Assets/Scripts/Network/Editor Resources/InitializationSettings.asset";
+            const string path = "Assets/Scripts/PeacefulHills.Network/Editor Resources/InitializationSettings.asset";
 
             var settings = AssetDatabase.LoadAssetAtPath<WorldsInitializationSettings>(path);
             if (settings == null)

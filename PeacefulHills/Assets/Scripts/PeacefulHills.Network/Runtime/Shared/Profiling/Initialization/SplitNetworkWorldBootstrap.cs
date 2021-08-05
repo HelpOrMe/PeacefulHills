@@ -17,8 +17,8 @@ namespace PeacefulHills.Network.Profiling
             if (!settings.hostWorld)
             {
                 List<SystemInfo> allGroups = Systems.AllTree().ToList();
-                List<Type> clients = allGroups.MatchAssembly(@"\.(Shared|Client),").Types().ToList();
-                List<Type> servers = allGroups.MatchAssembly(@"\.(Shared|Server),").Types().ToList();
+                List<Type> clients = allGroups.MatchAssembly(@"^(?!.*Server).*").Types().ToList();
+                List<Type> servers = allGroups.MatchAssembly(@"^(?!.*Client).*").Types().ToList();
 
                 for (int i = 0; i < settings.clientCount; i++)
                 {

@@ -1,6 +1,6 @@
 {
-    "name": "PeacefulHills.Network.Server",
-    "rootNamespace": "PeacefulHills.Network",
+    "name": "PeacefulHills.Network.Tests",
+    "rootNamespace": "PeacefulHills.Network.Tests",
     "references": [
         "GUID:2665a8d13d1b3f18800f46e256720795",
         "GUID:e0cd26848372d4e5c891c569017e11f1",
@@ -9,12 +9,17 @@
         "GUID:8a2eafa29b15f444eb6d74f94a930e1d",
         "GUID:f2d49d9fa7e7eb3418e39723a7d3b92f",
         "GUID:b46779583a009f04ba9f5f31d0e7e6ac",
+        "GUID:f5b9803ac69cb20489775d260d734278",
         "GUID:8d04bd15f5e4a30418dfdc6c68c8c58a",
-        "GUID:e236df1a502d321419f66ba4b62a77c5"
+        "GUID:e236df1a502d321419f66ba4b62a77c5",
+        "GUID:63206a66579f4b0f8f690fed69c0beff",
+        "GUID:efaeafe720f44afc8729bc3852b9506f"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
