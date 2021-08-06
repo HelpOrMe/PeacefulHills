@@ -7,48 +7,45 @@ using UnityEngine;
 
 namespace PeacefulHills.Bootstrap
 {
-    public class CustomBootstrap : ICustomBootstrap
+    public class WorldBootstrapBuilder : IWorldBootstrapBuilder
     {
-        public bool Initialize(string defaultWorldName)
+        public List<WorldBootstrapContext> BuildBootstrapContexts()
         {
+            var bootstrapWorldContexts = new List<WorldBootstrapContext>();
+            
             IReadOnlyList<Type> systemTypes = TypeManager.GetSystems(WorldSystemFilterFlags.Default);
-            IEnumerable<WorldInfo> bootstrapWorlds = GetBootstrapWorldsInfo();
+            IEnumerable<WorldBoostrapInfo> worldBootstraps = GetWorldBootstrapsInfo();
 
             List<SystemInfo> groups = NestGroups(GatherGroupByTypes(systemTypes));
             Dictionary<Type, List<SystemInfo>> systemsByWorld = GatherSystemsByWorld(groups);
 
-            foreach (WorldInfo worldInfo in bootstrapWorlds)
+            foreach (WorldBoostrapInfo worldBootstrapInfo in worldBootstraps)
             {
-                if (!systemsByWorld.ContainsKey(worldInfo.BaseType))
+                if (!systemsByWorld.ContainsKey(worldBootstrapInfo.BaseType))
                 {
-                    Debug.LogWarning($"{worldInfo.Type.Name} does not contain any groups that refer to it.");
+                    Debug.LogWarning($"{worldBootstrapInfo.Type.Name} does not contain any groups that refer to it.");
                     continue;
                 }
 
-                if (Activator.CreateInstance(worldInfo.Type) is BootstrapWorldBase bootstrapWorld)
+                if (Activator.CreateInstance(worldBootstrapInfo.Type) is WorldBootstrapBase worldBootstrap)
                 {
-                    List<SystemInfo> worldSystems = systemsByWorld[worldInfo.BaseType];
+                    List<SystemInfo> worldSystems = systemsByWorld[worldBootstrapInfo.BaseType];
+                    worldBootstrap.Systems = worldSystems;
 
-                    bootstrapWorld.Systems = worldSystems;
-                    World world = bootstrapWorld.Initialize();
-
-                    foreach (Type worldPartType in worldInfo.PartTypes)
+                    bootstrapWorldContexts.Add(new WorldBootstrapContext
                     {
-                        if (Activator.CreateInstance(worldPartType) is BootstrapWorldPart bootstrapWorldPart)
-                        {
-                            bootstrapWorldPart.Systems = worldSystems;
-                            bootstrapWorldPart.Initialize(world);
-                        }
-                    }
+                        Bootstrap = worldBootstrap,
+                        Info = worldBootstrapInfo
+                    });
                 }
             }
 
-            return true;
+            return bootstrapWorldContexts;
         }
-
-        private IEnumerable<WorldInfo> GetBootstrapWorldsInfo()
+ 
+        private IEnumerable<WorldBoostrapInfo> GetWorldBootstrapsInfo()
         {
-            var worldsMap = new Dictionary<Type, WorldInfo>();
+            var worldsMap = new Dictionary<Type, WorldBoostrapInfo>();
 
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
@@ -60,47 +57,28 @@ namespace PeacefulHills.Bootstrap
                 Type[] types = assembly.GetTypes();
 
                 WriteBootstrapWorldTypes(types, worldsMap);
-                WriteBootstrapWorldPartTypes(types, worldsMap);
             }
 
             return worldsMap.Values;
         }
 
-        private void WriteBootstrapWorldTypes(IEnumerable<Type> types, Dictionary<Type, WorldInfo> worldsMap)
+        private void WriteBootstrapWorldTypes(IEnumerable<Type> types, Dictionary<Type, WorldBoostrapInfo> worldsMap)
         {
             foreach (Type type in types)
             {
-                if (!typeof(BootstrapWorldBase).IsAssignableFrom(type) || type.IsAbstract)
+                if (!typeof(WorldBootstrapBase).IsAssignableFrom(type) || type.IsAbstract)
                 {
                     continue;
                 }
 
                 Type worldBaseType = type;
-                for (; worldBaseType!.BaseType != typeof(BootstrapWorldBase); worldBaseType = worldBaseType!.BaseType)
+                for (; worldBaseType!.BaseType != typeof(WorldBootstrapBase); worldBaseType = worldBaseType!.BaseType)
                 {
                 }
                 
                 if (!worldsMap.ContainsKey(worldBaseType) || worldsMap[worldBaseType].Type.IsAssignableFrom(type))
                 {
-                    worldsMap[worldBaseType] = new WorldInfo(type, worldBaseType, new List<Type>());
-                }
-            }
-        }
-
-        private void WriteBootstrapWorldPartTypes(IEnumerable<Type> types, Dictionary<Type, WorldInfo> worldsMap)
-        {
-            foreach (Type type in types)
-            {
-                if (typeof(BootstrapWorldPart).IsAssignableFrom(type) && !type.IsAbstract)
-                {
-                    var attr = type.GetCustomAttribute<BootstrapWorldAttribute>();
-                    if (attr == null)
-                    {
-                        Debug.LogError("BootstrapWorldPart must contain BootstrapWorldAttribute!");
-                        continue;
-                    }
-
-                    worldsMap[attr.Type].PartTypes.Add(type);
+                    worldsMap[worldBaseType] = new WorldBoostrapInfo(type, worldBaseType);
                 }
             }
         }
@@ -150,20 +128,20 @@ namespace PeacefulHills.Bootstrap
         {
             var systemsByWorld = new Dictionary<Type, List<SystemInfo>>
             {
-                [typeof(BootstrapWorldDefault)] = new List<SystemInfo>()
+                [typeof(DefaultWorldBootstrap)] = new List<SystemInfo>()
             };
 
             foreach (SystemInfo group in groups)
             {
                 foreach (SystemInfo system in group.NestedSystems)
                 {
-                    List<BootstrapWorldAttribute> updateInWorldAttrs = system.Type
-                       .GetCustomAttributes<BootstrapWorldAttribute>()
+                    List<WorldBootstrapAttribute> updateInWorldAttrs = system.Type
+                       .GetCustomAttributes<WorldBootstrapAttribute>()
                        .ToList();
 
                     if (updateInWorldAttrs.Count > 0)
                     {
-                        foreach (BootstrapWorldAttribute worldAttr in updateInWorldAttrs)
+                        foreach (WorldBootstrapAttribute worldAttr in updateInWorldAttrs)
                         {
                             Type worldType = worldAttr.Type;
                             if (!systemsByWorld.ContainsKey(worldType))
@@ -176,7 +154,7 @@ namespace PeacefulHills.Bootstrap
                     }
                     else
                     {
-                        systemsByWorld[typeof(BootstrapWorldDefault)].Add(system);
+                        systemsByWorld[typeof(DefaultWorldBootstrap)].Add(system);
                     }
                 }
             }

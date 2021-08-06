@@ -3,13 +3,13 @@
 namespace PeacefulHills.Bootstrap
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface)]
-    public class BootstrapWorldAttribute : Attribute
+    public class WorldBootstrapAttribute : Attribute
     {
         public readonly Type Type;
 
-        public BootstrapWorldAttribute(Type type)
+        public WorldBootstrapAttribute(Type type)
         {
-            if (!typeof(BootstrapWorldBase).IsAssignableFrom(type))
+            if (!typeof(WorldBootstrapBase).IsAssignableFrom(type))
             {
                 throw new ArgumentException("Invalid bootstrap world type " + type.Name);
             }

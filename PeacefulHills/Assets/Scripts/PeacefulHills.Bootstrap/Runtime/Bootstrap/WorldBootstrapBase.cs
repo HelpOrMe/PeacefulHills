@@ -3,10 +3,10 @@ using Unity.Entities;
 
 namespace PeacefulHills.Bootstrap
 {
-    public abstract class BootstrapWorldBase
+    public abstract class WorldBootstrapBase
     {
         public IReadOnlyList<SystemInfo> Systems;
 
-        public abstract World Initialize();
+        public abstract void Initialize();
     }
 }

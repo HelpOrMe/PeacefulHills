@@ -5,9 +5,9 @@ using Unity.Entities;
 
 namespace PeacefulHills.Bootstrap
 {
-    public class BootstrapWorldDefault : BootstrapWorldBase
+    public class DefaultWorldBootstrap : WorldBootstrapBase
     {
-        public override World Initialize()
+        public override void Initialize()
         {
             var world = new World("Default world");
 
@@ -17,7 +17,6 @@ namespace PeacefulHills.Bootstrap
             world.Loop();
 
             World.DefaultGameObjectInjectionWorld = world;
-            return world;
         }
     }
 }
