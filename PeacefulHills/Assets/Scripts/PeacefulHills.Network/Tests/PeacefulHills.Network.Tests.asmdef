@@ -9,19 +9,20 @@
         "GUID:8a2eafa29b15f444eb6d74f94a930e1d",
         "GUID:f2d49d9fa7e7eb3418e39723a7d3b92f",
         "GUID:b46779583a009f04ba9f5f31d0e7e6ac",
-        "GUID:f5b9803ac69cb20489775d260d734278",
         "GUID:8d04bd15f5e4a30418dfdc6c68c8c58a",
+        "GUID:f5b9803ac69cb20489775d260d734278",
         "GUID:e236df1a502d321419f66ba4b62a77c5",
         "GUID:63206a66579f4b0f8f690fed69c0beff",
-        "GUID:efaeafe720f44afc8729bc3852b9506f"
+        "GUID:efaeafe720f44afc8729bc3852b9506f",
+        "GUID:1d26bfe3b7dbe564e840ebf566597897"
     ],
-    "includePlatforms": [
-        "Editor"
-    ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

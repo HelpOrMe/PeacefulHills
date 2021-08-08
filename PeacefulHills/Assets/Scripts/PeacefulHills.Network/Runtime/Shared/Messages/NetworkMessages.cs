@@ -122,7 +122,7 @@ namespace PeacefulHills.Network.Messages
             where TMessage : unmanaged, IMessage
             where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
         {
-            ushort messageId = world.GetExtension<IMessagesRegistry>().GetId<TMessage>();
+            ushort messageId = world.GetExtension<IMessageRegistry>().GetId<TMessage>();
             return new MessagesScheduler<TMessage, TMessageSerializer>(messageId);
         }
     }

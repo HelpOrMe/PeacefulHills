@@ -8,12 +8,12 @@ namespace PeacefulHills.Network.Messages
     {
         protected override void OnCreate()
         {
-            World.SetExtension<IMessagesRegistry>(new MessagesRegistry());
+            World.SetExtension<IMessageRegistry>(new MessageRegistry());
         }
 
         protected override void OnDestroy()
         {
-            World.GetExtension<IMessagesRegistry>().Dispose();
+            World.GetExtension<IMessageRegistry>().Dispose();
         }
 
         protected override void OnUpdate()

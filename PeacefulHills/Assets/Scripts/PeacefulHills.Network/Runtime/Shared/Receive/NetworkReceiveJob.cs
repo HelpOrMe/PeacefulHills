@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Networking.Transport;
 using Unity.Profiling;
 
-namespace PeacefulHills.Network.Receive
+namespace PeacefulHills.Network
 {
     public struct NetworkReceiveJob : IJobChunk
     {

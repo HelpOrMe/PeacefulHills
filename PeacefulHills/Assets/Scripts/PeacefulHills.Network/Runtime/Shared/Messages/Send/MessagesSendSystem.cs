@@ -18,7 +18,7 @@ namespace PeacefulHills.Network.Messages
 
         protected override void OnUpdate()
         {
-            var registry = World.GetExtension<IMessagesRegistry>();
+            var registry = World.GetExtension<IMessageRegistry>();
             var network = World.GetExtension<INetwork>();
 
             var job = new MessagesSendJob

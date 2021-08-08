@@ -36,10 +36,10 @@ namespace PeacefulHills.Network.Messages
             RequireForUpdate(MessagesQuery);
 
             Buffer = World.GetOrCreateSystem<EndMessagesWriteBuffer>();
-            World.RequestExtension<IMessagesRegistry>(CreateScheduler);
+            World.RequestExtension<IMessageRegistry>(CreateScheduler);
         }
 
-        private void CreateScheduler(IMessagesRegistry registry)
+        private void CreateScheduler(IMessageRegistry registry)
         {
             Scheduler = new MessagesScheduler<TMessage, TMessageSerializer>(registry.GetId<TMessage>());
         }

@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-namespace PeacefulHills.Network.Receive
+namespace PeacefulHills.Network
 {
     public struct NetworkReceiveBufferPool : IBufferElementData
     {

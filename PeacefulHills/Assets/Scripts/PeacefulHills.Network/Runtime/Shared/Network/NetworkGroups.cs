@@ -4,7 +4,7 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network
 {
-    [BootstrapWorld(typeof(NetworkWorldBootstrap))]
+    [UpdateInWorld(typeof(NetworkWorld))]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class NetworkInitializationGroup : ComponentSystemGroup
     {
@@ -20,7 +20,7 @@ namespace PeacefulHills.Network
     {
     }
 
-    [BootstrapWorld(typeof(NetworkWorldBootstrap))]
+    [UpdateInWorld(typeof(NetworkWorld))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class NetworkSimulationGroup : ComponentSystemGroup
     {

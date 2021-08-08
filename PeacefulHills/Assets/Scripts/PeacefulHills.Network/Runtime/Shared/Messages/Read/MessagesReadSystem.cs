@@ -1,5 +1,4 @@
 ﻿using PeacefulHills.Extensions.World;
-using PeacefulHills.Network.Receive;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -21,7 +20,7 @@ namespace PeacefulHills.Network.Messages
 
         protected override void OnUpdate()
         {
-            var registry = World.GetExtension<IMessagesRegistry>();
+            var registry = World.GetExtension<IMessageRegistry>();
 
             NativeList<MessageInfo> messages = registry.Messages;
             EntityCommandBuffer.ParallelWriter commandBuffer = _buffer.CreateCommandBuffer().AsParallelWriter();

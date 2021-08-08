@@ -22,14 +22,14 @@ namespace PeacefulHills.Network
             
             var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
 
-            if (WorldsInitializationSettings.Load().hostWorld)
-            {
-                ConnectionBuilder.CreateHostConnection(commandBuffer, default);
-            }
-            else
+            if (NetworkWorldsInitSettings.Current.SplitWorlds)
             {
                 NetworkConnection connection = network.Driver.Connect(endpoint);
                 ConnectionBuilder.CreateConnection(commandBuffer, connection);
+            }
+            else
+            {
+                ConnectionBuilder.CreateHostConnection(commandBuffer, default);
             }
             commandBuffer.Playback(EntityManager);
         }

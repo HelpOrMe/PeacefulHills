@@ -7,7 +7,7 @@ namespace PeacefulHills.Network.Editor
 {
     public class NetworkSimulationWindow : EditorWindow
     {
-        private WorldsInitializationSettings _settings;
+        private NetworkWorldsInitSettings _settings;
         
         [MenuItem("Window/Network/Initialization", priority=3000)]
         private static void MenuShow()
@@ -24,14 +24,14 @@ namespace PeacefulHills.Network.Editor
 
         private void OnGUI()
         {
-            _settings ??= WorldsInitializationSettings.Load();
+            _settings ??= NetworkWorldsInitSettings.Load();
             
             EditorGUI.indentLevel++;
 
-            _settings.hostWorld = EditorGUILayout.Toggle("Host world", _settings.hostWorld);
-            if (!_settings.hostWorld)
+            _settings.SplitWorlds = EditorGUILayout.Toggle("Split worlds", _settings.SplitWorlds);
+            if (_settings.SplitWorlds)
             {
-                _settings.clientCount = Math.Max(1, EditorGUILayout.IntField("Client count", _settings.clientCount));
+                _settings.ClientCount = Math.Max(1, EditorGUILayout.IntField("Client count", _settings.ClientCount));
             }
             
             EditorGUI.indentLevel--;

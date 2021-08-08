@@ -3,7 +3,7 @@ using PeacefulHills.Network.Profiling;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network.Receive
+namespace PeacefulHills.Network
 {
     [UpdateInGroup(typeof(NetworkSimulationGroup))]
     public class NetworkReceiveSystem : SystemBase
