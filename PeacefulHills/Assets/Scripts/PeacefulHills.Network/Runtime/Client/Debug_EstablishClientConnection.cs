@@ -1,4 +1,4 @@
-﻿using PeacefulHills.Extensions.World;
+﻿using PeacefulHills.Extensions;
 using PeacefulHills.Network.Profiling;
 using Unity.Collections;
 using Unity.Entities;

@@ -1,4 +1,4 @@
-﻿namespace PeacefulHills.Extensions.World
+﻿namespace PeacefulHills.Extensions
 {
     public interface IWorldExtension
     {

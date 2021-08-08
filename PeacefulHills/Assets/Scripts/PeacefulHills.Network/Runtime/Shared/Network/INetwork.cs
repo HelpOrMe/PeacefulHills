@@ -1,5 +1,5 @@
 ﻿using System;
-using PeacefulHills.Extensions.World;
+using PeacefulHills.Extensions;
 using PeacefulHills.Network;
 using Unity.Entities;
 using Unity.Jobs;

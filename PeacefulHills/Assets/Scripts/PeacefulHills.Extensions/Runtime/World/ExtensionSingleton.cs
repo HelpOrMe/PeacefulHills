@@ -1,6 +1,6 @@
 ﻿using Unity.Entities;
 
-namespace PeacefulHills.Extensions.World
+namespace PeacefulHills.Extensions
 {
     // ReSharper disable once UnusedTypeParameter
     // Generic type is needed for uniqueness of the singleton component that will be registered with

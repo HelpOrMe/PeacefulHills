@@ -1,4 +1,4 @@
-using PeacefulHills.Extensions.World;
+using PeacefulHills.Extensions;
 using Unity.Entities;
 using Unity.Networking.Transport;
 

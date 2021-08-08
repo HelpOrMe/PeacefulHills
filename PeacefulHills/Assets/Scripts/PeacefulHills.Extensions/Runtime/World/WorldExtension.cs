@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PeacefulHills.Extensions.World
+namespace PeacefulHills.Extensions
 {
     public static class WorldExtension<TExtension> where TExtension : IWorldExtension
     {

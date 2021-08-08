@@ -1,35 +1,34 @@
 ﻿using Unity.Entities;
 
-namespace PeacefulHills.Extensions.World
+namespace PeacefulHills.Extensions
 {
     public static class WorldExtensions
     {
-        public static TExtension GetExtension<TExtension>(this Unity.Entities.World world)
+        public static TExtension GetExtension<TExtension>(this World world)
             where TExtension : IWorldExtension
         {
             return WorldExtension<TExtension>.Get(world.SequenceNumber);
         }
 
-        public static bool HasExtension<TExtension>(this Unity.Entities.World world)
+        public static bool HasExtension<TExtension>(this World world)
             where TExtension : IWorldExtension
         {
             return WorldExtension<TExtension>.Exist(world.SequenceNumber);
         }
 
-        public static void SetExtension<TExtension>(this Unity.Entities.World world, TExtension extension)
+        public static void SetExtension<TExtension>(this World world, TExtension extension)
             where TExtension : IWorldExtension
         {
             WorldExtension<TExtension>.Set(world.SequenceNumber, extension);
         }
 
-        public static void RemoveExtension<TExtension>(this Unity.Entities.World world)
+        public static void RemoveExtension<TExtension>(this World world)
             where TExtension : IWorldExtension
         {
             WorldExtension<TExtension>.Remove(world.SequenceNumber);
         }
 
-        public static void RequestExtension<TExtension>(this Unity.Entities.World world,
-            WorldExtension<TExtension>.RequestAction request)
+        public static void RequestExtension<TExtension>(this World world, WorldExtension<TExtension>.RequestAction request)
             where TExtension : IWorldExtension
         {
             WorldExtension<TExtension>.Request(world.SequenceNumber, request);
@@ -59,7 +58,7 @@ namespace PeacefulHills.Extensions.World
         {
             system.EntityManager.CreateEntity(typeof(ExtensionSingleton<TExtension>));
         }
-        
+
         private static bool HasExtensionSingleton<TExtension>(this ComponentSystemBase system)
             where TExtension : IWorldExtension
         {

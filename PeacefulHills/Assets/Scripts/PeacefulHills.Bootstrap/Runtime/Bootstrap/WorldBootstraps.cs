@@ -24,12 +24,22 @@ namespace PeacefulHills.Bootstrap
             }
         }
 
+        public static void Initialize<TBootstrap>() where TBootstrap : WorldBootstrapBase
+        {
+            Initialize(typeof(TBootstrap));
+        }
+        
         public static void Initialize(Type bootstrapsType)
         {
             ThrowIfDoesNotExist(bootstrapsType);
             InitializeInternal(bootstrapsType);
         }
 
+        public static void ForceInitialize<TBootstrap>() where TBootstrap : WorldBootstrapBase
+        {
+            ForceInitialize(typeof(TBootstrap));
+        }
+        
         public static void ForceInitialize(Type bootstrapsType)
         {
             ThrowIfDoesNotExist(bootstrapsType);
