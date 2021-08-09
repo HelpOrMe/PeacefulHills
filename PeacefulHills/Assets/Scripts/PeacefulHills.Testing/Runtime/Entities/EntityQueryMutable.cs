@@ -12,33 +12,40 @@ namespace PeacefulHills.Testing
             Query = query;
         }
 
-        public static implicit operator Entity(EntityQueryMutable entityQueryMutable)
+        public static implicit operator Entity(EntityQueryMutable queryMutable)
         {
-            var array = (Entity[]) entityQueryMutable;
-            return array.Length > 0 ? array[0] : Entity.Null;
+            var array = (NativeArray<Entity>) queryMutable;
+            if (array.Length == 0)
+            {
+                throw new EntitiesException($"No entities were found.");
+            }
+            
+            Entity entity = array[0];
+            array.Dispose();
+            return entity;
         }
 
-        public static implicit operator Entity[](EntityQueryMutable entityQueryMutable)
+        public static implicit operator Entity[](EntityQueryMutable queryMutable)
         {
-            NativeArray<Entity> nativeArray = entityQueryMutable;
+            NativeArray<Entity> nativeArray = queryMutable;
             Entity[] array = nativeArray.ToArray();
             nativeArray.Dispose();
             return array;
         }
         
-        public static implicit operator NativeArray<Entity>(EntityQueryMutable entityQueryMutable)
+        public static implicit operator NativeArray<Entity>(EntityQueryMutable queryMutable)
         {
-            return entityQueryMutable.Query.ToEntityArray(Allocator.Temp);
+            return queryMutable.Query.ToEntityArray(Allocator.Temp);
         }
         
-        public static implicit operator EntityQuery(EntityQueryMutable entityQueryMutable)
+        public static implicit operator EntityQuery(EntityQueryMutable queryMutable)
         {
-            return entityQueryMutable.Query;
+            return queryMutable.Query;
         }
         
-        public static implicit operator bool(EntityQueryMutable entityQueryMutable)
+        public static implicit operator bool(EntityQueryMutable queryMutable)
         {
-            return !entityQueryMutable.Query.IsEmpty;
+            return !queryMutable.Query.IsEmpty;
         }
     }
 }

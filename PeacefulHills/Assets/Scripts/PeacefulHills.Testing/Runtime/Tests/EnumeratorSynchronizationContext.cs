@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace PeacefulHills.Testing
 {
-    public class EnumerableSynchronizationContext : SynchronizationContext
+    public class EnumeratorSynchronizationContext : SynchronizationContext
     {
         private bool _done;
         public Exception InnerException { get; set; }
@@ -21,6 +21,11 @@ namespace PeacefulHills.Testing
             throw new NotSupportedException("We cannot send to our same thread");
         }
 
+        public void EndMessageLoop()
+        {
+            Post(_ => _done = true, null);
+        }
+
         public override void Post(SendOrPostCallback d, object state)
         {
             lock (_items)
@@ -28,11 +33,6 @@ namespace PeacefulHills.Testing
                 _items.Enqueue(Tuple.Create(d, state));
             }
             _workItemsWaiting.Set();
-        }
-
-        public void EndMessageLoop()
-        {
-            Post(_ => _done = true, null);
         }
 
         public IEnumerator BeginMessageLoop()

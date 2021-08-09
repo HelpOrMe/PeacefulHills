@@ -1,10 +1,24 @@
-﻿using Unity.Entities;
+﻿using System;
+using Unity.Entities;
 
 namespace PeacefulHills.Testing
 {
     public static class Worlds
     {
-        public static World Now { get; private set; }
+        public static World Now
+        {
+            get
+            {
+                if (_now == null)
+                {
+                    throw new InvalidOperationException("No world selected, use Worlds.Select() to select a world.");
+                }
+                return _now;
+            }
+            private set => _now = value;
+        }
+
+        private static World _now;
 
         public static bool Exist(params string[] worldNames)
         {

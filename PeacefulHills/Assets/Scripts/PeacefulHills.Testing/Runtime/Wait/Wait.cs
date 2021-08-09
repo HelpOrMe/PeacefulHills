@@ -11,8 +11,6 @@ namespace PeacefulHills.Testing
 {
     public static class Wait
     {
-        private static readonly List<IWaitRequest> WaitRequests = new List<IWaitRequest>();
-
         public static async Task Ms(int ms)
         {
             await Task.Delay(ms);
@@ -23,44 +21,45 @@ namespace PeacefulHills.Testing
             await Task.Delay(secs * 1000);
         }
 
-        public static async Task Frames(int frames)
+        public static async Task For(Func<bool> condition, int timeoutMs = 1000, Action timeoutAction = null)
         {
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            WaitRequests.Add(new WaitFramesRequest(frames, taskCompletionSource));
-            await taskCompletionSource.Task;
-        }
+            while (!condition())
+            {
+                await Task.Delay(1);
 
-        public static async Task For(Func<bool> condition, int timeoutMs = 10)
-        {
-            var taskCompletionSource = new TaskCompletionSource<bool>();
-            WaitRequests.Add(new WaitForRequest(condition, taskCompletionSource, timeoutMs));
-            await taskCompletionSource.Task;
+                if (timeoutMs-- == 0)
+                {
+                    timeoutAction?.Invoke();
+                    throw new TimeoutException();
+                }
+            }
         }
 
         public static async Task<EntityQueryMutable<TComponent0>> For<TComponent0>(
-            int timeoutMs = 10)
+            int timeoutMs = 100, Action timeoutAction = null)
             where TComponent0 : unmanaged, IComponentData
         {
             var description = new EntityQueryDesc {All = new ComponentType[] {typeof(TComponent0)}};
-            EntityQueryMutable queryMutable = await Wait.For(description, timeoutMs);
-            return new EntityQueryMutable<TComponent0>(queryMutable);
+            EntityQueryMutable entityQueryMutable = await Wait.For(description, timeoutMs, timeoutAction);
+            return new EntityQueryMutable<TComponent0>(entityQueryMutable);
         }
         
         public static async Task<EntityQueryMutable<TComponent0, TComponent1>> For<TComponent0, TComponent1>(
-            int timeoutMs = 10)
+            int timeoutMs = 10, Action timeoutAction = null)
             where TComponent0 : unmanaged, IComponentData
             where TComponent1 : unmanaged, IComponentData
         {
             var description = new EntityQueryDesc {All = new ComponentType[] {typeof(TComponent0), typeof(TComponent1)}};
-            EntityQueryMutable queryMutable = await Wait.For(description, timeoutMs);
-            return new EntityQueryMutable<TComponent0, TComponent1>(queryMutable);
+            EntityQueryMutable entityQueryMutable = await Wait.For(description, timeoutMs, timeoutAction);
+            return new EntityQueryMutable<TComponent0, TComponent1>(entityQueryMutable);
         }
         
-        public static async Task<EntityQueryMutable> For(EntityQueryDesc queryDesc, int timeoutMs = 10)
+        public static async Task<EntityQueryMutable> For(
+            EntityQueryDesc queryDesc, int timeoutMs = 100, Action timeoutAction = null)
         {
             EntityQuery entityQuery = Worlds.Now.EntityManager.CreateEntityQuery(queryDesc);
             
-            while (entityQuery.IsEmpty && timeoutMs > 0)
+            while (entityQuery.IsEmpty)
             {
                 if (!Worlds.Now.EntityManager.IsQueryValid(entityQuery))
                 {
@@ -68,7 +67,12 @@ namespace PeacefulHills.Testing
                 }
 
                 await Task.Delay(1);
-                timeoutMs--;
+                
+                if (timeoutMs-- == 0)
+                {
+                    timeoutAction?.Invoke();
+                    throw new TimeoutException();
+                }
             }
 
             return new EntityQueryMutable(entityQuery);

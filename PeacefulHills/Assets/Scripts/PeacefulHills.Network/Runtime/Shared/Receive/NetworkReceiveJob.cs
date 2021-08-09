@@ -35,7 +35,7 @@ namespace PeacefulHills.Network
                         Entity bufferEntity = receiveBufferPools[reader.ReadByte()].Entity;
                         DynamicBuffer<NetworkReceiveBuffer> receiveBuffer = ReceiveBufferFromEntity[bufferEntity];
                         CopyToBuffer(ref reader, receiveBuffer);
-                        BytesReceivedCounter.Value += reader.Length;
+                        BytesReceivedCounter.Value += reader.GetBytesRead();
                     }
                 }
             }

@@ -6,6 +6,7 @@ using NUnit.Framework;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
 using NUnit.Framework.Internal.Builders;
+using UnityEngine;
 
 namespace PeacefulHills.Testing
 {
@@ -16,27 +17,54 @@ namespace PeacefulHills.Testing
 
         public TestMethod BuildFrom(IMethodInfo method, Test suite)
         {
-            var parms = new TestCaseParameters(new object[] {method, suite})
+            ExecuteParameters executeParams = HandleExecuteParams(method.MethodInfo);
+            var parms = new TestCaseParameters(new object[] {method, suite, executeParams})
             {
                 ExpectedResult = new object(), 
                 HasExpectedResult = true
             };
 
-            MethodInfo proxyMethodInfo = GetType().GetMethod("MethodProxy", BindingFlags.Static | BindingFlags.Public);
-            var proxyMethodWrapper = new MethodWrapper(GetType(), proxyMethodInfo);
+            Type type = GetType();
+            MethodInfo proxyMethod = type.GetMethod(nameof(AsyncMethodProxy), BindingFlags.Static | BindingFlags.Public);
+            var proxyMethodWrapper = new MethodWrapper(type, proxyMethod);
             suite.Method = proxyMethodWrapper;
 
-            TestMethod proxyMethod = _builder.BuildTestMethod(proxyMethodWrapper, suite, parms);
-            proxyMethod.Name = method.Name;
-            proxyMethod.parms.HasExpectedResult = false;
+            TestMethod proxyTestMethod = _builder.BuildTestMethod(proxyMethodWrapper, suite, parms);
+            proxyTestMethod.Name = method.Name;
+            proxyTestMethod.parms.HasExpectedResult = false;
             
-            return proxyMethod;
+            return proxyTestMethod;
         }
 
-        public static IEnumerator MethodProxy(IMethodInfo method, Test suite)
+        private ExecuteParameters HandleExecuteParams(MethodInfo method)
         {
-            EnumerableSynchronizationContext context = AsyncHelpers.RunSync(() => (Task) method.Invoke(suite.Fixture));
-            return context.BeginMessageLoop();
+            var parameters = new ExecuteParameters();
+            
+            var repeatAttr = method.GetCustomAttribute<RepeatAttribute>();
+            if (repeatAttr != null)
+            {
+                parameters.Repeat = (int)repeatAttr.Properties.Get("Repeat");
+            }
+
+            return parameters;
+        }
+
+        public static IEnumerator AsyncMethodProxy(IMethodInfo method, Test suite, ExecuteParameters execParams)
+        {
+            for (int i = 0; i < execParams.Repeat; i++)
+            {
+                IEnumerator enumerator = AsyncSupport.RunAsEnumerator(() => (Task) method.Invoke(suite.Fixture));
+
+                while (enumerator.MoveNext())
+                {
+                    yield return null;
+                }
+            }
+        }
+
+        public class ExecuteParameters
+        {
+            public int Repeat = 1;
         }
     }
 }

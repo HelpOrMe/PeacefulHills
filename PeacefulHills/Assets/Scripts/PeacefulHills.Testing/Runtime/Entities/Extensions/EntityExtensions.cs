@@ -43,5 +43,10 @@ namespace PeacefulHills.Testing
         {
             return Worlds.Now.EntityManager.GetComponentData<TComponent>(entity);
         }
+
+        public static void Destroy(this Entity entity)
+        {
+            Worlds.Now.EntityManager.DestroyEntity(entity);
+        }
     }
 }
