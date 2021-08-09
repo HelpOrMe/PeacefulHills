@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using PeacefulHills.Extensions;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
@@ -76,7 +77,7 @@ namespace PeacefulHills.Network.Messages
 
         private unsafe void SendFitPart(ref DataStreamWriter writer, DynamicBuffer<MessagesSendBuffer> messagesBuffer)
         {
-            NativeArray<byte> messageBytesArray = ToArray(messagesBuffer);
+            NativeArray<byte> messageBytesArray = messagesBuffer.AsBytes();
 
             var reader = new DataStreamReader(messageBytesArray);
             reader.ReadByte(); // Skip package type byte
@@ -102,19 +103,6 @@ namespace PeacefulHills.Network.Messages
                 throw new NetworkSimulationException(
                     $"Cannot send message {messageId} because its size is too big: ({messageSize}/{writer.Capacity}");
             }
-        }
-
-        private unsafe NativeArray<byte> ToArray(DynamicBuffer<MessagesSendBuffer> buffer)
-        {
-            NativeArray<byte> sendArray = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(
-                buffer.GetUnsafePtr(), buffer.Length, Allocator.Invalid);
-
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            AtomicSafetyHandle safety = NativeArrayUnsafeUtility.GetAtomicSafetyHandle(buffer.AsNativeArray());
-            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref sendArray, safety);
-            #endif
-
-            return sendArray;
         }
     }
 }

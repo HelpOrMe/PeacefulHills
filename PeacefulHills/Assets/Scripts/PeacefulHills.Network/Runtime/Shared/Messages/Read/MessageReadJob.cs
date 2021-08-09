@@ -1,6 +1,6 @@
-﻿using Unity.Burst;
+﻿using PeacefulHills.Extensions;
+using Unity.Burst;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Networking.Transport;
 
@@ -28,7 +28,7 @@ namespace PeacefulHills.Network.Messages
                 Entity receiveBufferEntity = pool[(int) NetworkPackageType.Message].Entity;
                 DynamicBuffer<NetworkReceiveBuffer> networkReceiveBuffer = ReceiveBufferFromEntity[receiveBufferEntity];
 
-                DataStreamReader reader = AsDataStreamReader(networkReceiveBuffer);
+                var reader = new DataStreamReader(networkReceiveBuffer.AsBytes());
 
                 while (reader.GetBytesRead() < reader.Length)
                 {
@@ -46,20 +46,6 @@ namespace PeacefulHills.Network.Messages
 
                 networkReceiveBuffer.Clear();
             }
-        }
-
-        private static unsafe DataStreamReader AsDataStreamReader<T>(DynamicBuffer<T> buffer)
-            where T : struct, IBufferElementData
-        {
-            NativeArray<byte> array = NativeArrayUnsafeUtility.ConvertExistingDataToNativeArray<byte>(
-                buffer.GetUnsafePtr(), buffer.Length, Allocator.Invalid);
-
-            #if ENABLE_UNITY_COLLECTIONS_CHECKS
-            AtomicSafetyHandle safety = NativeArrayUnsafeUtility.GetAtomicSafetyHandle(buffer.AsNativeArray());
-            NativeArrayUnsafeUtility.SetAtomicSafetyHandle(ref array, safety);
-            #endif
-
-            return new DataStreamReader(array);
         }
     }
 }
