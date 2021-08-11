@@ -1,13 +1,12 @@
 ﻿using System.Threading.Tasks;
 using NUnit.Framework;
-using PeacefulHills.Extensions;
 using PeacefulHills.Bootstrap;
-using PeacefulHills.Network.Messages;
+using PeacefulHills.Extensions;
 using PeacefulHills.Network.Profiling;
 using PeacefulHills.Testing;
 using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     public class MessagesBytesTests
     {
@@ -27,7 +26,7 @@ namespace PeacefulHills.Network.Tests
             Systems.Disable<MessagesSendSystem>();
         
             TestMessage testMessage = TestMessage.Random();
-            NetworkMessages.Broadcast(Worlds.Now.EntityManager, testMessage);
+            NetworkMessages.Broadcast(Worlds.Current.EntityManager, testMessage);
 
             BufferQueryMutable<MessagesSendBuffer> sendBufferMutable = Entities.Buffer<MessagesSendBuffer>();
             await Wait.For(() => sendBufferMutable.Buffer.Length > 1);
@@ -50,7 +49,7 @@ namespace PeacefulHills.Network.Tests
             Worlds.Select("Server world");
         
             TestMessage testMessage = TestMessage.Random();
-            NetworkMessages.Broadcast(Worlds.Now.EntityManager, testMessage);
+            NetworkMessages.Broadcast(Worlds.Current.EntityManager, testMessage);
 
             Worlds.Select("Client world №1");
             Systems.Disable<MessagesReadSystem>();

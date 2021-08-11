@@ -1,7 +1,6 @@
-﻿using PeacefulHills.Network.Messages;
-using Unity.Networking.Transport;
+﻿using Unity.Networking.Transport;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     public struct TestMessageSerializer : IMessageSerializer<TestMessage>
     {

@@ -10,20 +10,20 @@ namespace PeacefulHills.Network
     {
         protected override void OnCreate()
         {
-            World.RequestExtension<INetwork>(SetupDriverEndpoint);
+            World.RequestExtension<INetworkDriverInfo>(SetupDriverEndpoint);
         }
 
-        protected void SetupDriverEndpoint(INetwork network)    
+        protected void SetupDriverEndpoint(INetworkDriverInfo driver)    
         {
             NetworkEndPoint endpoint = NetworkEndPoint.AnyIpv4;
             endpoint.Port = 9000;
 
-            if (network.Driver.Bind(endpoint) != 0)
+            if (driver.Current.Bind(endpoint) != 0)
             {
                 throw new NetworkSimulationException("Unable to bind port " + endpoint.Port);
             }
 
-            network.Driver.Listen();
+            driver.Current.Listen();
         }
 
         protected override void OnUpdate()

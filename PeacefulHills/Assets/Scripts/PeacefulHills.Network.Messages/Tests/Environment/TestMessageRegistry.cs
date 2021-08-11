@@ -1,8 +1,7 @@
 ﻿using PeacefulHills.Extensions;
-using PeacefulHills.Network.Messages;
 using Unity.Entities;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     [UpdateInGroup(typeof(MessagesInitializationGroup))]
     [AlwaysUpdateSystem]

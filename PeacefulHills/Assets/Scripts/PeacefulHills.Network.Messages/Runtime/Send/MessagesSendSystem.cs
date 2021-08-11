@@ -19,21 +19,21 @@ namespace PeacefulHills.Network.Messages
         protected override void OnUpdate()
         {
             var registry = World.GetExtension<IMessageRegistry>();
-            var network = World.GetExtension<INetwork>();
+            var driver = World.GetExtension<INetworkDriverInfo>();
 
             var job = new MessagesSendJob
             {
                 ConnectionHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
                 Messages = registry.Messages,
                 MessagesBufferHandle = GetBufferTypeHandle<MessagesSendBuffer>(),
-                Pipeline = network.ReliablePipeline,
-                Driver = network.DriverConcurrent,
+                Pipeline = driver.ReliablePipeline,
+                Driver = driver.Concurrent,
                 MessagesBytesSentCounter = MessagesProfilerCounters.BytesSent,
                 BytesSentCounter = NetworkProfilerCounters.BytesSent
             };
 
-            network.DriverDependency = job.ScheduleParallel(_connectionsQuery, network.DriverDependency);
-            Dependency = network.DriverDependency;
+            driver.Dependency = job.ScheduleParallel(_connectionsQuery, driver.Dependency);
+            Dependency = driver.Dependency;
         }
     }
 }

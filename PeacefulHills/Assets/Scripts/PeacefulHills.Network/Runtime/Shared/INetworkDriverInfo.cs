@@ -5,18 +5,18 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Networking.Transport;
 
-[assembly: RegisterGenericComponentType(typeof(ExtensionSingleton<INetwork>))]
+[assembly: RegisterGenericComponentType(typeof(ExtensionSingleton<INetworkDriverInfo>))]
 
 namespace PeacefulHills.Network
 {
-    public interface INetwork : IWorldExtension, IDisposable
+    public interface INetworkDriverInfo : IWorldExtension, IDisposable
     {
-        public NetworkDriver Driver { get; }
-        public NetworkDriver.Concurrent DriverConcurrent { get; }
+        public NetworkDriver Current { get; }
+        public NetworkDriver.Concurrent Concurrent { get; }
 
         public NetworkPipeline ReliablePipeline { get; }
         public NetworkPipeline UnreliablePipeline { get; }
 
-        public JobHandle DriverDependency { get; set; }
+        public JobHandle Dependency { get; set; }
     }
 }

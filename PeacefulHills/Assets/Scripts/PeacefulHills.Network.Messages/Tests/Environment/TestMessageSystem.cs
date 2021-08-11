@@ -1,7 +1,6 @@
-﻿using PeacefulHills.Network.Messages;
-using Unity.Entities;
+﻿using Unity.Entities;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     public class TestMessageSystem : WriteMessageSystem<TestMessage, TestMessageSerializer>
     {

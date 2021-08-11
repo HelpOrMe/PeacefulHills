@@ -1,9 +1,7 @@
-﻿using System;
-using NUnit.Framework.Internal;
-using PeacefulHills.Network.Messages;
+﻿using NUnit.Framework.Internal;
 using Unity.Entities;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     public struct TestMessage : IMessage, IComponentData
     {

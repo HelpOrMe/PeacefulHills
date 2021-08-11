@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
-using PeacefulHills.Network.Messages;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     public class MessageRegistryTests
     {

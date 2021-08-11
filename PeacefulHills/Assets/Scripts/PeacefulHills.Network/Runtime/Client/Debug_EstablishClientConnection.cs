@@ -12,10 +12,10 @@ namespace PeacefulHills.Network
     {
         protected override void OnCreate()
         {
-            World.RequestExtension<INetwork>(ConnectToServer);
+            World.RequestExtension<INetworkDriverInfo>(ConnectToServer);
         }
 
-        private void ConnectToServer(INetwork network)
+        private void ConnectToServer(INetworkDriverInfo driver)
         {
             NetworkEndPoint endpoint = NetworkEndPoint.LoopbackIpv4;
             endpoint.Port = 9000;
@@ -24,7 +24,7 @@ namespace PeacefulHills.Network
 
             if (NetworkWorldsInitSettings.Current.SplitWorlds)
             {
-                NetworkConnection connection = network.Driver.Connect(endpoint);
+                NetworkConnection connection = driver.Current.Connect(endpoint);
                 ConnectionBuilder.CreateConnection(commandBuffer, connection);
             }
             else

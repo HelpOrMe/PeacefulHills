@@ -2,12 +2,11 @@
 using NUnit.Framework;
 using PeacefulHills.Bootstrap;
 using PeacefulHills.Extensions;
-using PeacefulHills.Network.Messages;
 using PeacefulHills.Network.Profiling;
 using PeacefulHills.Testing;
 using Unity.Entities;
 
-namespace PeacefulHills.Network.Tests
+namespace PeacefulHills.Network.Messages.Tests
 {
     public class MessagesSendingTests
     {
@@ -65,7 +64,7 @@ namespace PeacefulHills.Network.Tests
         {
             Worlds.Select(fromWorld);
             TestMessage testMessage = TestMessage.Random();
-            NetworkMessages.Broadcast(Worlds.Now.EntityManager, testMessage);
+            NetworkMessages.Broadcast(Worlds.Current.EntityManager, testMessage);
             
             Worlds.Select(toWorld);
             Entity messageEntity = await Wait.For<TestMessage>();
@@ -80,7 +79,7 @@ namespace PeacefulHills.Network.Tests
         private async Task ScheduleMessage_FromTo(string worldFrom, string worldTo)
         {
             Worlds.Select(worldFrom);
-            ushort testMessageId =Worlds.Now.GetExtension<IMessageRegistry>().GetId<TestMessage>();
+            ushort testMessageId =Worlds.Current.GetExtension<IMessageRegistry>().GetId<TestMessage>();
             var scheduler = new MessagesScheduler<TestMessage, TestMessageSerializer>(testMessageId);
 
             DynamicBuffer<MessagesSendBuffer> clientMessagesSendBuffer = Entities.Buffer<MessagesSendBuffer>();
@@ -102,7 +101,7 @@ namespace PeacefulHills.Network.Tests
             Worlds.Select(worldFrom);
             Entity clientConnection = Entities.Component<ConnectionWrapper>();
             TestMessage testMessage = TestMessage.Random();
-            NetworkMessages.Send(Worlds.Now.EntityManager, clientConnection, testMessage);
+            NetworkMessages.Send(Worlds.Current.EntityManager, clientConnection, testMessage);
 
             Worlds.Select(worldTo);
             Entity messageEntity = await Wait.For<TestMessage>();

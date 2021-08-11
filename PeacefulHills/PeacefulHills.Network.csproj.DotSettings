@@ -23,5 +23,6 @@
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Cscripts_005Cpeacefulhills_002Enetwork_005Cruntime_005Cshared_005Cmessages_005Cserialization/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Cscripts_005Cpeacefulhills_002Enetwork_005Cruntime_005Cshared_005Cmessages_005Cwrite/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Cscripts_005Cpeacefulhills_002Enetwork_005Cruntime_005Cshared_005Cnetwork/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Cscripts_005Cpeacefulhills_002Enetwork_005Cruntime_005Cshared_005Cpackages/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Cscripts_005Cpeacefulhills_002Enetwork_005Cruntime_005Cshared_005Cprofiling_005Cinitialization/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeInspection/NamespaceProvider/NamespaceFoldersToSkip/=assets_005Cscripts_005Cpeacefulhills_002Enetwork_005Cruntime_005Cshared_005Creceive/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

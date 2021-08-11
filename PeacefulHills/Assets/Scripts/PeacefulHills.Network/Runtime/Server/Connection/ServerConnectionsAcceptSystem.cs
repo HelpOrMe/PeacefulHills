@@ -18,19 +18,19 @@ namespace PeacefulHills.Network.Connection
 
         protected override void OnUpdate()
         {
-            var network = World.GetExtension<INetwork>();
+            var driver = World.GetExtension<INetworkDriverInfo>();
             EntityCommandBuffer commandBuffer = _buffer.CreateCommandBuffer();
 
             var connectionsAcceptJob = new ServerConnectionsAcceptJob
             {
-                Driver = network.Driver, 
+                Driver = driver.Current, 
                 CommandBuffer = commandBuffer
             };
 
-            network.DriverDependency = connectionsAcceptJob.Schedule(network.DriverDependency);
-            Dependency = network.DriverDependency;
+            driver.Dependency = connectionsAcceptJob.Schedule(driver.Dependency);
+            Dependency = driver.Dependency;
             
-            _buffer.AddJobHandleForProducer(network.DriverDependency);
+            _buffer.AddJobHandleForProducer(driver.Dependency);
         }
 
         [BurstCompile]

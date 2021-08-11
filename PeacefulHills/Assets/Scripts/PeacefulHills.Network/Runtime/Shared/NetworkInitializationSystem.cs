@@ -11,21 +11,21 @@ namespace PeacefulHills.Network
         protected override void OnCreate()
         {
             var driver = NetworkDriver.Create();
-            var network = new Network
+            var driverInfo = new NetworkDriverInfo
             {
-                Driver = driver,
-                DriverConcurrent = driver.ToConcurrent(),
+                Current = driver,
+                Concurrent = driver.ToConcurrent(),
                 ReliablePipeline = driver.CreatePipeline(typeof(ReliableSequencedPipelineStage)),
                 UnreliablePipeline = driver.CreatePipeline(typeof(NullPipelineStage))
             };
 
-            World.SetExtension<INetwork>(network);
+            World.SetExtension<INetworkDriverInfo>(driverInfo);
         }
 
         protected override void OnDestroy()
         {
-            var network = World.GetExtension<INetwork>();
-            network.Dispose();
+            var driver = World.GetExtension<INetworkDriverInfo>();
+            driver.Dispose();
         }
 
         protected override void OnUpdate()

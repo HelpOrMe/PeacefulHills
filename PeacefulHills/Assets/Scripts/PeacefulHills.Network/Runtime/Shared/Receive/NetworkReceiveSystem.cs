@@ -19,20 +19,19 @@ namespace PeacefulHills.Network
 
         protected override void OnUpdate()
         {
-            var network = World.GetExtension<INetwork>();
-            NetworkDriver.Concurrent driver = network.DriverConcurrent;
+            var driver = World.GetExtension<INetworkDriverInfo>();
 
             var receiveJob = new NetworkReceiveJob
             {
                 ReceiveBufferPoolHandle = GetBufferTypeHandle<NetworkReceiveBufferPool>(true),
                 ConnectionsHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
                 ReceiveBufferFromEntity = GetBufferFromEntity<NetworkReceiveBuffer>(),
-                Driver = driver,
+                Driver = driver.Concurrent,
                 BytesReceivedCounter = NetworkProfilerCounters.BytesReceived
             };
 
-            network.DriverDependency = receiveJob.Schedule(_connectionsQuery, network.DriverDependency);
-            Dependency = network.DriverDependency;
+            driver.Dependency = receiveJob.Schedule(_connectionsQuery, driver.Dependency);
+            Dependency = driver.Dependency;
         }
     }
 }

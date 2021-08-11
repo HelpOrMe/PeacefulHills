@@ -1,10 +1,8 @@
-﻿using PeacefulHills.Network.Messages;
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
-    // TODO: Temporary solution
     public static class ConnectionBuilder
     {
         #if !UNITY_SERVER || UNITY_EDITOR
@@ -24,10 +22,10 @@ namespace PeacefulHills.Network
 
             commandBuffer.AddComponent(connectionEntity, new ConnectionWrapper {Value = connection});
 
-            commandBuffer.AddBuffer<MessagesSendBuffer>(connectionEntity).Add(new MessagesSendBuffer
-            {
-                Value = (byte) NetworkPackageType.Message
-            });
+            // commandBuffer.AddBuffer<MessagesSendBuffer>(connectionEntity).Add(new MessagesSendBuffer
+            // {
+                // Value = (byte) NetworkPackageType.Message
+            // });
             commandBuffer.AddBuffer<NetworkReceiveBufferPool>(connectionEntity).Add(new NetworkReceiveBufferPool
             {
                 Entity = CreateReceiveBufferEntity(commandBuffer)

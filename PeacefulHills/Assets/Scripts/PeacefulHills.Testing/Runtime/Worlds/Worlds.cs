@@ -5,7 +5,7 @@ namespace PeacefulHills.Testing
 {
     public static class Worlds
     {
-        public static World Now
+        public static World Current
         {
             get
             {
@@ -52,7 +52,7 @@ namespace PeacefulHills.Testing
             {
                 if (world.Name == worldName)
                 {
-                    Now = world;
+                    Current = world;
                     return;
                 }
             }

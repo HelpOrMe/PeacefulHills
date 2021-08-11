@@ -18,24 +18,23 @@ namespace PeacefulHills.Network
         {
             EntityCommandBuffer commandBuffer = _buffer.CreateCommandBuffer();
 
-            var network = World.GetExtension<INetwork>();
-            NetworkDriver driver = network.Driver;
+            var driver = World.GetExtension<INetworkDriverInfo>();
 
-            network.DriverDependency = Entities
+            driver.Dependency = Entities
                .WithName("Interrupt_connections")
                .WithAll<ConnectionInterrupt>()
                .ForEach((Entity entity, ref ConnectionWrapper connection) =>
                 {
                     if (!connection.Value.IsCreated)
                     {
-                        driver.Disconnect(connection.Value);
+                        driver.Current.Disconnect(connection.Value);
                     }
                     commandBuffer.DestroyEntity(entity);
                 })
-               .Schedule(network.DriverDependency);
+               .Schedule(driver.Dependency);
 
-            Dependency = network.DriverDependency;
-            _buffer.AddJobHandleForProducer(network.DriverDependency);
+            Dependency = driver.Dependency;
+            _buffer.AddJobHandleForProducer(driver.Dependency);
         }
     }
 }

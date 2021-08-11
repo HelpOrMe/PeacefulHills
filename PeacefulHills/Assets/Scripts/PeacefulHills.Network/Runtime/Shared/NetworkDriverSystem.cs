@@ -8,14 +8,14 @@ namespace PeacefulHills.Network
     {
         protected override void OnCreate()
         {
-            this.RequireExtension<INetwork>();
+            this.RequireExtension<INetworkDriverInfo>();
         }
 
         protected override void OnUpdate()
         {
-            var network = World.GetExtension<INetwork>();
-            network.DriverDependency.Complete();
-            network.DriverDependency = network.Driver.ScheduleUpdate();
+            var driver = World.GetExtension<INetworkDriverInfo>();
+            driver.Dependency.Complete();
+            driver.Dependency = driver.Current.ScheduleUpdate();
         }
     }
 }

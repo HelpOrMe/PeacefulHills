@@ -57,13 +57,13 @@ namespace PeacefulHills.Testing
         public static async Task<EntityQueryMutable> For(
             EntityQueryDesc queryDesc, int timeoutMs = 100, Action timeoutAction = null)
         {
-            EntityQuery entityQuery = Worlds.Now.EntityManager.CreateEntityQuery(queryDesc);
+            EntityQuery entityQuery = Worlds.Current.EntityManager.CreateEntityQuery(queryDesc);
             
             while (entityQuery.IsEmpty)
             {
-                if (!Worlds.Now.EntityManager.IsQueryValid(entityQuery))
+                if (!Worlds.Current.EntityManager.IsQueryValid(entityQuery))
                 {
-                    entityQuery = Worlds.Now.EntityManager.CreateEntityQuery(queryDesc);
+                    entityQuery = Worlds.Current.EntityManager.CreateEntityQuery(queryDesc);
                 }
 
                 await Task.Delay(1);

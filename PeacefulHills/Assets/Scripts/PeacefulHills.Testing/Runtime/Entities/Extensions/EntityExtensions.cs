@@ -30,7 +30,7 @@ namespace PeacefulHills.Testing
         {
             foreach (ComponentType component in components)
             {
-                if (!Worlds.Now.EntityManager.HasComponent(entity, component))
+                if (!Worlds.Current.EntityManager.HasComponent(entity, component))
                 {
                     return false;
                 }
@@ -41,12 +41,12 @@ namespace PeacefulHills.Testing
         public static TComponent Component<TComponent>(this Entity entity) 
             where TComponent : unmanaged, IComponentData
         {
-            return Worlds.Now.EntityManager.GetComponentData<TComponent>(entity);
+            return Worlds.Current.EntityManager.GetComponentData<TComponent>(entity);
         }
 
         public static void Destroy(this Entity entity)
         {
-            Worlds.Now.EntityManager.DestroyEntity(entity);
+            Worlds.Current.EntityManager.DestroyEntity(entity);
         }
     }
 }

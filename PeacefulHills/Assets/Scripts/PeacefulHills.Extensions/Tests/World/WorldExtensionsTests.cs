@@ -19,10 +19,10 @@ namespace PeacefulHills.Extensions.Tests
         [Test]
         public void SetExtensionPipeline()
         {
-            Worlds.Now.SetExtension<ITestExtension>(new TestExtension());
-            Assert.True(Worlds.Now.HasExtension<ITestExtension>());
-            Worlds.Now.RemoveExtension<ITestExtension>();
-            Assert.False(Worlds.Now.HasExtension<ITestExtension>());
+            Worlds.Current.SetExtension<ITestExtension>(new TestExtension());
+            Assert.True(Worlds.Current.HasExtension<ITestExtension>());
+            Worlds.Current.RemoveExtension<ITestExtension>();
+            Assert.False(Worlds.Current.HasExtension<ITestExtension>());
         }
 
         [Test]
@@ -30,33 +30,33 @@ namespace PeacefulHills.Extensions.Tests
         {
             bool requestInvoked = false;
 
-            Worlds.Now.RequestExtension<ITestExtension>(extension => { requestInvoked = true; });
+            Worlds.Current.RequestExtension<ITestExtension>(extension => { requestInvoked = true; });
 
             Assert.False(requestInvoked);
-            Worlds.Now.SetExtension<ITestExtension>(new TestExtension());
+            Worlds.Current.SetExtension<ITestExtension>(new TestExtension());
             Assert.True(requestInvoked);
 
-            Worlds.Now.RemoveExtension<ITestExtension>();
+            Worlds.Current.RemoveExtension<ITestExtension>();
         }
 
         [Test]
         public void RequestExtensionAfterCreation()
         {
-            Worlds.Now.SetExtension<ITestExtension>(new TestExtension());
+            Worlds.Current.SetExtension<ITestExtension>(new TestExtension());
 
             bool requestInvoked = false;
-            Worlds.Now.RequestExtension<ITestExtension>(extension => { requestInvoked = true; });
+            Worlds.Current.RequestExtension<ITestExtension>(extension => { requestInvoked = true; });
 
             Assert.True(requestInvoked);
 
-            Worlds.Now.RemoveExtension<ITestExtension>();
+            Worlds.Current.RemoveExtension<ITestExtension>();
         }
 
         [Test]
         public void RequireExtension()
         {
             var testSystem = new TestSystem();
-            Worlds.Now.AddSystem(testSystem);
+            Worlds.Current.AddSystem(testSystem);
         }
 
         public interface ITestExtension : IWorldExtension

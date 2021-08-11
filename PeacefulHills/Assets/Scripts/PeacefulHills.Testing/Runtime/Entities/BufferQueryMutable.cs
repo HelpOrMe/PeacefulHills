@@ -10,7 +10,7 @@ namespace PeacefulHills.Testing
 
         public static implicit operator DynamicBuffer<TBuffer>(BufferQueryMutable<TBuffer> bufferQueryMut)
         {
-            return Worlds.Now.EntityManager.GetBuffer<TBuffer>(bufferQueryMut);
+            return Worlds.Current.EntityManager.GetBuffer<TBuffer>(bufferQueryMut);
         }
     }
 }
