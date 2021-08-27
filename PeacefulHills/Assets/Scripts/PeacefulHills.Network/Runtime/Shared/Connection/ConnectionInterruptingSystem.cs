@@ -19,6 +19,7 @@ namespace PeacefulHills.Network
             EntityCommandBuffer commandBuffer = _buffer.CreateCommandBuffer();
 
             var driver = World.GetExtension<INetworkDriverInfo>();
+            NetworkDriver currentDriver = driver.Current;
 
             driver.Dependency = Entities
                .WithName("Interrupt_connections")
@@ -27,7 +28,7 @@ namespace PeacefulHills.Network
                 {
                     if (!connection.Value.IsCreated)
                     {
-                        driver.Current.Disconnect(connection.Value);
+                        currentDriver.Disconnect(connection.Value);
                     }
                     commandBuffer.DestroyEntity(entity);
                 })
