@@ -1,4 +1,5 @@
 ﻿using PeacefulHills.Extensions;
+using PeacefulHills.Network.Packet;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -9,26 +10,22 @@ namespace PeacefulHills.Network.Messages
     [BurstCompile]
     public struct MessageReadJob : IJobEntityBatch
     {
-        [ReadOnly] public EntityTypeHandle EntityHandle;
-        [ReadOnly] public BufferTypeHandle<NetworkReceiveBufferPool> PoolHandle;
-        [NativeDisableParallelForRestriction] public BufferFromEntity<NetworkReceiveBuffer> ReceiveBufferFromEntity;
+        public BufferTypeHandle<PacketReceiveBuffer> ReceiveBufferHandle;
+        [ReadOnly] public ComponentTypeHandle<ConnectionLink> ConnectionLinkHandle;
 
         [ReadOnly] public NativeList<MessageInfo> Messages;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
 
         public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
         {
-            BufferAccessor<NetworkReceiveBufferPool> pools = batchInChunk.GetBufferAccessor(PoolHandle);
-            NativeArray<Entity> entities = batchInChunk.GetNativeArray(EntityHandle);
+            BufferAccessor<PacketReceiveBuffer> receiveBuffers = batchInChunk.GetBufferAccessor(ReceiveBufferHandle);
+            NativeArray<ConnectionLink> connectionLinks = batchInChunk.GetNativeArray(ConnectionLinkHandle);
 
             for (int i = 0; i < batchInChunk.Count; i++)
             {
-                DynamicBuffer<NetworkReceiveBufferPool> pool = pools[i];
+                DynamicBuffer<PacketReceiveBuffer> receiveBuffer = receiveBuffers[i];
 
-                Entity receiveBufferEntity = pool[(int) NetworkPackageType.Message].Entity;
-                DynamicBuffer<NetworkReceiveBuffer> networkReceiveBuffer = ReceiveBufferFromEntity[receiveBufferEntity];
-
-                var reader = new DataStreamReader(networkReceiveBuffer.AsBytes());
+                var reader = new DataStreamReader(receiveBuffer.AsBytes());
 
                 while (reader.GetBytesRead() < reader.Length)
                 {
@@ -37,14 +34,14 @@ namespace PeacefulHills.Network.Messages
                     var context = new MessageDeserializerContext
                     {
                         CommandBuffer = CommandBuffer,
-                        Connection = entities[i],
+                        Connection = connectionLinks[i].Entity,
                         SortKey = batchIndex
                     };
 
                     messageInfo.Deserialize.Invoke(ref reader, ref context);
                 }
 
-                networkReceiveBuffer.Clear();
+                receiveBuffer.Clear();
             }
         }
     }

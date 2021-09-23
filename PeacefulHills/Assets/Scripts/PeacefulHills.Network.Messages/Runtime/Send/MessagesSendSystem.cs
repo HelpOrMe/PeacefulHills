@@ -1,5 +1,6 @@
 ﻿using PeacefulHills.Extensions;
 using PeacefulHills.Network.Messages.Profiling;
+using PeacefulHills.Network.Packet;
 using PeacefulHills.Network.Profiling;
 using Unity.Entities;
 
@@ -9,11 +10,11 @@ namespace PeacefulHills.Network.Messages
     [UpdateAfter(typeof(MessagesWriteGroup))]
     public class MessagesSendSystem : SystemBase
     {
-        private EntityQuery _connectionsQuery;
+        private EntityQuery _agentsQuery;
 
         protected override void OnCreate()
         {
-            _connectionsQuery = GetEntityQuery(ComponentType.ReadOnly<ConnectionWrapper>(), typeof(MessagesSendBuffer));
+            _agentsQuery = GetEntityQuery(typeof(MessagePacketAgent));
         }
 
         protected override void OnUpdate()
@@ -23,16 +24,17 @@ namespace PeacefulHills.Network.Messages
 
             var job = new MessagesSendJob
             {
-                ConnectionHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
+                ConnectionFromEntity = GetComponentDataFromEntity<DriverConnection>(true),
+                ConnectionLinkHandle = GetComponentTypeHandle<ConnectionLink>(true),
+                SendBufferHandle = GetBufferTypeHandle<PacketSendBuffer>(),
                 Messages = registry.Messages,
-                MessagesBufferHandle = GetBufferTypeHandle<MessagesSendBuffer>(),
                 Pipeline = driver.ReliablePipeline,
                 Driver = driver.Concurrent,
                 MessagesBytesSentCounter = MessagesProfilerCounters.BytesSent,
                 BytesSentCounter = NetworkProfilerCounters.BytesSent
             };
 
-            driver.Dependency = job.ScheduleParallel(_connectionsQuery, driver.Dependency);
+            driver.Dependency = job.ScheduleParallel(_agentsQuery, driver.Dependency);
             Dependency = driver.Dependency;
         }
     }

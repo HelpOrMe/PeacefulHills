@@ -8,14 +8,17 @@ namespace PeacefulHills.Network
 {
     // todo: del
     [UpdateInGroup(typeof(NetworkInitializationGroup))]
+    [UpdateAfter(typeof(ConnectionInitializationSystem))]
     public class EstablishClientConnection : SystemBase
     {
         protected override void OnCreate()
         {
-            World.RequestExtension<INetworkDriverInfo>(ConnectToServer);
+            World.RequestExtension<INetworkDriverInfo>(
+                driver => World.RequestExtension<ConnectionBuilder>(
+                    builder => EstablishConnection(driver, builder)));
         }
 
-        private void ConnectToServer(INetworkDriverInfo driver)
+        private void EstablishConnection(INetworkDriverInfo driver, ConnectionBuilder connectionBuilder)
         {
             NetworkEndPoint endpoint = NetworkEndPoint.LoopbackIpv4;
             endpoint.Port = 9000;
@@ -25,15 +28,16 @@ namespace PeacefulHills.Network
             if (NetworkWorldsInitSettings.Current.SplitWorlds)
             {
                 NetworkConnection connection = driver.Current.Connect(endpoint);
-                ConnectionBuilder.CreateConnection(commandBuffer, connection);
+                connectionBuilder.CreateConnection(commandBuffer, connection);
             }
             else
             {
-                ConnectionBuilder.CreateHostConnection(commandBuffer, default);
+                connectionBuilder.CreateHostConnection(commandBuffer, default);
             }
+            
             commandBuffer.Playback(EntityManager);
         }
-
+        
         protected override void OnUpdate()
         {
         }

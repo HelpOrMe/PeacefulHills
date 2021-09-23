@@ -1,4 +1,5 @@
 ﻿using PeacefulHills.Extensions;
+using PeacefulHills.Network.Packet;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -8,14 +9,12 @@ namespace PeacefulHills.Network.Messages
     public class MessagesReadSystem : SystemBase
     {
         private EndMessagesSimulationBuffer _buffer;
-        private EntityQuery _connectionsQuery;
+        private EntityQuery _agentsQuery;
 
         protected override void OnCreate()
         {
             _buffer = World.GetOrCreateSystem<EndMessagesSimulationBuffer>();
-            _connectionsQuery = GetEntityQuery(
-                ComponentType.ReadOnly<ConnectionWrapper>(),
-                ComponentType.ReadOnly<NetworkReceiveBufferPool>());
+            _agentsQuery = GetEntityQuery(typeof(MessagePacketAgent));
         }
 
         protected override void OnUpdate()
@@ -27,14 +26,13 @@ namespace PeacefulHills.Network.Messages
 
             var job = new MessageReadJob
             {
-                EntityHandle = GetEntityTypeHandle(),
-                PoolHandle = GetBufferTypeHandle<NetworkReceiveBufferPool>(true),
-                ReceiveBufferFromEntity = GetBufferFromEntity<NetworkReceiveBuffer>(),
+                ReceiveBufferHandle = GetBufferTypeHandle<PacketReceiveBuffer>(),
+                ConnectionLinkHandle = GetComponentTypeHandle<ConnectionLink>(),
                 Messages = messages,
                 CommandBuffer = commandBuffer
             };
 
-            Dependency = job.ScheduleParallel(_connectionsQuery, dependsOn: Dependency);
+            Dependency = job.ScheduleParallel(_agentsQuery, dependsOn: Dependency);
             _buffer.AddJobHandleForProducer(Dependency);
         }
     }

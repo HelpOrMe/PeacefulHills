@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using PeacefulHills.Network.Packet;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Networking.Transport;
 using Unity.Profiling;
@@ -7,33 +8,36 @@ namespace PeacefulHills.Network
 {
     public struct NetworkReceiveJob : IJobChunk
     {
-        [ReadOnly] public BufferTypeHandle<NetworkReceiveBufferPool> ReceiveBufferPoolHandle;
-        [ReadOnly] public ComponentTypeHandle<ConnectionWrapper> ConnectionsHandle;
-        [NativeDisableParallelForRestriction] public BufferFromEntity<NetworkReceiveBuffer> ReceiveBufferFromEntity;
+        [ReadOnly] public BufferTypeHandle<PacketAgentsPool> PacketAgentPoolHandle;
+        [ReadOnly] public ComponentTypeHandle<DriverConnection> ConnectionLinksHandle;
+        [NativeDisableParallelForRestriction] public BufferFromEntity<PacketReceiveBuffer> ReceiveBufferFromEntity;
 
         public NetworkDriver.Concurrent Driver;
-
         public ProfilerCounterValue<int> BytesReceivedCounter;
 
         public void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
-            BufferAccessor<NetworkReceiveBufferPool> receiveBuffersPool = chunk.GetBufferAccessor(ReceiveBufferPoolHandle);
-            NativeArray<ConnectionWrapper> connections = chunk.GetNativeArray(ConnectionsHandle);
+            BufferAccessor<PacketAgentsPool> packetAgentPools = chunk.GetBufferAccessor(PacketAgentPoolHandle);
+            NativeArray<DriverConnection> connections = chunk.GetNativeArray(ConnectionLinksHandle);
 
             for (int i = 0; i < chunk.Count; i++)
             {
-                ConnectionWrapper connection = connections[i];
-                DynamicBuffer<NetworkReceiveBufferPool> receiveBufferPools = receiveBuffersPool[i];
+                DynamicBuffer<PacketAgentsPool> packetAgentPool = packetAgentPools[i];
 
                 DataStreamReader reader;
                 NetworkEvent.Type cmd;
 
-                while ((cmd = Driver.PopEventForConnection(connection.Value, out reader)) != NetworkEvent.Type.Empty)
+                while ((cmd = Driver.PopEventForConnection(connections[i].Value, out reader)) != NetworkEvent.Type.Empty)
                 {
                     if (cmd == NetworkEvent.Type.Data)
                     {
-                        Entity bufferEntity = receiveBufferPools[reader.ReadByte()].Entity;
-                        DynamicBuffer<NetworkReceiveBuffer> receiveBuffer = ReceiveBufferFromEntity[bufferEntity];
+                        byte packetTypeId = reader.ReadByte();
+                        if (packetAgentPool.Length >= packetTypeId) continue;
+                        
+                        Entity packetAgent = packetAgentPool[packetTypeId].Entity;
+                        if (packetAgent == Entity.Null) continue;
+                        
+                        DynamicBuffer<PacketReceiveBuffer> receiveBuffer = ReceiveBufferFromEntity[packetAgent];
                         CopyToBuffer(ref reader, receiveBuffer);
                         BytesReceivedCounter.Value += reader.GetBytesRead();
                     }
@@ -41,7 +45,7 @@ namespace PeacefulHills.Network
             }
         }
 
-        public unsafe void CopyToBuffer(ref DataStreamReader reader, DynamicBuffer<NetworkReceiveBuffer> receiveBuffer)
+        private unsafe void CopyToBuffer(ref DataStreamReader reader, DynamicBuffer<PacketReceiveBuffer> receiveBuffer)
         {
             int oldLength = receiveBuffer.Length;
             int length = reader.Length - reader.GetBytesRead();

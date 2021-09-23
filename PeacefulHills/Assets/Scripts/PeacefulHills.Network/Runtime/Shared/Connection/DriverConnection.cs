@@ -3,7 +3,7 @@ using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
-    public struct ConnectionWrapper : IComponentData
+    public struct DriverConnection : IComponentData
     {
         public NetworkConnection Value;
     }

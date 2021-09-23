@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using PeacefulHills.Bootstrap;
 using PeacefulHills.Extensions;
+using PeacefulHills.Network.Packet;
 using PeacefulHills.Network.Profiling;
 using PeacefulHills.Testing;
 using Unity.Entities;
@@ -82,7 +83,7 @@ namespace PeacefulHills.Network.Messages.Tests
             ushort testMessageId =Worlds.Current.GetExtension<IMessageRegistry>().GetId<TestMessage>();
             var scheduler = new MessagesScheduler<TestMessage, TestMessageSerializer>(testMessageId);
 
-            DynamicBuffer<MessagesSendBuffer> clientMessagesSendBuffer = Entities.Buffer<MessagesSendBuffer>();
+            var clientMessagesSendBuffer = Entities.Buffer<PacketSendBuffer, MessagePacketAgent>();
             TestMessage message = TestMessage.Random();
             scheduler.Schedule(clientMessagesSendBuffer, message);
             
@@ -99,7 +100,7 @@ namespace PeacefulHills.Network.Messages.Tests
         private async Task SendMessage_FromTo(string worldFrom, string worldTo)
         {
             Worlds.Select(worldFrom);
-            Entity clientConnection = Entities.Component<ConnectionWrapper>();
+            Entity clientConnection = Entities.Component<DriverConnection>();
             TestMessage testMessage = TestMessage.Random();
             NetworkMessages.Send(Worlds.Current.EntityManager, clientConnection, testMessage);
 

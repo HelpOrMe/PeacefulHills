@@ -118,7 +118,8 @@ namespace PeacefulHills.Network.Messages
             return entity;
         }
 
-        public static MessagesScheduler<TMessage, TMessageSerializer> Scheduler<TMessage, TMessageSerializer>(World world)
+        public static MessagesScheduler<TMessage, TMessageSerializer> Scheduler<TMessage, TMessageSerializer>(
+            World world)
             where TMessage : unmanaged, IMessage
             where TMessageSerializer : unmanaged, IMessageSerializer<TMessage>
         {

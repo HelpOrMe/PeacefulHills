@@ -1,4 +1,5 @@
 ﻿using PeacefulHills.Extensions;
+using PeacefulHills.Network.Packet;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
@@ -11,10 +12,11 @@ namespace PeacefulHills.Network.Messages
     [BurstCompile]
     public struct MessagesSendJob : IJobChunk
     {
-        [ReadOnly] public ComponentTypeHandle<ConnectionWrapper> ConnectionHandle;
         [ReadOnly] public NativeList<MessageInfo> Messages;
 
-        public BufferTypeHandle<MessagesSendBuffer> MessagesBufferHandle;
+        [ReadOnly] public ComponentDataFromEntity<DriverConnection> ConnectionFromEntity;
+        [ReadOnly] public ComponentTypeHandle<ConnectionLink> ConnectionLinkHandle;
+        public BufferTypeHandle<PacketSendBuffer> SendBufferHandle;
 
         public NetworkPipeline Pipeline;
         public NetworkDriver.Concurrent Driver;
@@ -24,28 +26,29 @@ namespace PeacefulHills.Network.Messages
 
         public unsafe void Execute(ArchetypeChunk chunk, int chunkIndex, int firstEntityIndex)
         {
-            NativeArray<ConnectionWrapper> connections = chunk.GetNativeArray(ConnectionHandle);
-            BufferAccessor<MessagesSendBuffer> messagesBuffers = chunk.GetBufferAccessor(MessagesBufferHandle);
+            NativeArray<ConnectionLink> connectionLinks = chunk.GetNativeArray(ConnectionLinkHandle);
+            BufferAccessor<PacketSendBuffer> sendBuffers = chunk.GetBufferAccessor(SendBufferHandle);
 
             for (int i = 0; i < chunk.Count; i++)
             {
-                ConnectionWrapper connectionWrapper = connections[i];
-                DynamicBuffer<MessagesSendBuffer> messagesBytesBuffer = messagesBuffers[i];
+                DriverConnection connection = ConnectionFromEntity[connectionLinks[i].Entity];
+                DynamicBuffer<PacketSendBuffer> sendBuffer = sendBuffers[i];
 
-                while (messagesBytesBuffer.Length > 1)
+                while (sendBuffer.Length > 1)
                 {
-                    if (Driver.BeginSend(Pipeline, connectionWrapper.Value, out DataStreamWriter writer) != 0)
+                    if (Driver.BeginSend(Pipeline, connection.Value, out DataStreamWriter writer) != 0)
                     {
                         break;
                     }
 
-                    if (messagesBytesBuffer.Length <= writer.Capacity)
+                    if (sendBuffer.Length <= writer.Capacity)
                     {
-                        writer.WriteBytes((byte*) messagesBytesBuffer.GetUnsafeReadOnlyPtr(), messagesBytesBuffer.Length);
+                        writer.WriteBytes((byte*) sendBuffer.GetUnsafeReadOnlyPtr(), 
+                            sendBuffer.Length);
                     }
                     else
                     {
-                        SendFitPart(ref writer, messagesBytesBuffer);
+                        SendFitPart(ref writer, sendBuffer);
                     }
 
                     if (Driver.EndSend(writer) <= 0)
@@ -56,28 +59,28 @@ namespace PeacefulHills.Network.Messages
                     MessagesBytesSentCounter.Value += writer.Length;
                     BytesSentCounter.Value += writer.Length;
 
-                    if (writer.Length >= messagesBytesBuffer.Length)
+                    if (writer.Length >= sendBuffer.Length)
                     {
-                        messagesBytesBuffer.ResizeUninitialized(1);
+                        sendBuffer.ResizeUninitialized(1);
                     }
                     else
                     {
                         // Compact the buffer
-                        for (int moveIndex = writer.Length; moveIndex < messagesBytesBuffer.Length; moveIndex++)
+                        for (int moveIndex = writer.Length; moveIndex < sendBuffer.Length; moveIndex++)
                         {
-                            messagesBytesBuffer[1 + moveIndex - writer.Length] = messagesBytesBuffer[moveIndex];
+                            sendBuffer[1 + moveIndex - writer.Length] = sendBuffer[moveIndex];
                         }
 
                         // Clear all except the first byte that identifies the packet as a message
-                        messagesBytesBuffer.ResizeUninitialized(1 + messagesBytesBuffer.Length - writer.Length);
+                        sendBuffer.ResizeUninitialized(1 + sendBuffer.Length - writer.Length);
                     }
                 }
             }
         }
 
-        private unsafe void SendFitPart(ref DataStreamWriter writer, DynamicBuffer<MessagesSendBuffer> messagesBuffer)
+        private unsafe void SendFitPart(ref DataStreamWriter writer, DynamicBuffer<PacketSendBuffer> sendBuffer)
         {
-            NativeArray<byte> messageBytesArray = messagesBuffer.AsBytes();
+            NativeArray<byte> messageBytesArray = sendBuffer.AsBytes();
 
             var reader = new DataStreamReader(messageBytesArray);
             reader.ReadByte(); // Skip package type byte

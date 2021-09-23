@@ -1,7 +1,7 @@
 ﻿using PeacefulHills.Extensions;
+using PeacefulHills.Network.Packet;
 using PeacefulHills.Network.Profiling;
 using Unity.Entities;
-using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
@@ -13,8 +13,8 @@ namespace PeacefulHills.Network
         protected override void OnCreate()
         {
             _connectionsQuery = GetEntityQuery(
-                ComponentType.ReadOnly<ConnectionWrapper>(),
-                ComponentType.ReadOnly<NetworkReceiveBufferPool>());
+                ComponentType.ReadOnly<DriverConnection>(),
+                ComponentType.ReadOnly<PacketAgentsPool>());
         }
 
         protected override void OnUpdate()
@@ -23,9 +23,9 @@ namespace PeacefulHills.Network
 
             var receiveJob = new NetworkReceiveJob
             {
-                ReceiveBufferPoolHandle = GetBufferTypeHandle<NetworkReceiveBufferPool>(true),
-                ConnectionsHandle = GetComponentTypeHandle<ConnectionWrapper>(true),
-                ReceiveBufferFromEntity = GetBufferFromEntity<NetworkReceiveBuffer>(),
+                PacketAgentPoolHandle = GetBufferTypeHandle<PacketAgentsPool>(true),
+                ConnectionLinksHandle = GetComponentTypeHandle<DriverConnection>(true),
+                ReceiveBufferFromEntity = GetBufferFromEntity<PacketReceiveBuffer>(),
                 Driver = driver.Concurrent,
                 BytesReceivedCounter = NetworkProfilerCounters.BytesReceived
             };

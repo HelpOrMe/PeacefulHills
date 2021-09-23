@@ -4,6 +4,9 @@ using Unity.Networking.Transport;
 
 namespace PeacefulHills.Network
 {
+    /// <summary>
+    /// System that disconnect and destroy all connections with <see cref="ConnectionInterrupt"/> tag. 
+    /// </summary>
     [UpdateInGroup(typeof(ConnectionSimulationGroup))]
     public class ConnectionInterruptingSystem : SystemBase
     {
@@ -24,13 +27,15 @@ namespace PeacefulHills.Network
             driver.Dependency = Entities
                .WithName("Interrupt_connections")
                .WithAll<ConnectionInterrupt>()
-               .ForEach((Entity entity, ref ConnectionWrapper connection) =>
+               .ForEach((Entity entity, ref DriverConnection connection) =>
                 {
                     if (!connection.Value.IsCreated)
                     {
                         currentDriver.Disconnect(connection.Value);
                     }
+                    
                     commandBuffer.DestroyEntity(entity);
+                    
                 })
                .Schedule(driver.Dependency);
 

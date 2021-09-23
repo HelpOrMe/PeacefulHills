@@ -28,7 +28,8 @@ namespace PeacefulHills.Extensions
             WorldExtension<TExtension>.Remove(world.SequenceNumber);
         }
 
-        public static void RequestExtension<TExtension>(this World world, WorldExtension<TExtension>.RequestAction request)
+        public static void RequestExtension<TExtension>(this World world, 
+            WorldExtension<TExtension>.RequestAction request)
             where TExtension : IWorldExtension
         {
             WorldExtension<TExtension>.Request(world.SequenceNumber, request);

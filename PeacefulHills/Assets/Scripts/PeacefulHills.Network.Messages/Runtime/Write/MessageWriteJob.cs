@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿using PeacefulHills.Network.Packet;
+using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 
@@ -12,8 +13,8 @@ namespace PeacefulHills.Network.Messages
         [ReadOnly] public EntityTypeHandle EntityHandle;
         [ReadOnly] public ComponentTypeHandle<TMessage> MessageHandle;
         [ReadOnly] public ComponentTypeHandle<MessageTarget> TargetHandle;
-        [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<Entity> Connections;
-        [NativeDisableParallelForRestriction] public BufferFromEntity<MessagesSendBuffer> MessagesBufferFromEntity;
+        [ReadOnly] [DeallocateOnJobCompletion] public NativeArray<Entity> PacketRSArray;
+        [NativeDisableParallelForRestriction] public BufferFromEntity<PacketSendBuffer> MessagesBufferFromEntity;
 
         public MessagesScheduler<TMessage, TMessageSerializer> Scheduler;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
@@ -43,7 +44,7 @@ namespace PeacefulHills.Network.Messages
             }
         }
 
-        public void Write(Entity entity, MessageTarget target, TMessage message, int sortKey)
+        private void Write(Entity entity, MessageTarget target, TMessage message, int sortKey)
         {
             CommandBuffer.DestroyEntity(sortKey, entity);
 
@@ -54,14 +55,14 @@ namespace PeacefulHills.Network.Messages
                     throw new NetworkSimulationException("Unable to send message to connection without messages buffer");
                 }
 
-                DynamicBuffer<MessagesSendBuffer> buffer = MessagesBufferFromEntity[target.Connection];
+                DynamicBuffer<PacketSendBuffer> buffer = MessagesBufferFromEntity[target.Connection];
                 Scheduler.Schedule(buffer, message);
             }
             else
             {
-                for (int i = 0; i < Connections.Length; i++)
+                for (int i = 0; i < PacketRSArray.Length; i++)
                 {
-                    DynamicBuffer<MessagesSendBuffer> buffer = MessagesBufferFromEntity[Connections[i]];
+                    DynamicBuffer<PacketSendBuffer> buffer = MessagesBufferFromEntity[PacketRSArray[i]];
                     Scheduler.Schedule(buffer, message);
                 }
             }

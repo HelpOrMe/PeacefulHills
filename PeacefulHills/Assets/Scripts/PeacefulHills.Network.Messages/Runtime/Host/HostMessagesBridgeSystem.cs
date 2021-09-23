@@ -5,6 +5,15 @@ using Unity.Entities;
 
 namespace PeacefulHills.Network.Messages
 {
+    /// <summary>
+    /// All packets that was sent to a connection with <see cref="HostConnection"/>
+    /// tag will be directly marked for receiving without serialization and sending.
+    ///
+    /// If the packet was sent to all connections (broadcasting),
+    /// a copy will be created to receive and the host connection
+    /// will be ignored.
+    /// </summary>
+    
     [UpdateInGroup(typeof(MessagesSimulationGroup))]
     [UpdateBefore(typeof(MessagesWriteGroup))]
     public class HostMessagesBridgeSystem : SystemBase
@@ -19,10 +28,11 @@ namespace PeacefulHills.Network.Messages
             var commandBuffer = new EntityCommandBuffer(Allocator.Temp);
 
             Entities
-               .WithName("Convert_host_messages")
+               .WithName("Host_messages_bridge")
                .WithAll<MessageSendRequest>()
                .ForEach((Entity messageEntity, ref MessageTarget target) =>
                 {
+                    // Check for broadcasting
                     if (target.Connection == Entity.Null)
                     {
                         messageEntity = commandBuffer.Instantiate(messageEntity);

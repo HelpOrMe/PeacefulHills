@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using PeacefulHills.Bootstrap;
 using PeacefulHills.Extensions;
+using PeacefulHills.Network.Packet;
 using PeacefulHills.Network.Profiling;
 using PeacefulHills.Testing;
 using Unity.Networking.Transport;
@@ -28,17 +29,17 @@ namespace PeacefulHills.Network.Messages.Tests
             TestMessage testMessage = TestMessage.Random();
             NetworkMessages.Broadcast(Worlds.Current.EntityManager, testMessage);
 
-            BufferQueryMutable<MessagesSendBuffer> sendBufferMutable = Entities.Buffer<MessagesSendBuffer>();
-            await Wait.For(() => sendBufferMutable.Buffer.Length > 1);
+            var send = Entities.Buffer<PacketSendBuffer, MessagePacketAgent>();
+            await Wait.For(() => send.Buffer.Length > 1);
             
-            var sendBytesReader = new DataStreamReader(sendBufferMutable.Buffer.AsBytes());
+            var sendBytesReader = new DataStreamReader(send.Buffer.AsBytes());
             sendBytesReader.ReadByte(); // Ignore package id
             sendBytesReader.ReadUShort(); // Ignore message id
 
             TestMessage testMessageToSend = default(TestMessageSerializer).Deserialize(ref sendBytesReader);
             Assert.AreEqual(testMessage, testMessageToSend);
             
-            sendBufferMutable.Buffer.ResizeUninitialized(1);
+            send.Buffer.ResizeUninitialized(1);
             Systems.Enable<MessagesSendSystem>();
         }
         
@@ -54,16 +55,16 @@ namespace PeacefulHills.Network.Messages.Tests
             Worlds.Select("Client world №1");
             Systems.Disable<MessagesReadSystem>();
             
-            BufferQueryMutable<NetworkReceiveBuffer> receiveBufferMutable = Entities.Buffer<NetworkReceiveBuffer>();
-            await Wait.For(() => receiveBufferMutable.Buffer.Length > 1);
+            var receive = Entities.Buffer<PacketReceiveBuffer, MessagePacketAgent>();
+            await Wait.For(() => receive.Buffer.Length > 1);
             
-            var receivedBytesReader = new DataStreamReader(receiveBufferMutable.Buffer.AsBytes());
+            var receivedBytesReader = new DataStreamReader(receive.Buffer.AsBytes());
             receivedBytesReader.ReadUShort(); // Ignore message id
 
             TestMessage testMessageToSend = default(TestMessageSerializer).Deserialize(ref receivedBytesReader);
             Assert.AreEqual(testMessage, testMessageToSend);
             
-            receiveBufferMutable.Buffer.Clear();
+            receive.Buffer.Clear();
             Systems.Enable<MessagesReadSystem>();
         }
     }
