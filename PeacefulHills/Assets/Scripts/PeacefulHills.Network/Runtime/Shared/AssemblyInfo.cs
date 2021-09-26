@@ -1,3 +1,3 @@
-﻿using PeacefulHills.Bootstrap;
+﻿using PeacefulHills.Bootstrap.Index;
 
-[assembly: BootstrapAssemblyIndex]
+[assembly: BootstrapIndexAssembly]

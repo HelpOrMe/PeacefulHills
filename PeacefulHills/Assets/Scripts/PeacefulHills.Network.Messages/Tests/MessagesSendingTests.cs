@@ -15,8 +15,8 @@ namespace PeacefulHills.Network.Messages.Tests
         public void Setup()
         {
             Worlds.Destroy();
-            WorldBootstraps.ForceInitialize<DefaultWorldBootstrap>();
-            WorldBootstraps.ForceInitialize<SplitNetworkWorld>();
+            // WorldBootstraps.ForceInitialize<DefaultWorldBootstrap>(); todo:
+            // WorldBootstraps.ForceInitialize<SplitNetworkWorld>(); todo:
         }
         
         [TestAsync]

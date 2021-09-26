@@ -1,0 +1,17 @@
+{
+    "name": "PeacefulHills.Bootstrap.Editor",
+    "rootNamespace": "PeacefulHills.Bootstrap.Editor",
+    "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:ab175dc00a06e0240b3ad1d044fbba49"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
