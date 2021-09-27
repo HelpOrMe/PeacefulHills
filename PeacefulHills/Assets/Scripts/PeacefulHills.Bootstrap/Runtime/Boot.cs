@@ -9,7 +9,7 @@ using UnityEditor;
 
 namespace PeacefulHills.Bootstrap
 {
-    [BootName("Root")]
+    [BootNamed("Root")]
     public class Boot : IBoot
     {
         public static IBootBranch Root { get; private set; }
@@ -17,7 +17,9 @@ namespace PeacefulHills.Bootstrap
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterAssembliesLoaded)]
         private static void Run()
         {
+            #if !UNITY_EDITOR
             Build();
+            #endif
             Root.PropagateInvoke();
         }
         

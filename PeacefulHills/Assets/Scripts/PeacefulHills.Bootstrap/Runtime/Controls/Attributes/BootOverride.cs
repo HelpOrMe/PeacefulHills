@@ -3,13 +3,13 @@
 namespace PeacefulHills.Bootstrap
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface)]
-    public class BootName : Attribute, IBootName
+    public class BootOverride : Attribute, IBootOverride
     {
-        public string Name { get; }
+        public Type Type { get; }
 
-        public BootName(string name)
+        public BootOverride(Type type)
         {
-            Name = name;
+            Type = type;
         }
     }
 }

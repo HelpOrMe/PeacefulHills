@@ -22,6 +22,13 @@ namespace PeacefulHills.Bootstrap.Tree
             Controls = GatherControls(type);
         }
 
+        public BootInfo(Type type, IBoot operand, IBootControl[] controls)
+        {
+            Type = type;
+            Operand = operand;
+            Controls = controls;
+        }
+
         private IBootControl[] GatherControls(Type type)
         {
             var controls = new List<IBootControl>();
@@ -41,7 +48,21 @@ namespace PeacefulHills.Bootstrap.Tree
 
             return controls.ToArray();
         }
-        
+
+        public IEnumerable<Type> FindControlTypes()
+        {
+            foreach (IBootControl control in Controls)
+            {
+                foreach (Type controlInterface in control.GetType().GetInterfaces())
+                {
+                    if (typeof(IBootControl).IsAssignableFrom(controlInterface))
+                    {
+                        yield return controlInterface;
+                    }
+                }
+            }
+        }
+
         public bool HasControl<TControl>() where TControl : IBootControl
         {
             return Controls.Any(c => c is TControl);
@@ -51,20 +72,60 @@ namespace PeacefulHills.Bootstrap.Tree
         {
             return (TControl) Controls.FirstOrDefault(c => c is TControl);
         }
-        
+
+        public void RequestControl<TControl>(Action<TControl> controlHandle) where TControl : IBootControl
+        {
+            if (TryGetControl(out TControl control))
+            {
+                controlHandle(control);
+            }
+        }
+
         public bool TryGetControl<TControl>(out TControl control) where TControl : IBootControl
         {
             control = (TControl) Controls.FirstOrDefault(c => c is TControl);
             return control != null;
         }
 
-        public void RequestControl<TControl>(Action<TControl> controlHandle) where TControl : IBootControl
+        public void RequestGenericControl<TControl>(Action<IBootControl> controlHandle) where TControl : IBootControl
         {
-            var control = (TControl) Controls.FirstOrDefault(c => c is TControl);
-
-            if (control != null)
+            if (TryGetGenericControl<TControl>(out IBootControl control))
             {
                 controlHandle(control);
+            }
+        }
+
+        public bool TryGetGenericControl<TControl>(out IBootControl control) where TControl : IBootControl
+        {
+            Type type = typeof(TControl).GetGenericTypeDefinition();
+            
+            control = Controls.FirstOrDefault(c => c
+                .GetType()
+                .GetInterfaces()
+                .Any(i => i.IsGenericType 
+                          && i.GetGenericTypeDefinition() == type));
+            
+            return control != null;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public bool Equals(BootInfo other)
+        {
+            return Type.Name == other.Type.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = (Type != null ? Type.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Operand != null ? Operand.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Controls != null ? Controls.GetHashCode() : 0);
+                return hashCode;
             }
         }
     }

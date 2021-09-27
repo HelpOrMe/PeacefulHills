@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace PeacefulHills.Bootstrap.Tree
 {
@@ -15,7 +14,7 @@ namespace PeacefulHills.Bootstrap.Tree
                 child.NestBranchesRecursively();
             }
         }
-        
+
         public static void NestBranches(this IBootBranch root)
         {
             if (root.Children.Count == 0)
@@ -25,10 +24,20 @@ namespace PeacefulHills.Bootstrap.Tree
             
             var lookup = new Dictionary<Type, IBootBranch>();
 
-            
             foreach (IBootBranch child in root.Children)
             {
                 lookup[child.Boot.Type] = child;
+            }
+         
+            foreach (IBootBranch child in lookup.Values.ToList())
+            {
+                if (child.Boot.TryGetControl(out IBootOverride overrideCtrl) 
+                    && lookup.ContainsKey(overrideCtrl.Type))
+                {
+                    root.Children.Remove(lookup[overrideCtrl.Type]);
+                    lookup[overrideCtrl.Type] = child;
+                    lookup.Remove(child.Boot.Type);
+                }
             }
             
             foreach (IBootBranch child in lookup.Values)

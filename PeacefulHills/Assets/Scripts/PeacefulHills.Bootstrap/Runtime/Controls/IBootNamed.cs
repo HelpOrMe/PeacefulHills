@@ -1,6 +1,6 @@
 ﻿namespace PeacefulHills.Bootstrap
 {
-    public interface IBootName : IBootControl
+    public interface IBootNamed : IBootControl
     {
         public string Name { get; }
     }
