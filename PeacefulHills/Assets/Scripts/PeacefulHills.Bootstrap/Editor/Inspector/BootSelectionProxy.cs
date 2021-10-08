@@ -1,25 +1,28 @@
 ﻿using System;
-using PeacefulHills.Bootstrap.Tree;
 using UnityEditor;
 using UnityEngine;
 
 namespace PeacefulHills.Bootstrap.Editor
 {
+    /// <summary>
+    /// Special scriptable object that stores information about the selected bootstrap
+    /// in the <see cref="BootstrapWindow"/> and draws information about it when it is open in the inspector.
+    /// </summary>
     [Serializable]
     public class BootSelectionProxy : ScriptableObject, ISerializationCallbackReceiver
     {        
-        public BootInfo Boot { get; private set; }
+        public Boot Boot { get; private set; }
 
         [SerializeField] private string bootTypeName;
         
-        public static void Select(BootInfo boot)
+        public static void Select(Boot boot)
         {
             Undo.IncrementCurrentGroup();
             Undo.SetCurrentGroupName("Select Boot");
             CreateInstance(boot).Select();
         }
         
-        public static BootSelectionProxy CreateInstance(BootInfo boot)
+        public static BootSelectionProxy CreateInstance(Boot boot)
         {
             var proxy = CreateInstance<BootSelectionProxy>();
             proxy.hideFlags = HideFlags.HideAndDontSave;
@@ -29,7 +32,7 @@ namespace PeacefulHills.Bootstrap.Editor
             return proxy;
         }
 
-        private void Initialize(BootInfo boot)
+        private void Initialize(Boot boot)
         {
             Boot = boot;
         }
@@ -41,7 +44,7 @@ namespace PeacefulHills.Bootstrap.Editor
                 return;
 
             // Don not reselect the same boot
-            if (Selection.activeObject is BootSelectionProxy selectionProxy && selectionProxy.Boot.Type == Boot.Type)
+            if (Selection.activeObject is BootSelectionProxy selectionProxy && selectionProxy.Boot == Boot)
                 return;
 
             Selection.activeObject = this;
@@ -49,14 +52,18 @@ namespace PeacefulHills.Bootstrap.Editor
 
         public void OnBeforeSerialize()
         {
-            bootTypeName = Boot.Type?.AssemblyQualifiedName;
+            bootTypeName = Boot?.GetType().AssemblyQualifiedName;
         }
 
         public void OnAfterDeserialize()
         {
             if (!string.IsNullOrEmpty(bootTypeName))
             {
-                Boot = new BootInfo(Type.GetType(bootTypeName));
+                var type = Type.GetType(bootTypeName);
+                if (type != null)
+                {
+                    Boot = (Boot)Activator.CreateInstance(Type.GetType(bootTypeName)!);
+                }
             }
         }
     }

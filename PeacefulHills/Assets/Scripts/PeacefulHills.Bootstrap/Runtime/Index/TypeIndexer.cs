@@ -6,60 +6,54 @@ namespace PeacefulHills.Bootstrap.Index
 {
     public static class TypeIndexer
     {
-        public static Type[] IndexInherited<T>() where T : class
+        /// <summary>
+        /// Index types that implements TBase.
+        /// </summary>
+        public static IEnumerable<Type> IndexImplementation<TBase>()
         {
-            var types = new List<Type>();
-            IndexInherited<T>(types);
-            return types.ToArray();
+            return IndexImplementation(typeof(TBase));
         }
         
-        public static void IndexInherited<T>(List<Type> output) where T : class
+        /// <summary>
+        /// Index types that implements <paramref name="targetBase"/>.
+        /// </summary>
+        public static IEnumerable<Type> IndexImplementation(Type targetBase)
         {
-            IndexInherited<T>(AppDomain.CurrentDomain, output);
-        }
-        
-        public static void IndexInherited<T>(AppDomain domain, List<Type> output) where T : class
-        {
-            Index(domain, t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract, output);
-        }
-        
-        public static void IndexInherited<T>(Assembly assembly, List<Type> output) where T : class
-        {
-            Index(assembly, t => typeof(T).IsAssignableFrom(t) && !t.IsAbstract, output);
-        }
-        
-        public static IEnumerable<Type> Index(Func<Type, bool> filter)
-        {
-            var types = new List<Type>();
-            Index(AppDomain.CurrentDomain, filter, types);
-            return types.ToArray();
-        }
-        
-        public static void Index(Func<Type, bool> filter, List<Type> output)
-        {
-            Index(AppDomain.CurrentDomain, filter, output);
-        }
-        
-        public static void Index(AppDomain domain, Func<Type, bool> filter, List<Type> output)
-        {
-            foreach (Assembly assembly in domain.GetAssemblies())
+            foreach (Type type in Index())
             {
-                if (assembly.GetCustomAttribute<BootstrapIndexAssemblyAttribute>() != null)
+                if (!type.IsAbstract && targetBase.IsAssignableFrom(type))
                 {
-                    Index(assembly, filter, output);
+                    yield return type;
                 }
             }
         }
 
-        public static void Index(Assembly assembly, Func<Type, bool> filter, List<Type> output)
+        public static IEnumerable<Type> Index()
+        {
+            return Index(AppDomain.CurrentDomain);
+        }
+        
+        public static IEnumerable<Type> Index(AppDomain domain)
+        {
+            foreach (Assembly assembly in domain.GetAssemblies())
+            {
+                if (assembly.GetCustomAttribute<BootstrapIndexAssemblyAttribute>() == null)
+                {
+                    continue;
+                }
+                
+                foreach (Type type in assembly.GetTypes())
+                {
+                    yield return type;
+                }
+            }
+        }
+
+        public static IEnumerable<Type> Index(Assembly assembly)
         {
             foreach (Type type in assembly.GetTypes())
             {
-                if (type.GetCustomAttribute<NoBootstrapIndexAttribute>() == null 
-                    && filter(type))
-                {
-                    output.Add(type);
-                }
+                yield return type;
             }
         }
     }

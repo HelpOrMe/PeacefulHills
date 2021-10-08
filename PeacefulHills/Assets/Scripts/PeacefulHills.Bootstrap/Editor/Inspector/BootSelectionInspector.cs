@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using PeacefulHills.Bootstrap.Tree;
 using UnityEditor;
 using UnityEngine;
 
@@ -20,26 +19,29 @@ namespace PeacefulHills.Bootstrap.Editor
 
         protected override void OnHeaderGUI()
         {
-            BootInfo boot = ((BootSelectionProxy)target).Boot;
+            Boot boot = ((BootSelectionProxy)target).Boot;
 
+            // Default style of the header content in the inspector
             _headerStyle ??= "IN BigTitle";
             
             GUILayout.BeginVertical(_headerStyle);
-            EditorGUILayout.LabelField(new GUIContent(boot.Type.Name, Icons.Boot16X), EditorStyles.largeLabel);
+            EditorGUILayout.LabelField(new GUIContent(boot.GetType().Name, Icons.Boot16X), EditorStyles.largeLabel);
             GUILayout.Space(2f);
 
             using (new EditorGUI.DisabledScope(true))
             {
                 EditorGUILayout.BeginHorizontal();
                 int i = 0;
-                foreach (Type controlType in boot.FindControlTypes())
+                foreach (IBootInstruction instruction in boot.Instructions)
                 {
+                    // Separate items by 2 in a row
                     if (i++ % 2 == 0)
                     {
                         EditorGUILayout.EndHorizontal();
                         EditorGUILayout.BeginHorizontal();
                     }
-                    GUILayout.TextField(controlType.Name, GUILayout.MinWidth(40f), GUILayout.ExpandWidth(true));
+                    GUILayout.TextField(
+                        instruction.GetType().Name, GUILayout.MinWidth(40f), GUILayout.ExpandWidth(true));
                 }
                 EditorGUILayout.EndHorizontal();
             }
@@ -49,21 +51,23 @@ namespace PeacefulHills.Bootstrap.Editor
 
         public override void OnInspectorGUI()
         {
-            BootInfo boot = ((BootSelectionProxy)target).Boot;
+            Boot boot = ((BootSelectionProxy)target).Boot;
 
-            if (boot.TryGetGenericControl<IBootConfigurable<object>>(out IBootControl ctrl))
-            {
-                Type ctrlType = ctrl.GetType();
-                PropertyInfo property = ctrlType.GetProperty("Config");
-                object fieldValue = _configs.ContainsKey(ctrlType) ? _configs[ctrlType] : property!.GetValue(ctrl);
+            Type bootType = boot.GetType();
+            if (!bootType.IsGenericTypeDefinition) return;
+            
+            PropertyInfo property = bootType.GetProperty("Config");
+            if (property == null) return;
+            
+            GUILayout.Space(10f);
+            object propertyValue = _configs.ContainsKey(bootType) ? _configs[bootType] : property!.GetValue(boot);
                 
-                GUI.enabled = true;
-                EditorGUIType.DrawFields(property!.PropertyType, ref fieldValue);
-                GUI.enabled = false;
-                
-                property.SetValue(ctrl, fieldValue);
-                _configs[ctrlType] = fieldValue;
-            }
+            GUI.enabled = true;
+            EditorGUIType.DrawTypeFields(property!.PropertyType, ref propertyValue);
+            GUI.enabled = false;
+            
+            property.SetValue(boot, propertyValue);
+            _configs[bootType] = propertyValue;
         }
     }
 }

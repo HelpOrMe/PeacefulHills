@@ -2,8 +2,9 @@
     "name": "PeacefulHills.Bootstrap.Worlds",
     "rootNamespace": "PeacefulHills.Bootstrap.Worlds",
     "references": [
+        "GUID:734d92eba21c94caba915361bd5ac177",
         "GUID:ab175dc00a06e0240b3ad1d044fbba49",
-        "GUID:734d92eba21c94caba915361bd5ac177"
+        "GUID:8d04bd15f5e4a30418dfdc6c68c8c58a"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

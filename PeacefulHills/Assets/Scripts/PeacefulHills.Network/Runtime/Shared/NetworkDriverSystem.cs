@@ -1,5 +1,6 @@
 ﻿using PeacefulHills.Extensions;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace PeacefulHills.Network
 {
@@ -13,6 +14,7 @@ namespace PeacefulHills.Network
 
         protected override void OnUpdate()
         {
+            math.mul()
             var driver = World.GetExtension<INetworkDriverInfo>();
             driver.Dependency.Complete();
             driver.Dependency = driver.Current.ScheduleUpdate();

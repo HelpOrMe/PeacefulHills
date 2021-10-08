@@ -1,10 +1,10 @@
-﻿using PeacefulHills.Bootstrap;
+﻿using PeacefulHills.Bootstrap.Worlds;
 using PeacefulHills.Network.Profiling;
 using Unity.Entities;
 
 namespace PeacefulHills.Network
 {
-    // [UpdateInWorld(typeof(NetworkWorld))] todo:
+    [UpdateInWorld(typeof(NetworkWorld))]
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public class NetworkInitializationGroup : ComponentSystemGroup
     {
@@ -20,7 +20,7 @@ namespace PeacefulHills.Network
     {
     }
 
-    // [UpdateInWorld(typeof(NetworkWorld))] todo:
+    [UpdateInWorld(typeof(NetworkWorld))]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public class NetworkSimulationGroup : ComponentSystemGroup
     {

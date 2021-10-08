@@ -2,7 +2,11 @@
     "name": "PeacefulHills.Network.Editor",
     "rootNamespace": "PeacefulHills.Network.Editor",
     "references": [
-        "PeacefulHills.Network"
+        "PeacefulHills.Network",
+        "PeacefulHills.Bootstrap",
+        "PeacefulHills.Bootstrap.Editor",
+        "PeacefulHills.Bootstrap.Worlds",
+        "Unity.Entities"
     ],
     "includePlatforms": [
         "Editor"

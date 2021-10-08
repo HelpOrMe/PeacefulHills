@@ -16,6 +16,7 @@ namespace PeacefulHills.Extensions
 
         public static TExtension Get(ulong worldSequenceNumber)
         {
+            //todo: throw on not found
             return Lookup[worldSequenceNumber].Instance;
         }
 

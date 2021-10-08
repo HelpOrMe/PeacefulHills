@@ -7,7 +7,10 @@ namespace PeacefulHills.Bootstrap.Editor
 {
     public static class EditorGUIType
     {
-        public static void DrawFields(Type type, ref object value)
+        /// <summary>
+        /// Draw all fields of the selected type recursively.
+        /// </summary>
+        public static void DrawTypeFields(Type type, ref object value)
         {
             value ??= Activator.CreateInstance(type);
 
@@ -15,11 +18,11 @@ namespace PeacefulHills.Bootstrap.Editor
             {
                 object fieldValue = field.GetValue(value);
                 
-                if (!TryDrawDefaults(field.Name, field.FieldType, ref fieldValue))
+                if (!TryDrawBuiltinField(field.Name, field.FieldType, ref fieldValue))
                 {
                     EditorGUILayout.LabelField(field.Name, EditorStyles.boldLabel);
                     EditorGUI.indentLevel++;
-                    DrawFields(field.FieldType, ref fieldValue);
+                    DrawTypeFields(field.FieldType, ref fieldValue);
                     EditorGUI.indentLevel--;
                 }
                 
@@ -27,14 +30,20 @@ namespace PeacefulHills.Bootstrap.Editor
             }
         }
 
-        public static bool TryDrawDefaults(
+        /// <summary>
+        /// Try to draw the field of the selected type.
+        /// </summary>
+        public static bool TryDrawBuiltinField(
             string label, Type type, ref object value,
             GUIStyle style = null, params GUILayoutOption[] options)
         {
-            return TryDrawDefaults(new GUIContent(label), type, ref value, style, options);
+            return TryDrawBuiltinField(new GUIContent(label), type, ref value, style, options);
         }
         
-        public static bool TryDrawDefaults(
+        /// <summary>
+        /// Try to draw the field of the selected type.
+        /// </summary>
+        public static bool TryDrawBuiltinField(
             GUIContent label, Type type, ref object value, 
             GUIStyle style = null, params GUILayoutOption[] options)
         {
